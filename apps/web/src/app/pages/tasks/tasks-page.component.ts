@@ -178,6 +178,13 @@ interface Task {
               [(ngModel)]="currentTask.title"
               placeholder="What needs to be done?"
               aria-label="Task title"
+            />
+          </mat-form-field>
+
+          <mat-form-field appearance="outline">
+            <mat-label>Priority</mat-label>
+            <mat-select [(ngModel)]="currentTask.priority">
+              <mat-option value="Low">Low</mat-option>
               <mat-option value="Medium">Medium</mat-option>
               <mat-option value="High">High</mat-option>
             </mat-select>

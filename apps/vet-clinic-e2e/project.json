@@ -1,0 +1,10 @@
+{
+  "name": "vet-clinic-e2e",
+  "$schema": "../../node_modules/nx/schemas/project-schema.json",
+  "projectType": "application",
+  "sourceRoot": "apps/vet-clinic-e2e/src",
+  "tags": [],
+  "implicitDependencies": ["vet-clinic"],
+  "// targets": "to see all targets run: nx show project vet-clinic-e2e --web",
+  "targets": {}
+}

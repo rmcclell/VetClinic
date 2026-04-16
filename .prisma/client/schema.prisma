@@ -1,0 +1,120 @@
+// This is your Prisma schema file,
+// learn more about it in the docs: https://pris.ly/d/prisma-schema
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "sqlite"
+  url      = env("DATABASE_URL")
+}
+
+model Client {
+  id                    Int           @id @default(autoincrement())
+  firstName             String
+  lastName              String
+  email                 String?
+  phone                 String?
+  secondaryPhone        String?
+  address               String?
+  emergencyContactName  String?
+  emergencyContactPhone String?
+  notes                 String?
+  dob                   DateTime?
+  gender                String?
+  driverLicenseState    String?
+  driverLicenseNumber   String?
+  driverLicenseExp      String?
+  clientType            String?
+  active                Boolean       @default(true)
+  createdAt             DateTime      @default(now())
+  updatedAt             DateTime      @updatedAt
+  pets                  Patient[]
+  appointments          Appointment[]
+}
+
+model Patient {
+  id              Int       @id @default(autoincrement())
+  name            String
+  species         String
+  breed           String?
+  sex             String?
+  weight          Float?
+  microchipNumber String?
+  color           String?
+  birthDate       DateTime?
+  notes           String?
+
+  clientId Int
+  client   Client  @relation(fields: [clientId], references: [id])
+  photoUrl String?
+
+  rabiesTag         String?
+  preferredProvider String?
+  referralSource    String?
+
+  visits       Visit[]
+  appointments Appointment[]
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+}
+
+model Vet {
+  id     Int     @id @default(autoincrement())
+  name   String
+  email  String  @unique
+  visits Visit[]
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+}
+
+model Visit {
+  id    Int      @id @default(autoincrement())
+  date  DateTime @default(now())
+  notes String
+
+  patientId Int
+  patient   Patient @relation(fields: [patientId], references: [id])
+
+  vetId Int
+  vet   Vet @relation(fields: [vetId], references: [id])
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+}
+
+model Appointment {
+  id          Int      @id @default(autoincrement())
+  startTime   DateTime
+  endTime     DateTime
+  description String?
+  status      String   @default("Scheduled") // Scheduled, Completed, Cancelled
+
+  clientId Int
+  client   Client @relation(fields: [clientId], references: [id])
+
+  patientId Int
+  patient   Patient @relation(fields: [patientId], references: [id])
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+}
+
+model ClinicConfig {
+  id               Int      @id @default(1)
+  name             String   @default("VetClinic")
+  logoUrl          String?
+  email            String?
+  phone            String?
+  address          String?
+  units            String   @default("metric") // metric, imperial
+  dateFormat       String   @default("MM/dd/yyyy")
+  hoursOfOperation String?
+  websiteUrl       String?
+  taxRate          Float    @default(0.0)
+  createdAt        DateTime @default(now())
+  updatedAt        DateTime @updatedAt
+}

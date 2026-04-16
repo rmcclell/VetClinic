@@ -1,0 +1,9 @@
+# Add files here to ignore them from prettier formatting
+/.nx
+/.angular
+/.prisma
+.cache
+/dist
+/coverage
+node_modules
+out-tsc

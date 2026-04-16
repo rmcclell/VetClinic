@@ -123,6 +123,8 @@ interface Message {
                     [class.shadow-sm]="selectedMessage?.id === msg.id"
                     [class.border-l-4]="selectedMessage?.id === msg.id"
                     [class.border-primary]="selectedMessage?.id === msg.id"
+                    [attr.aria-pressed]="selectedMessage?.id === msg.id"
+                    [attr.aria-label]="(msg.isRead ? '' : 'Unread. ') + 'From ' + msg.sender + ': ' + msg.subject + (msg.petName ? ', regarding patient ' + msg.petName : '') + ' — ' + msg.date"
                     class="mb-0.5 border-b border-outline last:border-b-0 h-auto py-3"
                   >
                     <div

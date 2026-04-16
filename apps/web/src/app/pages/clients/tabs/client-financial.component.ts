@@ -55,7 +55,7 @@ import { DATE_FORMAT } from '../../../core/date-format.token';
       <!-- Action Bar -->
       <div class="flex justify-end gap-3">
         <button mat-stroked-button color="primary">
-          More Actions <mat-icon iconPositionEnd>expand_more</mat-icon>
+          More Actions <mat-icon iconPositionEnd aria-hidden="true">expand_more</mat-icon>
         </button>
         <button mat-raised-button color="primary">Take Payment</button>
       </div>
@@ -96,7 +96,7 @@ import { DATE_FORMAT } from '../../../core/date-format.token';
             subscriptSizing="dynamic"
             class="w-64 text-sm ml-4 border-outline"
           >
-            <mat-icon matPrefix class="text-on-surface-variant"
+            <mat-icon matPrefix class="text-on-surface-variant" aria-hidden="true"
               >search</mat-icon
             >
             <input
@@ -327,16 +327,16 @@ import { DATE_FORMAT } from '../../../core/date-format.token';
                 </button>
                 <mat-menu #rowMenu="matMenu">
                   <button mat-menu-item>
-                    <mat-icon>visibility</mat-icon>
+                    <mat-icon aria-hidden="true">visibility</mat-icon>
                     <span>View Invoice</span>
                   </button>
                   <button mat-menu-item>
-                    <mat-icon>receipt_long</mat-icon>
+                    <mat-icon aria-hidden="true">receipt_long</mat-icon>
                     <span>Record Payment</span>
                   </button>
                   <mat-divider></mat-divider>
                   <button mat-menu-item class="text-red-500">
-                    <mat-icon color="warn">delete</mat-icon>
+                    <mat-icon color="warn" aria-hidden="true">delete</mat-icon>
                     <span>Void</span>
                   </button>
                 </mat-menu>

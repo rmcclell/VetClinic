@@ -37,7 +37,7 @@ import { SettingsFormService } from '../settings-form.service';
                 (click)="fileInput.click()"
                 aria-label="Edit Clinic Logo"
               >
-                <mat-icon class="text-white">edit</mat-icon>
+                <mat-icon class="text-white" aria-hidden="true">edit</mat-icon>
               </button>
             } @else {
               <mat-icon

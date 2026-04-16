@@ -71,7 +71,7 @@ import { Observable, switchMap } from 'rxjs';
         </h3>
         <mat-form-field appearance="outline">
           <mat-label>Email Address</mat-label>
-          <mat-icon matPrefix class="mr-2 opacity-60">email</mat-icon>
+          <mat-icon matPrefix class="mr-2 opacity-60" aria-hidden="true">email</mat-icon>
           <input
             matInput
             formControlName="email"
@@ -86,12 +86,12 @@ import { Observable, switchMap } from 'rxjs';
         <div class="flex flex-col md:flex-row gap-3">
           <mat-form-field class="flex-1" appearance="outline">
             <mat-label>Primary Phone</mat-label>
-            <mat-icon matPrefix class="mr-2 opacity-60">phone</mat-icon>
+            <mat-icon matPrefix class="mr-2 opacity-60" aria-hidden="true">phone</mat-icon>
             <input matInput formControlName="phone" placeholder="555-0123" />
           </mat-form-field>
           <mat-form-field class="flex-1" appearance="outline">
             <mat-label>Secondary Phone</mat-label>
-            <mat-icon matPrefix class="mr-2 opacity-60">phone_iphone</mat-icon>
+            <mat-icon matPrefix class="mr-2 opacity-60" aria-hidden="true">phone_iphone</mat-icon>
             <input
               matInput
               formControlName="secondaryPhone"
@@ -102,7 +102,7 @@ import { Observable, switchMap } from 'rxjs';
 
         <mat-form-field appearance="outline">
           <mat-label>Physical Address</mat-label>
-          <mat-icon matPrefix class="mr-2 opacity-60">place</mat-icon>
+          <mat-icon matPrefix class="mr-2 opacity-60" aria-hidden="true">place</mat-icon>
           <textarea
             matInput
             formControlName="address"
@@ -231,7 +231,7 @@ import { Observable, switchMap } from 'rxjs';
             [disabled]="ownerForm.invalid || ownerForm.pristine"
             (click)="onSave()"
           >
-            <mat-icon>save</mat-icon> Save Changes
+            <mat-icon aria-hidden="true">save</mat-icon> Save Changes
           </button>
         </div>
       </form>

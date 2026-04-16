@@ -145,7 +145,7 @@ export const MOCK_APPOINTMENTS: Appointment[] = [
 export const MOCK_CONFIG: ClinicConfig = {
   id: 1,
   name: 'VetClinic Demo',
-  logoUrl: '/docs/logos/vendor.svg',
+  logoUrl: 'logo.svg',
   email: 'info@vetclinic.demo',
   phone: '555-0000',
   address: '789 Veterinary Way, Springfield, IL 62701',

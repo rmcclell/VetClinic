@@ -227,7 +227,7 @@ import { MatSidenav } from '@angular/material/sidenav';
           <div class="p-4 bg-gray-50/50 dark:bg-slate-800/50 border-t shrink-0">
             <div class="flex flex-col items-center">
               <img
-                src="/vendor.svg"
+                src="vendor.svg"
                 alt="Vendor Logo"
                 class="max-w-full h-auto"
               />

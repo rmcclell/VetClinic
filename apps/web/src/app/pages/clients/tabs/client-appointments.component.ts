@@ -93,16 +93,16 @@ import { DATE_FORMAT } from '../../../core/date-format.token';
 
           <!-- Type Column -->
           <ng-container matColumnDef="type">
-            <th mat-header-cell *matHeaderCellDef mat-sort-header>Type</th>
-            <td mat-cell *matCellDef="let element">
+            <th mat-header-cell *matHeaderCellDef mat-sort-header class="hidden sm:table-cell">Type</th>
+            <td mat-cell *matCellDef="let element" class="hidden sm:table-cell">
               {{ element.type }}
             </td>
           </ng-container>
 
           <!-- Provider Column -->
           <ng-container matColumnDef="provider">
-            <th mat-header-cell *matHeaderCellDef mat-sort-header>Provider</th>
-            <td mat-cell *matCellDef="let element">
+            <th mat-header-cell *matHeaderCellDef mat-sort-header class="hidden sm:table-cell">Provider</th>
+            <td mat-cell *matCellDef="let element" class="hidden sm:table-cell">
               {{ element.provider }}
             </td>
           </ng-container>

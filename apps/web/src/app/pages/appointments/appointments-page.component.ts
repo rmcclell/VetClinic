@@ -58,19 +58,31 @@ interface CalendarDay {
         </div>
       </div>
       <div class="flex gap-3 w-full md:w-auto items-center">
+        <button mat-icon-button class="md:hidden" (click)="sidebarVisible = !sidebarVisible" aria-label="Toggle calendar filters and mini calendar">
+          <mat-icon>tune</mat-icon>
+        </button>
         <button mat-raised-button color="primary" class="h-10" (click)="bookAppointment()">
-          <mat-icon class="mr-2">add</mat-icon> Book Appointment
+          <mat-icon class="mr-2">add</mat-icon>
+          <span class="hidden sm:inline">Book Appointment</span>
+          <span class="sm:hidden">Book</span>
         </button>
       </div>
     </mat-toolbar>
     <div class="flex h-full min-h-0 gap-6 mt-6">
-      
+      @if (sidebarVisible) {
+        <div class="fixed inset-0 bg-black/40 z-30 md:hidden" (click)="sidebarVisible = false" aria-hidden="true"></div>
+      }
       <!-- Left Sidebar (Mini Calendar & Filters) -->
-      <aside class="w-72 shrink-0 flex flex-col gap-6 min-h-0" aria-label="Calendar sidebar">
+      <aside class="w-72 shrink-0 flex-col gap-6 min-h-0 hidden md:flex
+                    fixed md:static top-0 left-0 h-full z-40 md:z-auto
+                    bg-surface md:bg-transparent p-4 md:p-0
+                    overflow-y-auto md:overflow-visible shadow-xl md:shadow-none"
+             [style.display]="sidebarVisible ? 'flex' : null"
+             aria-label="Calendar sidebar">
 
 
         <mat-card class="p-2 border-none shadow-sm">
-          <mat-calendar [selected]="selectedDate$ | async" (selectedChange)="onDateSelect($event)"></mat-calendar>
+          <mat-calendar aria-label="Mini calendar for date navigation" [selected]="selectedDate$ | async" (selectedChange)="onDateSelect($event)"></mat-calendar>
         </mat-card>
 
         <mat-card class="flex-1 p-4 shadow-sm min-h-0">
@@ -93,9 +105,9 @@ interface CalendarDay {
       <section class="flex-1 flex flex-col bg-surface rounded-xl border border-outline overflow-hidden" aria-label="Appointments calendar">
         
         <!-- Calendar Header -->
-        <header class="p-4 border-b border-outline flex items-center justify-between bg-surface-variant">
-          <div class="flex items-center gap-4">
-            <h2 class="text-xl font-bold text-on-surface m-0 min-w-50">
+        <header class="p-4 border-b border-outline flex flex-wrap items-center gap-2 justify-between bg-surface-variant">
+          <div class="flex items-center gap-2 flex-wrap">
+            <h2 class="text-xl font-bold text-on-surface m-0">
               {{viewTitle$ | async}}
             </h2>
             <div class="flex bg-surface rounded-lg border border-outline p-1">
@@ -140,7 +152,7 @@ interface CalendarDay {
                   </div>
                   <div class="flex-1 flex flex-col gap-1 overflow-hidden">
                     @for (apt of day.appointments; track apt.id) {
-                      <button class="text-[10px] p-1 rounded truncate shadow-sm cursor-pointer w-full text-left border-none"
+                      <button class="text-xs p-1 rounded truncate shadow-sm cursor-pointer w-full text-left border-none"
                            [style.background-color]="getStatusColor(apt.status)"
                            (click)="editAppointment(apt)"
                            [attr.aria-label]="getTimeLabel(apt.startTime) + ' - ' + apt.patient?.name">
@@ -160,7 +172,7 @@ interface CalendarDay {
                 <div class="w-16 shrink-0 border-r bg-surface-variant">
                   <div class="h-10 border-b"></div>
                   @for (hour of hours; track hour) {
-                    <div class="h-20 text-[10px] text-on-surface-variant text-center pt-2 border-b">{{hour}}:00</div>
+                    <div class="h-20 text-xs text-on-surface-variant text-center pt-2 border-b">{{hour}}:00</div>
                   }
                 </div>
                 
@@ -186,8 +198,8 @@ interface CalendarDay {
                                  [style.height]="getDurationHeight(apt.startTime, apt.endTime)"
                                  (click)="editAppointment(apt)"
                                  [attr.aria-label]="apt.patient?.name + ': ' + (apt.client?.firstName || '') + ' ' + (apt.client?.lastName || '') + ' - ' + getTimeLabel(apt.startTime)">
-                              <div class="text-[10px] font-bold text-on-surface">{{apt.patient?.name}}</div>
-                              <div class="text-[9px] text-on-surface-variant truncate">{{apt.client?.firstName}} {{apt.client?.lastName}}</div>
+                              <div class="text-xs font-bold text-on-surface">{{apt.patient?.name}}</div>
+                              <div class="text-[10px] text-on-surface-variant truncate">{{apt.client?.firstName}} {{apt.client?.lastName}}</div>
                             </button>
                           }
                         </div>
@@ -228,6 +240,8 @@ export class AppointmentsPageComponent implements OnInit, OnDestroy {
   private appointmentsService = inject(AppointmentsService);
   private dialog = inject(MatDialog);
   private sub = new Subscription();
+
+  sidebarVisible = false;
 
   selectedDate$ = new BehaviorSubject<Date>(new Date());
   viewMode$ = new BehaviorSubject<ViewMode>('week');
@@ -334,6 +348,7 @@ export class AppointmentsPageComponent implements OnInit, OnDestroy {
   bookAppointment(): void {
     const dialogRef = this.dialog.open(AppointmentDialogComponent, {
       width: '500px',
+      maxWidth: '95vw',
       data: { date: this.selectedDate$.value },
     });
 
@@ -345,6 +360,7 @@ export class AppointmentsPageComponent implements OnInit, OnDestroy {
   editAppointment(apt: Appointment): void {
     const dialogRef = this.dialog.open(AppointmentDialogComponent, {
       width: '500px',
+      maxWidth: '95vw',
       data: apt,
     });
 

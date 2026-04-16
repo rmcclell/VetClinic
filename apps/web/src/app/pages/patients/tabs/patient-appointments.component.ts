@@ -114,14 +114,14 @@ import { DATE_FORMAT } from '../../../core/date-format.token';
 
           <!-- Time Column -->
           <ng-container matColumnDef="time">
-            <th mat-header-cell *matHeaderCellDef mat-sort-header>Time</th>
-            <td mat-cell *matCellDef="let element">{{ element.time }}</td>
+            <th mat-header-cell *matHeaderCellDef mat-sort-header class="hidden sm:table-cell">Time</th>
+            <td mat-cell *matCellDef="let element" class="hidden sm:table-cell">{{ element.time }}</td>
           </ng-container>
 
           <!-- Client Column -->
           <ng-container matColumnDef="client">
-            <th mat-header-cell *matHeaderCellDef mat-sort-header>Client</th>
-            <td mat-cell *matCellDef="let element">
+            <th mat-header-cell *matHeaderCellDef mat-sort-header class="hidden sm:table-cell">Client</th>
+            <td mat-cell *matCellDef="let element" class="hidden sm:table-cell">
               <button
                 type="button"
                 class="text-blue-500 hover:underline cursor-pointer bg-transparent border-none p-0"
@@ -162,16 +162,16 @@ import { DATE_FORMAT } from '../../../core/date-format.token';
 
           <!-- Type Column -->
           <ng-container matColumnDef="type">
-            <th mat-header-cell *matHeaderCellDef mat-sort-header>
+            <th mat-header-cell *matHeaderCellDef mat-sort-header class="hidden sm:table-cell">
               Appointment Type
             </th>
-            <td mat-cell *matCellDef="let element">{{ element.type }}</td>
+            <td mat-cell *matCellDef="let element" class="hidden sm:table-cell">{{ element.type }}</td>
           </ng-container>
 
           <!-- Provider Column -->
           <ng-container matColumnDef="provider">
-            <th mat-header-cell *matHeaderCellDef mat-sort-header>Provider</th>
-            <td mat-cell *matCellDef="let element">{{ element.provider }}</td>
+            <th mat-header-cell *matHeaderCellDef mat-sort-header class="hidden sm:table-cell">Provider</th>
+            <td mat-cell *matCellDef="let element" class="hidden sm:table-cell">{{ element.provider }}</td>
           </ng-container>
 
           <!-- Actions Column -->

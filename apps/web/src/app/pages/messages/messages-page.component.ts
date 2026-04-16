@@ -43,18 +43,19 @@ interface Message {
   template: `
     <mat-toolbar class="bg-surface-variant border-b border-outline h-18! px-6">
       <div class="flex gap-3 w-full md:w-auto grow items-center">
-        <div class="bg-surface-variant border border-outline p-2 rounded-lg">
+        <div class="bg-surface-variant border border-outline p-2 rounded-lg" aria-hidden="true">
           <mat-icon class="text-on-surface">mail</mat-icon>
         </div>
         <div>
           <h1 class="text-2xl font-bold text-on-surface m-0">Messages</h1>
-          <p class="text-on-surface-variant text-sm opacity-80">
+          <p class="text-on-surface-variant text-sm opacity-80 hidden sm:block">
             Manage client messages
           </p>
         </div>
         <div class="flex items-center gap-2">
           <span
             class="bg-primary text-on-primary text-xs font-bold px-2 py-0.5 rounded-full"
+            aria-label="3 new messages"
             >3 New</span
           >
           <mat-button-toggle-group
@@ -82,8 +83,9 @@ interface Message {
         >
           <mat-icon aria-hidden="true">settings</mat-icon>
         </button>
-        <button mat-raised-button color="primary" class="h-10">
-          <mat-icon class="mr-2">edit</mat-icon> Compose
+        <button mat-raised-button color="primary" class="h-10" aria-label="Compose new message">
+          <mat-icon class="mr-2" aria-hidden="true">edit</mat-icon>
+          <span class="hidden sm:inline">Compose</span>
         </button>
       </div>
     </mat-toolbar>
@@ -140,7 +142,7 @@ interface Message {
                         >{{ msg.sender }}</span
                       >
                       <span
-                        class="text-[10px] text-on-surface-variant font-normal uppercase"
+                        class="text-xs text-on-surface-variant font-normal uppercase"
                         >{{ msg.date }}</span
                       >
                     </div>
@@ -175,8 +177,8 @@ interface Message {
         @if (selectedMessage || (isHandset$ | async) === false) {
           <div class="flex-1 bg-surface overflow-y-auto">
             @if (selectedMessage) {
-              <div class="p-8">
-                <div class="flex justify-between items-start mb-8">
+              <div class="p-4 sm:p-8">
+                <div class="flex flex-col sm:flex-row gap-4 sm:justify-between sm:items-start mb-6 sm:mb-8">
                   <div>
                     <h2 class="text-2xl font-bold text-on-surface mb-2">
                       {{ selectedMessage.subject }}
@@ -199,11 +201,11 @@ interface Message {
                       </div>
                     </div>
                   </div>
-                  <div class="text-right">
-                    <p class="text-sm text-on-surface-variant font-medium mb-3">
+                  <div class="flex sm:text-right sm:items-end flex-row sm:flex-col gap-2 sm:gap-0 items-center">
+                    <p class="text-sm text-on-surface-variant font-medium sm:mb-3 m-0">
                       {{ selectedMessage.date }}
                     </p>
-                    <div class="flex gap-1 justify-end">
+                    <div class="flex gap-1 sm:justify-end">
                       <button
                         mat-icon-button
                         class="text-on-surface-variant"

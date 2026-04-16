@@ -39,14 +39,14 @@ import { ClientDialogComponent } from './client-dialog.component';
   template: `
     <mat-toolbar class="bg-surface-variant border-b border-outline h-18! px-6">
       <div class="flex gap-3 w-full md:w-auto grow items-center">
-        <div class="bg-surface-variant border border-outline p-2 rounded-lg">
+        <div class="bg-surface-variant border border-outline p-2 rounded-lg" aria-hidden="true">
           <mat-icon class="text-on-surface">people</mat-icon>
         </div>
         <div>
           <h1 class="text-2xl font-bold text-on-surface m-0">
             Client Directory
           </h1>
-          <p class="text-on-surface-variant text-sm opacity-80">
+          <p class="text-on-surface-variant text-sm opacity-80 hidden sm:block">
             Manage client information
           </p>
         </div>
@@ -62,17 +62,20 @@ import { ClientDialogComponent } from './client-dialog.component';
             matInput
             (keyup)="applyFilter($event)"
             placeholder="Search by name, email, or phone..."
+            aria-label="Filter clients by name, email, or phone"
             #input
           />
-          <mat-icon matSuffix>search</mat-icon>
+          <mat-icon matSuffix aria-hidden="true">search</mat-icon>
         </mat-form-field>
         <button
           mat-raised-button
           color="primary"
           (click)="addOwner()"
           class="h-10"
+          aria-label="Add client"
         >
-          <mat-icon>add</mat-icon> Add Client
+          <mat-icon aria-hidden="true">add</mat-icon>
+          <span class="hidden sm:inline ml-1">Add Client</span>
         </button>
       </div>
     </mat-toolbar>
@@ -107,17 +110,13 @@ import { ClientDialogComponent } from './client-dialog.component';
               <div class="flex flex-col text-sm py-2">
                 @if (client.email) {
                   <span class="flex items-center gap-1">
-                    <mat-icon class="text-xs w-4 h-4 opacity-60"
-                      >email</mat-icon
-                    >
+                    <mat-icon class="text-xs w-4 h-4 opacity-60" aria-hidden="true">email</mat-icon>
                     {{ client.email }}
                   </span>
                 }
                 @if (client.phone) {
                   <span class="flex items-center gap-1">
-                    <mat-icon class="text-xs w-4 h-4 opacity-60"
-                      >phone</mat-icon
-                    >
+                    <mat-icon class="text-xs w-4 h-4 opacity-60" aria-hidden="true">phone</mat-icon>
                     {{ client.phone }}
                   </span>
                 }
@@ -130,14 +129,14 @@ import { ClientDialogComponent } from './client-dialog.component';
               mat-header-cell
               *matHeaderCellDef
               mat-sort-header
-              class="bg-surface-variant text-on-surface-variant font-bold"
+              class="bg-surface-variant text-on-surface-variant font-bold hidden md:table-cell"
             >
               Address
             </th>
             <td
               mat-cell
               *matCellDef="let client"
-              class="max-w-xs truncate"
+              class="hidden md:table-cell max-w-xs truncate"
               [matTooltip]="client.address || ''"
             >
               {{ client.address || '-' }}
@@ -148,11 +147,11 @@ import { ClientDialogComponent } from './client-dialog.component';
             <th
               mat-header-cell
               *matHeaderCellDef
-              class="bg-surface-variant text-on-surface-variant font-bold"
+              class="bg-surface-variant text-on-surface-variant font-bold hidden lg:table-cell"
             >
               Emergency Contact
             </th>
-            <td mat-cell *matCellDef="let client">
+            <td mat-cell *matCellDef="let client" class="hidden lg:table-cell">
               @if (client.emergencyContactName) {
                 <div class="flex flex-col text-sm">
                   <span class="font-medium text-xs opacity-80">{{
@@ -205,6 +204,9 @@ import { ClientDialogComponent } from './client-dialog.component';
             mat-row
             *matRowDef="let row; columns: displayedColumns"
             (click)="viewOwner(row)"
+            (keydown.enter)="viewOwner(row)"
+            tabindex="0"
+            [attr.aria-label]="'View details for ' + row.firstName + ' ' + row.lastName"
             class="hover:bg-surface-variant transition-colors"
           ></tr>
 
@@ -310,6 +312,7 @@ export class ClientsPageComponent implements OnInit, AfterViewInit {
   addOwner(): void {
     const dialogRef = this.dialog.open(ClientDialogComponent, {
       width: '600px',
+      maxWidth: '95vw',
       maxHeight: '90vh',
     });
 

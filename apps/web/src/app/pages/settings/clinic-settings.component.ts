@@ -18,13 +18,13 @@ import { SettingsFormService } from './settings-form.service';
     MatTabsModule
 ],
   template: `
-    <div class="max-w-4xl mx-auto p-6 h-full flex flex-col">
-      <div class="flex justify-between items-center mb-6">
+    <div class="max-w-4xl mx-auto p-4 sm:p-6 h-full flex flex-col">
+      <div class="flex flex-col sm:flex-row sm:justify-between sm:items-center gap-3 mb-6">
         <div>
           <h1 class="text-2xl font-bold text-on-surface m-0">
             Clinic Settings
           </h1>
-          <p class="text-on-surface-variant opacity-80 mt-1">
+          <p class="text-on-surface-variant opacity-80 mt-1 hidden sm:block">
             Manage clinic branding, contact information, and system preferences.
           </p>
         </div>
@@ -36,15 +36,17 @@ import { SettingsFormService } from './settings-form.service';
             settingsService.settingsForm.invalid
           "
           (click)="saveSettings()"
+          aria-label="Save settings changes"
+          class="shrink-0"
         >
-          <mat-icon class="mr-2">save</mat-icon> Save Changes
+          <mat-icon class="mr-2" aria-hidden="true">save</mat-icon> Save Changes
         </button>
       </div>
 
       <mat-card
         class="p-0 border border-outline bg-surface flex flex-col flex-1 shadow-sm rounded-3xl min-h-125"
       >
-        <nav mat-tab-nav-bar [tabPanel]="tabPanel" class="w-full">
+        <nav mat-tab-nav-bar [tabPanel]="tabPanel" class="w-full" aria-label="Settings sections">
           @for (link of links; track link.path) {
             <a
               mat-tab-link
@@ -52,6 +54,7 @@ import { SettingsFormService } from './settings-form.service';
               routerLinkActive
               #rla="routerLinkActive"
               [active]="rla.isActive"
+              [attr.aria-current]="rla.isActive ? 'page' : null"
             >
               <span class="font-bold">{{ link.label }}</span>
             </a>

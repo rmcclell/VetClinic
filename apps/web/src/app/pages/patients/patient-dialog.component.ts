@@ -90,8 +90,8 @@ import { Patient, Client } from '@vet-clinic/shared-types';
           }
         </mat-form-field>
 
-        <div class="flex gap-4">
-          <mat-form-field class="flex-1" appearance="outline">
+        <div class="flex gap-4 flex-wrap">
+          <mat-form-field class="flex-1 min-w-36" appearance="outline">
             <mat-label>Species</mat-label>
             <mat-select formControlName="species">
               <mat-option value="Dog">Dog</mat-option>
@@ -101,14 +101,14 @@ import { Patient, Client } from '@vet-clinic/shared-types';
               <mat-option value="Other">Other</mat-option>
             </mat-select>
           </mat-form-field>
-          <mat-form-field class="flex-1" appearance="outline">
+          <mat-form-field class="flex-1 min-w-36" appearance="outline">
             <mat-label>Breed</mat-label>
             <input matInput formControlName="breed" />
           </mat-form-field>
         </div>
 
-        <div class="flex gap-4">
-          <mat-form-field class="flex-1" appearance="outline">
+        <div class="flex gap-4 flex-wrap">
+          <mat-form-field class="flex-1 min-w-36" appearance="outline">
             <mat-label>Sex</mat-label>
             <mat-select formControlName="sex">
               <mat-option value="Male">Male</mat-option>
@@ -118,7 +118,7 @@ import { Patient, Client } from '@vet-clinic/shared-types';
               <mat-option value="Unknown">Unknown</mat-option>
             </mat-select>
           </mat-form-field>
-          <mat-form-field class="flex-1" appearance="outline">
+          <mat-form-field class="flex-1 min-w-36" appearance="outline">
             <mat-label
               >Weight ({{
                 configService.config()?.units === 'imperial' ? 'lbs' : 'kg'
@@ -128,23 +128,23 @@ import { Patient, Client } from '@vet-clinic/shared-types';
           </mat-form-field>
         </div>
 
-        <div class="flex gap-4">
-          <mat-form-field class="flex-1" appearance="outline">
+        <div class="flex gap-4 flex-wrap">
+          <mat-form-field class="flex-1 min-w-36" appearance="outline">
             <mat-label>Microchip Number</mat-label>
             <input matInput formControlName="microchipNumber" />
           </mat-form-field>
-          <mat-form-field class="flex-1" appearance="outline">
+          <mat-form-field class="flex-1 min-w-36" appearance="outline">
             <mat-label>Rabies Tag Number</mat-label>
             <input matInput formControlName="rabiesTag" />
           </mat-form-field>
         </div>
 
-        <div class="flex gap-4">
-          <mat-form-field class="flex-1" appearance="outline">
+        <div class="flex gap-4 flex-wrap">
+          <mat-form-field class="flex-1 min-w-36" appearance="outline">
             <mat-label>Color/Markings</mat-label>
             <input matInput formControlName="color" />
           </mat-form-field>
-          <mat-form-field class="flex-1" appearance="outline">
+          <mat-form-field class="flex-1 min-w-36" appearance="outline">
             <mat-label>Preferred Provider</mat-label>
             <input
               matInput
@@ -154,8 +154,8 @@ import { Patient, Client } from '@vet-clinic/shared-types';
           </mat-form-field>
         </div>
 
-        <div class="flex gap-4">
-          <mat-form-field class="flex-1" appearance="outline">
+        <div class="flex gap-4 flex-wrap">
+          <mat-form-field class="flex-1 min-w-36" appearance="outline">
             <mat-label>Referral Source</mat-label>
             <input
               matInput
@@ -163,7 +163,7 @@ import { Patient, Client } from '@vet-clinic/shared-types';
               placeholder="e.g. Google, Friend"
             />
           </mat-form-field>
-          <mat-form-field class="flex-1" appearance="outline">
+          <mat-form-field class="flex-1 min-w-36" appearance="outline">
             <mat-label>Birth Date</mat-label>
             <input matInput type="date" formControlName="birthDate" />
           </mat-form-field>

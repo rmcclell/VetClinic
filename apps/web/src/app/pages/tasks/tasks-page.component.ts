@@ -47,14 +47,14 @@ interface Task {
   template: `
     <mat-toolbar class="bg-surface-variant border-b border-outline h-18! px-6">
       <div class="flex gap-3 w-full md:w-auto grow items-center">
-        <div class="bg-surface-variant border border-outline p-2 rounded-lg">
+        <div class="bg-surface-variant border border-outline p-2 rounded-lg" aria-hidden="true">
           <mat-icon class="text-on-surface">assignment</mat-icon>
         </div>
         <div>
           <h1 class="text-2xl font-bold text-on-surface m-0">
             Tasks & Reminders
           </h1>
-          <p class="text-on-surface-variant text-sm opacity-80">
+          <p class="text-on-surface-variant text-sm opacity-80 hidden sm:block">
             Track clinic operations and patient follow-ups
           </p>
         </div>
@@ -70,9 +70,10 @@ interface Task {
             matInput
             (keyup)="applyFilter($event)"
             placeholder="Filter tasks..."
+            aria-label="Filter tasks by keyword"
             #input
           />
-          <mat-icon matSuffix>search</mat-icon>
+          <mat-icon matSuffix aria-hidden="true">search</mat-icon>
         </mat-form-field>
         <button
           mat-stroked-button
@@ -83,55 +84,67 @@ interface Task {
           <mat-icon class="mr-1" aria-hidden="true">{{
             showAddForm ? 'close' : 'add'
           }}</mat-icon>
-          {{ showAddForm ? 'Cancel' : 'New Task' }}
+          <span class="hidden sm:inline">{{ showAddForm ? 'Cancel' : 'New Task' }}</span>
         </button>
       </div>
     </mat-toolbar>
     <!-- Quick Stats -->
-    <div class="grid grid-cols-1 md:grid-cols-4 gap-4 my-8">
+    <div class="grid grid-cols-2 md:grid-cols-4 gap-4 my-8">
       <mat-card
         class="p-4 bg-surface shadow-none border border-outline border-t-4 border-t-amber-500"
+        role="article"
+        [attr.aria-label]="'Total tasks: ' + tasks.length"
       >
         <p
-          class="text-[10px] font-bold text-on-surface-variant opacity-60 uppercase tracking-wider mb-1"
+          class="text-xs font-bold text-on-surface-variant opacity-60 uppercase tracking-wider mb-1"
+          aria-hidden="true"
         >
           Total Tasks
         </p>
-        <h4 class="text-2xl font-bold text-on-surface">{{ tasks.length }}</h4>
+        <h4 class="text-2xl font-bold text-on-surface" aria-hidden="true">{{ tasks.length }}</h4>
       </mat-card>
       <mat-card
         class="p-4 bg-surface shadow-none border border-outline border-t-4 border-t-blue-500"
+        role="article"
+        [attr.aria-label]="'In progress: ' + getCountByStatus('In Progress')"
       >
         <p
-          class="text-[10px] font-bold text-on-surface-variant opacity-60 uppercase tracking-wider mb-1"
+          class="text-xs font-bold text-on-surface-variant opacity-60 uppercase tracking-wider mb-1"
+          aria-hidden="true"
         >
           In Progress
         </p>
-        <h4 class="text-2xl font-bold text-on-surface">
+        <h4 class="text-2xl font-bold text-on-surface" aria-hidden="true">
           {{ getCountByStatus('In Progress') }}
         </h4>
       </mat-card>
       <mat-card
         class="p-4 bg-surface shadow-none border border-outline border-t-4 border-t-emerald-500"
+        role="article"
+        [attr.aria-label]="'Completed: ' + getCountByStatus('Completed')"
       >
         <p
-          class="text-[10px] font-bold text-on-surface-variant opacity-60 uppercase tracking-wider mb-1"
+          class="text-xs font-bold text-on-surface-variant opacity-60 uppercase tracking-wider mb-1"
+          aria-hidden="true"
         >
           Completed
         </p>
-        <h4 class="text-2xl font-bold text-on-surface">
+        <h4 class="text-2xl font-bold text-on-surface" aria-hidden="true">
           {{ getCountByStatus('Completed') }}
         </h4>
       </mat-card>
       <mat-card
         class="p-4 bg-surface shadow-none border border-outline border-t-4 border-t-rose-500"
+        role="article"
+        [attr.aria-label]="'High priority: ' + getCountByPriority('High')"
       >
         <p
-          class="text-[10px] font-bold text-on-surface-variant opacity-60 uppercase tracking-wider mb-1"
+          class="text-xs font-bold text-on-surface-variant opacity-60 uppercase tracking-wider mb-1"
+          aria-hidden="true"
         >
           High Priority
         </p>
-        <h4 class="text-2xl font-bold text-on-surface">
+        <h4 class="text-2xl font-bold text-on-surface" aria-hidden="true">
           {{ getCountByPriority('High') }}
         </h4>
       </mat-card>
@@ -164,13 +177,7 @@ interface Task {
               matInput
               [(ngModel)]="currentTask.title"
               placeholder="What needs to be done?"
-            />
-          </mat-form-field>
-
-          <mat-form-field appearance="outline">
-            <mat-label>Priority</mat-label>
-            <mat-select [(ngModel)]="currentTask.priority">
-              <mat-option value="Low">Low</mat-option>
+              aria-label="Task title"
               <mat-option value="Medium">Medium</mat-option>
               <mat-option value="High">High</mat-option>
             </mat-select>
@@ -206,9 +213,9 @@ interface Task {
           </mat-form-field>
 
           <div class="md:col-span-3 md:col-start-1 flex justify-end gap-3 mt-2">
-            <button mat-button (click)="cancelEdit()">Cancel</button>
-            <button mat-raised-button color="primary" (click)="saveTask()">
-              <mat-icon class="mr-1">save</mat-icon>
+            <button mat-button (click)="cancelEdit()" aria-label="Cancel and close form">Cancel</button>
+            <button mat-raised-button color="primary" (click)="saveTask()" [attr.aria-label]="editingTask ? 'Update task' : 'Save new task'">
+              <mat-icon class="mr-1" aria-hidden="true">save</mat-icon>
               {{ editingTask ? 'Update Task' : 'Save Task' }}
             </button>
           </div>
@@ -247,7 +254,7 @@ interface Task {
           <th
             mat-header-cell
             *matHeaderCellDef
-            class="bg-surface-variant text-on-surface-variant font-bold uppercase text-[11px] tracking-wider"
+            class="bg-surface-variant text-on-surface-variant font-bold uppercase text-xs tracking-wider"
             mat-sort-header
             sortActionDescription="Sort by task details"
           >
@@ -274,13 +281,13 @@ interface Task {
           <th
             mat-header-cell
             *matHeaderCellDef
-            class="bg-surface-variant text-on-surface-variant font-bold uppercase text-[11px] tracking-wider"
+            class="bg-surface-variant text-on-surface-variant font-bold uppercase text-xs tracking-wider hidden sm:table-cell"
             mat-sort-header
             sortActionDescription="Sort by task priority"
           >
             Priority
           </th>
-          <td mat-cell *matCellDef="let task">
+          <td mat-cell *matCellDef="let task" class="hidden sm:table-cell">
             <span
               [ngClass]="{
                 'bg-rose-100 text-rose-700': task.priority === 'High',
@@ -288,7 +295,7 @@ interface Task {
                 'bg-surface-variant text-on-surface-variant':
                   task.priority === 'Low',
               }"
-              class="px-2 py-0.5 rounded text-[10px] font-bold uppercase"
+              class="px-2 py-0.5 rounded text-xs font-bold uppercase"
             >
               {{ task.priority }}
             </span>
@@ -299,7 +306,7 @@ interface Task {
           <th
             mat-header-cell
             *matHeaderCellDef
-            class="bg-surface-variant text-on-surface-variant font-bold uppercase text-[11px] tracking-wider"
+            class="bg-surface-variant text-on-surface-variant font-bold uppercase text-xs tracking-wider"
             mat-sort-header
             sortActionDescription="Sort by task status"
           >
@@ -327,7 +334,7 @@ interface Task {
           <th
             mat-header-cell
             *matHeaderCellDef
-            class="bg-surface-variant text-on-surface-variant font-bold uppercase text-[11px] tracking-wider"
+            class="bg-surface-variant text-on-surface-variant font-bold uppercase text-xs tracking-wider hidden sm:table-cell"
             mat-sort-header
             sortActionDescription="Sort by due date"
           >
@@ -336,7 +343,7 @@ interface Task {
           <td
             mat-cell
             *matCellDef="let task"
-            class="text-xs text-on-surface-variant"
+            class="text-xs text-on-surface-variant hidden sm:table-cell"
           >
             {{ task.dueDate }}
           </td>

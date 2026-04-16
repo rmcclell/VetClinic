@@ -70,17 +70,20 @@ import { PatientDialogComponent } from './patient-dialog.component';
               matInput
               (keyup)="applyFilter($event)"
               placeholder="Search by name, species, client..."
+              aria-label="Filter patients by name, species, or client"
               #input
             />
-            <mat-icon matSuffix>search</mat-icon>
+            <mat-icon matSuffix aria-hidden="true">search</mat-icon>
           </mat-form-field>
           <button
             mat-flat-button
             color="primary"
             (click)="addPet()"
             class="h-10"
+            aria-label="Add patient"
           >
-            <mat-icon>add</mat-icon> Add Patient
+            <mat-icon aria-hidden="true">add</mat-icon>
+            <span class="hidden sm:inline ml-1">Add Patient</span>
           </button>
         </div>
       </mat-toolbar>
@@ -160,11 +163,11 @@ import { PatientDialogComponent } from './patient-dialog.component';
                   mat-header-cell
                   *matHeaderCellDef
                   mat-sort-header
-                  class="bg-surface-variant"
+                  class="bg-surface-variant hidden sm:table-cell"
                 >
                   Breed
                 </th>
-                <td mat-cell *matCellDef="let patient">
+                <td mat-cell *matCellDef="let patient" class="hidden sm:table-cell">
                   {{ patient.breed || '-' }}
                 </td>
               </ng-container>
@@ -174,14 +177,14 @@ import { PatientDialogComponent } from './patient-dialog.component';
                   mat-header-cell
                   *matHeaderCellDef
                   mat-sort-header
-                  class="bg-surface-variant"
+                  class="bg-surface-variant hidden md:table-cell"
                 >
                   Microchip
                 </th>
                 <td
                   mat-cell
                   *matCellDef="let patient"
-                  class="text-sm font-mono text-on-surface-variant"
+                  class="hidden md:table-cell text-sm font-mono text-on-surface-variant"
                 >
                   {{ patient.microchipNumber || '-' }}
                 </td>
@@ -192,15 +195,15 @@ import { PatientDialogComponent } from './patient-dialog.component';
                   mat-header-cell
                   *matHeaderCellDef
                   mat-sort-header
-                  class="bg-surface-variant"
+                  class="bg-surface-variant hidden md:table-cell"
                 >
                   Rabies Tag
                 </th>
-                <td mat-cell *matCellDef="let patient">
+                <td mat-cell *matCellDef="let patient" class="hidden md:table-cell">
                   @if (patient.rabiesTag) {
                     <mat-chip-set>
                       <mat-chip
-                        class="text-[10px] h-6 min-h-0 bg-green-50 text-green-700"
+                        class="text-xs h-6 min-h-0 bg-green-50 text-green-700"
                       >
                         {{ patient.rabiesTag }}
                       </mat-chip>
@@ -216,11 +219,11 @@ import { PatientDialogComponent } from './patient-dialog.component';
                   mat-header-cell
                   *matHeaderCellDef
                   mat-sort-header
-                  class="bg-surface-variant"
+                  class="bg-surface-variant hidden lg:table-cell"
                 >
                   Provider
                 </th>
-                <td mat-cell *matCellDef="let patient" class="text-sm">
+                <td mat-cell *matCellDef="let patient" class="hidden lg:table-cell text-sm">
                   {{ patient.preferredProvider || '-' }}
                 </td>
               </ng-container>
@@ -293,6 +296,9 @@ import { PatientDialogComponent } from './patient-dialog.component';
                 *matRowDef="let row; columns: displayedColumns"
                 class="hover:bg-surface-variant transition-colors cursor-pointer"
                 (click)="viewPatient(row)"
+                (keydown.enter)="viewPatient(row)"
+                tabindex="0"
+                [attr.aria-label]="'View details for ' + row.name"
               ></tr>
 
               <tr class="mat-row" *matNoDataRow>
@@ -415,6 +421,7 @@ export class PatientsPageComponent implements OnInit, AfterViewInit {
   addPet(): void {
     const dialogRef = this.dialog.open(PatientDialogComponent, {
       width: '600px',
+      maxWidth: '95vw',
       maxHeight: '90vh',
     });
 
@@ -428,6 +435,7 @@ export class PatientsPageComponent implements OnInit, AfterViewInit {
   editPet(Patient: Patient): void {
     const dialogRef = this.dialog.open(PatientDialogComponent, {
       width: '600px',
+      maxWidth: '95vw',
       maxHeight: '90vh',
       data: Patient,
     });

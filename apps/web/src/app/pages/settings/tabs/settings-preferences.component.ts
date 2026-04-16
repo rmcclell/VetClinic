@@ -18,7 +18,7 @@ import { SettingsFormService } from '../settings-form.service';
     MatIconModule
 ],
   template: `
-    <div class="p-8">
+    <div class="p-4 sm:p-8">
       <form
         [formGroup]="settingsService.settingsForm"
         class="grid grid-cols-1 md:grid-cols-2 gap-6"

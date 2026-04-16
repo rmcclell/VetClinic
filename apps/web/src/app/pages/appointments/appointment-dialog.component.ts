@@ -73,8 +73,8 @@ import { Appointment, Client, Patient } from '@vet-clinic/shared-types';
           }
         </mat-form-field>
 
-        <div class="flex gap-4">
-          <mat-form-field class="flex-1" appearance="outline">
+        <div class="flex gap-4 flex-wrap">
+          <mat-form-field class="flex-1 min-w-36" appearance="outline">
             <mat-label>Date</mat-label>
             <input matInput [matDatepicker]="picker" formControlName="date" />
             <mat-datepicker-toggle
@@ -84,7 +84,7 @@ import { Appointment, Client, Patient } from '@vet-clinic/shared-types';
             <mat-datepicker #picker></mat-datepicker>
           </mat-form-field>
 
-          <mat-form-field class="flex-1" appearance="outline">
+          <mat-form-field class="flex-1 min-w-36" appearance="outline">
             <mat-label>Time</mat-label>
             <input matInput type="time" formControlName="time" />
           </mat-form-field>

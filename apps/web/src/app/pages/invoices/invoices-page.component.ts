@@ -36,14 +36,14 @@ interface Invoice {
   template: `
     <mat-toolbar class="bg-surface-variant border-b border-outline h-18! px-6">
       <div class="flex gap-3 w-full md:w-auto grow items-center">
-        <div class="bg-surface-variant border border-outline p-2 rounded-lg">
+        <div class="bg-surface-variant border border-outline p-2 rounded-lg" aria-hidden="true">
           <mat-icon class="text-on-surface">receipt</mat-icon>
         </div>
         <div>
           <h1 class="text-2xl font-bold text-on-surface m-0">
             Invoices & Billing
           </h1>
-          <p class="text-on-surface-variant text-sm opacity-80">
+          <p class="text-on-surface-variant text-sm opacity-80 hidden sm:block">
             Manage client billing and track payment status
           </p>
         </div>
@@ -54,9 +54,9 @@ interface Invoice {
           class="w-full sm:w-80 dense-form-field"
           subscriptSizing="dynamic"
         >
-          <mat-icon matPrefix class="mr-2 opacity-60">search</mat-icon>
+          <mat-icon matPrefix class="mr-2 opacity-60" aria-hidden="true">search</mat-icon>
           <mat-label>Search invoices or clients</mat-label>
-          <input matInput placeholder="e.g. INV-2024" />
+          <input matInput placeholder="e.g. INV-2024" aria-label="Search invoices or clients" />
         </mat-form-field>
         <div class="flex gap-2">
           <button
@@ -65,14 +65,15 @@ interface Invoice {
             aria-label="Filter invoices"
           >
             <mat-icon class="mr-1" aria-hidden="true">filter_list</mat-icon>
-            Filter
+            <span class="hidden sm:inline">Filter</span>
           </button>
           <button
             mat-stroked-button
             color="primary"
             aria-label="Export invoices to file"
           >
-            <mat-icon class="mr-1" aria-hidden="true">download</mat-icon> Export
+            <mat-icon class="mr-1" aria-hidden="true">download</mat-icon>
+            <span class="hidden sm:inline">Export</span>
           </button>
         </div>
         <button
@@ -81,7 +82,8 @@ interface Invoice {
           class="h-10"
           aria-label="Create a new invoice"
         >
-          <mat-icon class="mr-2" aria-hidden="true">add</mat-icon> New Invoice
+          <mat-icon class="mr-2" aria-hidden="true">add</mat-icon>
+          <span class="hidden sm:inline">New Invoice</span>
         </button>
       </div>
     </mat-toolbar>
@@ -89,6 +91,8 @@ interface Invoice {
     <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6 my-8">
       <mat-card
         class="p-6 border-l-4 border-primary bg-surface shadow-none border border-outline"
+        role="article"
+        aria-label="Total Outstanding: $12,450.00, up 12% from last month"
       >
         <div class="flex justify-between items-start">
           <div>
@@ -97,13 +101,13 @@ interface Invoice {
             >
               Total Outstanding
             </p>
-            <h3 class="text-3xl font-bold text-on-surface">$12,450.00</h3>
+            <h3 class="text-3xl font-bold text-on-surface" aria-hidden="true">$12,450.00</h3>
           </div>
-          <div class="bg-surface-variant p-2 rounded-md">
+          <div class="bg-surface-variant p-2 rounded-md" aria-hidden="true">
             <mat-icon class="text-primary">account_balance_wallet</mat-icon>
           </div>
         </div>
-        <p class="text-xs text-primary font-medium mt-3 flex items-center">
+        <p class="text-xs text-primary font-medium mt-3 flex items-center" aria-hidden="true">
           <mat-icon class="text-xs w-4 h-4 mr-1">trending_up</mat-icon> +12%
           from last month
         </p>
@@ -111,6 +115,8 @@ interface Invoice {
 
       <mat-card
         class="p-6 border-l-4 border-amber-500 bg-surface shadow-none border border-outline"
+        role="article"
+        aria-label="Overdue Amount: $2,105.50, 8 invoices overdue"
       >
         <div class="flex justify-between items-start">
           <div>
@@ -119,19 +125,21 @@ interface Invoice {
             >
               Overdue Amount
             </p>
-            <h3 class="text-3xl font-bold text-on-surface">$2,105.50</h3>
+            <h3 class="text-3xl font-bold text-on-surface" aria-hidden="true">$2,105.50</h3>
           </div>
-          <div class="bg-surface-variant p-2 rounded-md">
+          <div class="bg-surface-variant p-2 rounded-md" aria-hidden="true">
             <mat-icon class="text-amber-600">warning</mat-icon>
           </div>
         </div>
-        <p class="text-xs text-amber-600 font-medium mt-3 flex items-center">
+        <p class="text-xs text-amber-600 font-medium mt-3 flex items-center" aria-hidden="true">
           8 invoices overdue
         </p>
       </mat-card>
 
       <mat-card
         class="p-6 border-l-4 border-emerald-500 bg-surface shadow-none border border-outline"
+        role="article"
+        aria-label="Paid This Month: $8,920.00, 24 invoices settled"
       >
         <div class="flex justify-between items-start">
           <div>
@@ -140,13 +148,13 @@ interface Invoice {
             >
               Paid This Month
             </p>
-            <h3 class="text-3xl font-bold text-on-surface">$8,920.00</h3>
+            <h3 class="text-3xl font-bold text-on-surface" aria-hidden="true">$8,920.00</h3>
           </div>
-          <div class="bg-surface-variant p-2 rounded-md">
+          <div class="bg-surface-variant p-2 rounded-md" aria-hidden="true">
             <mat-icon class="text-emerald-600">check_circle</mat-icon>
           </div>
         </div>
-        <p class="text-xs text-emerald-600 font-medium mt-3 flex items-center">
+        <p class="text-xs text-emerald-600 font-medium mt-3 flex items-center" aria-hidden="true">
           <mat-icon class="text-xs w-4 h-4 mr-1">done_all</mat-icon> 24 invoices
           settled
         </p>
@@ -162,7 +170,7 @@ interface Invoice {
           <th
             mat-header-cell
             *matHeaderCellDef
-            class="bg-surface-variant text-on-surface-variant font-bold uppercase text-[11px] tracking-wider"
+            class="bg-surface-variant text-on-surface-variant font-bold uppercase text-xs tracking-wider"
           >
             Invoice #
           </th>
@@ -180,7 +188,7 @@ interface Invoice {
           <th
             mat-header-cell
             *matHeaderCellDef
-            class="bg-surface-variant text-on-surface-variant font-bold uppercase text-[11px] tracking-wider"
+            class="bg-surface-variant text-on-surface-variant font-bold uppercase text-xs tracking-wider"
           >
             Client
           </th>
@@ -194,14 +202,14 @@ interface Invoice {
           <th
             mat-header-cell
             *matHeaderCellDef
-            class="bg-surface-variant text-on-surface-variant font-bold uppercase text-[11px] tracking-wider"
+            class="bg-surface-variant text-on-surface-variant font-bold uppercase text-xs tracking-wider hidden sm:table-cell"
           >
             Date
           </th>
           <td
             mat-cell
             *matCellDef="let invoice"
-            class="text-on-surface-variant"
+            class="text-on-surface-variant hidden sm:table-cell"
           >
             {{ invoice.date }}
           </td>
@@ -212,7 +220,7 @@ interface Invoice {
           <th
             mat-header-cell
             *matHeaderCellDef
-            class="bg-surface-variant text-on-surface-variant font-bold uppercase text-[11px] tracking-wider"
+            class="bg-surface-variant text-on-surface-variant font-bold uppercase text-xs tracking-wider"
           >
             Status
           </th>
@@ -235,7 +243,7 @@ interface Invoice {
           <th
             mat-header-cell
             *matHeaderCellDef
-            class="bg-surface-variant text-on-surface-variant font-bold uppercase text-[11px] tracking-wider text-right"
+            class="bg-surface-variant text-on-surface-variant font-bold uppercase text-xs tracking-wider text-right"
           >
             Amount
           </th>
@@ -253,7 +261,7 @@ interface Invoice {
           <th
             mat-header-cell
             *matHeaderCellDef
-            class="bg-surface-variant text-on-surface-variant font-bold uppercase text-[11px] tracking-wider"
+            class="bg-surface-variant text-on-surface-variant font-bold uppercase text-xs tracking-wider"
           >
             Actions
           </th>
@@ -265,11 +273,11 @@ interface Invoice {
             <button
               mat-icon-button
               color="primary"
-              aria-label="View invoice details"
+              [attr.aria-label]="'View invoice ' + invoice.invoiceNumber"
             >
               <mat-icon aria-hidden="true">visibility</mat-icon>
             </button>
-            <button mat-icon-button color="primary" aria-label="More options">
+            <button mat-icon-button color="primary" [attr.aria-label]="'More options for invoice ' + invoice.invoiceNumber">
               <mat-icon aria-hidden="true">more_vert</mat-icon>
             </button>
           </td>
@@ -279,6 +287,9 @@ interface Invoice {
         <tr
           mat-row
           *matRowDef="let row; columns: displayedColumns"
+          tabindex="0"
+          (keydown.enter)="$event.preventDefault()"
+          [attr.aria-label]="'Invoice ' + row.invoiceNumber + ' for ' + row.clientName + ', ' + row.status + ', ' + (row.amount | currency)"
           class="hover:bg-surface-variant transition-colors cursor-pointer border-b border-outline"
         ></tr>
       </table>

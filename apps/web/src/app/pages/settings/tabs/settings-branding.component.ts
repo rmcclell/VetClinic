@@ -19,7 +19,7 @@ import { SettingsFormService } from '../settings-form.service';
     MatButtonModule,
   ],
   template: `
-    <div class="p-8">
+    <div class="p-4 sm:p-8">
       <div class="flex flex-col md:flex-row gap-8 items-start">
         <div class="flex flex-col items-center">
           <div

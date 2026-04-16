@@ -268,14 +268,14 @@ import { MatSidenav } from '@angular/material/sidenav';
               </button>
 
               <button
-                matF-icon-button
+                mat-icon-button
                 (click)="themeService.toggleTheme()"
                 [matTooltip]="
                   themeService.isDarkMode()
                     ? 'Switch to Light Mode'
                     : 'Switch to Dark Mode'
                 "
-                [aria-label]="
+                [attr.aria-label]="
                   themeService.isDarkMode()
                     ? 'Switch to Light Mode'
                     : 'Switch to Dark Mode'

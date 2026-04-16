@@ -147,7 +147,7 @@ import { PATIENT_TAB_LINKS } from './patient-tabs.types';
                 >
                   <div class="flex flex-col gap-1.5 text-center md:text-left">
                     <span
-                      class="text-[10px] font-black text-slate-400 dark:text-(--color-on-surface-variant) uppercase tracking-widest opacity-80"
+                      class="text-xs font-black text-slate-400 dark:text-(--color-on-surface-variant) uppercase tracking-widest opacity-80"
                       >Client</span
                     >
                     <a
@@ -173,7 +173,7 @@ import { PATIENT_TAB_LINKS } from './patient-tabs.types';
                   </div>
                   <div class="flex flex-col gap-1.5 text-center md:text-left">
                     <span
-                      class="text-[10px] font-black text-slate-400 dark:text-(--color-on-surface-variant) uppercase tracking-widest opacity-80"
+                      class="text-xs font-black text-slate-400 dark:text-(--color-on-surface-variant) uppercase tracking-widest opacity-80"
                       >Color</span
                     >
                     <div
@@ -184,7 +184,7 @@ import { PATIENT_TAB_LINKS } from './patient-tabs.types';
                   </div>
                   <div class="flex flex-col gap-1.5 text-center md:text-left">
                     <span
-                      class="text-[10px] font-black text-slate-400 dark:text-(--color-on-surface-variant) uppercase tracking-widest opacity-80"
+                      class="text-xs font-black text-slate-400 dark:text-(--color-on-surface-variant) uppercase tracking-widest opacity-80"
                       >Weight</span
                     >
                     <div
@@ -203,7 +203,7 @@ import { PATIENT_TAB_LINKS } from './patient-tabs.types';
                   </div>
                   <div class="flex flex-col gap-1.5 text-center md:text-left">
                     <span
-                      class="text-[10px] font-black text-slate-400 dark:text-(--color-on-surface-variant) uppercase tracking-widest opacity-80"
+                      class="text-xs font-black text-slate-400 dark:text-(--color-on-surface-variant) uppercase tracking-widest opacity-80"
                       >Microchip</span
                     >
                     <div
@@ -219,7 +219,7 @@ import { PATIENT_TAB_LINKS } from './patient-tabs.types';
 
           <!-- Tabs Section -->
           <mat-card class="flex-1 flex flex-col min-h-0">
-            <nav mat-tab-nav-bar [tabPanel]="tabPanel" class="w-full">
+            <nav mat-tab-nav-bar [tabPanel]="tabPanel" class="w-full" aria-label="Patient details sections">
               @for (link of links; track link.path) {
                 <a
                   mat-tab-link
@@ -227,6 +227,7 @@ import { PATIENT_TAB_LINKS } from './patient-tabs.types';
                   routerLinkActive
                   #rla="routerLinkActive"
                   [active]="rla.isActive"
+                  [attr.aria-current]="rla.isActive ? 'page' : null"
                 >
                   {{ link.label }}
                   @if (link.count !== undefined) {
@@ -354,7 +355,7 @@ import { PATIENT_TAB_LINKS } from './patient-tabs.types';
                 >
                   Reminders
                   <span
-                    class="bg-red-100 text-red-600 text-[10px] px-2 py-0.5 rounded-full"
+                    class="bg-red-100 text-red-600 text-xs px-2 py-0.5 rounded-full"
                     >1 Due</span
                   >
                 </h3>
@@ -423,7 +424,7 @@ export class PatientDetailsComponent implements OnInit {
 
   patient$: Observable<Patient> | undefined;
   refresh$ = new BehaviorSubject<boolean>(true);
-  isSidebarOpen = true;
+  isSidebarOpen = false;
 
   links = PATIENT_TAB_LINKS;
 
@@ -439,6 +440,7 @@ export class PatientDetailsComponent implements OnInit {
   editPatient(patient: Patient): void {
     const dialogRef = this.dialog.open(PatientDialogComponent, {
       width: '600px',
+      maxWidth: '95vw',
       maxHeight: '90vh',
       data: patient,
     });

@@ -62,7 +62,7 @@ import { MatDividerModule } from '@angular/material/divider';
                     {{ client.firstName }} {{ client.lastName }}
                   </h1>
                   <mat-chip
-                    class="min-h-6! h-6! text-[10px] font-bold uppercase border-none"
+                    class="min-h-6! h-6! text-xs font-bold uppercase border-none"
                     [ngClass]="
                       client.active
                         ? 'bg-emerald-100 text-emerald-800'
@@ -76,14 +76,14 @@ import { MatDividerModule } from '@angular/material/divider';
                   class="flex flex-wrap items-center gap-x-4 gap-y-1 mt-2 text-sm font-medium text-on-surface-variant"
                 >
                   <span class="flex items-center gap-1"
-                    ><mat-icon class="text-base w-4 h-4 leading-4"
+                    ><mat-icon class="text-base w-4 h-4 leading-4" aria-hidden="true"
                       >email</mat-icon
                     >
                     {{ client.email || '-' }}</span
                   >
                   <span class="opacity-40" aria-hidden="true">•</span>
                   <span class="flex items-center gap-1"
-                    ><mat-icon class="text-base w-4 h-4 leading-4"
+                    ><mat-icon class="text-base w-4 h-4 leading-4" aria-hidden="true"
                       >smartphone</mat-icon
                     >
                     {{ client.phone || '-' }}</span
@@ -93,8 +93,9 @@ import { MatDividerModule } from '@angular/material/divider';
             </div>
 
             <div class="flex gap-2">
-              <button mat-flat-button color="primary" class="h-9 rounded-lg">
-                <mat-icon class="text-base">add_circle</mat-icon> Add Note
+              <button mat-flat-button color="primary" class="h-9 rounded-lg" aria-label="Add note for this client">
+                <mat-icon class="text-base" aria-hidden="true">add_circle</mat-icon>
+                <span class="hidden sm:inline ml-1">Add Note</span>
               </button>
               <button
                 mat-stroked-button
@@ -120,7 +121,7 @@ import { MatDividerModule } from '@angular/material/divider';
         <mat-card
           class="flex-1 flex flex-col min-h-0 bg-surface border border-outline rounded-3xl shadow-sm"
         >
-          <nav mat-tab-nav-bar [tabPanel]="tabPanel" class="w-full">
+          <nav mat-tab-nav-bar [tabPanel]="tabPanel" class="w-full" aria-label="Client details sections">
             @for (link of links; track link.path) {
               <a
                 mat-tab-link
@@ -128,18 +129,19 @@ import { MatDividerModule } from '@angular/material/divider';
                 routerLinkActive
                 #rla="routerLinkActive"
                 [active]="rla.isActive"
+                [attr.aria-current]="rla.isActive ? 'page' : null"
                 [routerLinkActiveOptions]="
                   link.exact ? { exact: true } : { exact: false }
                 "
               >
                 <span class="flex items-center gap-2">
-                  <mat-icon class="text-[18px] opacity-70">{{
+                  <mat-icon class="text-[18px] opacity-70" aria-hidden="true">{{
                     link.icon || 'view_comfy'
                   }}</mat-icon>
                   <span class="font-bold">{{ link.label }}</span>
                   @if (link.count !== undefined) {
                     <span
-                      class="bg-blue-500 text-white rounded-full px-2 py-0.5 text-[10px] font-bold leading-none"
+                      class="bg-blue-500 text-white rounded-full px-2 py-0.5 text-xs font-bold leading-none"
                       >{{ link.count }}</span
                     >
                   }
@@ -196,6 +198,7 @@ export class ClientDetailsComponent implements OnInit {
   editClient(client: Client): void {
     const dialogRef = this.dialog.open(ClientDialogComponent, {
       width: '600px',
+      maxWidth: '95vw',
       maxHeight: '90vh',
       data: client,
     });

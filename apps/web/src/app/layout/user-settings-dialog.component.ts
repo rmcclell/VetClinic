@@ -70,7 +70,7 @@ import { MatSlideToggleModule } from '@angular/material/slide-toggle';
             class="w-full text-lg"
           >
             <mat-label>Email Address</mat-label>
-            <mat-icon matPrefix class="mr-3 opacity-60">email</mat-icon>
+            <mat-icon matPrefix class="mr-3 opacity-60" aria-hidden="true">email</mat-icon>
             <input
               matInput
               formControlName="email"
@@ -91,7 +91,7 @@ import { MatSlideToggleModule } from '@angular/material/slide-toggle';
               <mat-option value="Practice Manager">Practice Manager</mat-option>
               <mat-option value="Receptionist">Receptionist</mat-option>
             </mat-select>
-            <mat-icon matPrefix class="mr-3 opacity-60">badge</mat-icon>
+            <mat-icon matPrefix class="mr-3 opacity-60" aria-hidden="true">badge</mat-icon>
           </mat-form-field>
 
           <div
@@ -113,7 +113,7 @@ import { MatSlideToggleModule } from '@angular/material/slide-toggle';
       mat-dialog-actions
       class="justify-end px-6 py-4 bg-surface-variant border-t border-outline mt-6"
     >
-      <button mat-button (click)="onCancel()" class="mr-2 rounded-lg">
+      <button mat-button (click)="onCancel()" class="mr-2 rounded-lg" aria-label="Cancel and close dialog">
         Cancel
       </button>
       <button
@@ -121,9 +121,10 @@ import { MatSlideToggleModule } from '@angular/material/slide-toggle';
         color="primary"
         (click)="onSave()"
         [disabled]="userForm.invalid || userForm.pristine"
+        aria-label="Save user settings changes"
         class="rounded-lg"
       >
-        <mat-icon>save</mat-icon> Save Changes
+        <mat-icon aria-hidden="true">save</mat-icon> Save Changes
       </button>
     </div>
   `,

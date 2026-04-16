@@ -249,7 +249,7 @@ import { MatSidenav } from '@angular/material/sidenav';
                 (click)="sidenav.toggle()"
                 aria-label="Toggle navigation menu"
               >
-                <mat-icon>menu</mat-icon>
+                <mat-icon aria-hidden="true">menu</mat-icon>
               </button>
               <span class="ml-2 font-bold text-gray-800 dark:text-gray-100">{{
                 configService.clinicName()
@@ -262,7 +262,7 @@ import { MatSidenav } from '@angular/material/sidenav';
                 class="mr-1"
                 aria-label="View 3 notifications"
               >
-                <mat-icon matBadge="3" matBadgeColor="warn" aria-hidden="false"
+                <mat-icon matBadge="3" matBadgeColor="warn" aria-hidden="true"
                   >notifications</mat-icon
                 >
               </button>
@@ -292,7 +292,7 @@ import { MatSidenav } from '@angular/material/sidenav';
                 matTooltip="User Settings"
                 aria-label="Open user settings"
               >
-                <mat-icon fontSet="material-icons-outlined">settings</mat-icon>
+                <mat-icon fontSet="material-icons-outlined" aria-hidden="true">settings</mat-icon>
               </button>
 
               <div
@@ -322,7 +322,7 @@ import { MatSidenav } from '@angular/material/sidenav';
                   matTooltip="Log out of application"
                   aria-label="Log out of application"
                 >
-                  <mat-icon fontSet="material-icons-outlined">logout</mat-icon>
+                  <mat-icon fontSet="material-icons-outlined" aria-hidden="true">logout</mat-icon>
                 </button>
               </div>
             </div>

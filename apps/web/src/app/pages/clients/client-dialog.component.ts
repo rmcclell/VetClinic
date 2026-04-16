@@ -88,7 +88,7 @@ import { MatSlideToggleModule } from '@angular/material/slide-toggle';
         </h3>
         <mat-form-field appearance="outline" subscriptSizing="dynamic">
           <mat-label>Email Address</mat-label>
-          <mat-icon matPrefix class="mr-2 opacity-60">email</mat-icon>
+          <mat-icon matPrefix class="mr-2 opacity-60" aria-hidden="true">email</mat-icon>
           <input
             matInput
             formControlName="email"
@@ -107,7 +107,7 @@ import { MatSlideToggleModule } from '@angular/material/slide-toggle';
             subscriptSizing="dynamic"
           >
             <mat-label>Primary Phone</mat-label>
-            <mat-icon matPrefix class="mr-2 opacity-60">phone</mat-icon>
+            <mat-icon matPrefix class="mr-2 opacity-60" aria-hidden="true">phone</mat-icon>
             <input matInput formControlName="phone" placeholder="555-0123" />
           </mat-form-field>
           <mat-form-field
@@ -116,7 +116,7 @@ import { MatSlideToggleModule } from '@angular/material/slide-toggle';
             subscriptSizing="dynamic"
           >
             <mat-label>Secondary Phone</mat-label>
-            <mat-icon matPrefix class="mr-2 opacity-60">phone_iphone</mat-icon>
+            <mat-icon matPrefix class="mr-2 opacity-60" aria-hidden="true">phone_iphone</mat-icon>
             <input
               matInput
               formControlName="secondaryPhone"
@@ -127,7 +127,7 @@ import { MatSlideToggleModule } from '@angular/material/slide-toggle';
 
         <mat-form-field appearance="outline" subscriptSizing="dynamic">
           <mat-label>Physical Address</mat-label>
-          <mat-icon matPrefix class="mr-2 opacity-60">place</mat-icon>
+          <mat-icon matPrefix class="mr-2 opacity-60" aria-hidden="true">place</mat-icon>
           <textarea
             matInput
             formControlName="address"
@@ -287,14 +287,15 @@ import { MatSlideToggleModule } from '@angular/material/slide-toggle';
       mat-dialog-actions
       class="justify-end px-6 py-4 bg-surface-variant border-t border-outline"
     >
-      <button mat-button (click)="onCancel()" class="mr-2">Cancel</button>
+      <button mat-button (click)="onCancel()" class="mr-2" aria-label="Cancel and close dialog">Cancel</button>
       <button
         mat-raised-button
         color="primary"
         [disabled]="ownerForm.invalid"
         (click)="onSave()"
+        [attr.aria-label]="data ? 'Update client' : 'Create new client'"
       >
-        <mat-icon>save</mat-icon> {{ data ? 'Update' : 'Create' }} Client
+        <mat-icon aria-hidden="true">save</mat-icon> {{ data ? 'Update' : 'Create' }} Client
       </button>
     </div>
   `,

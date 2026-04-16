@@ -213,7 +213,7 @@ import { ClientDialogComponent } from './client-dialog.component';
           <tr class="mat-row" *matNoDataRow>
             <td class="mat-cell p-8 text-center" colspan="5">
               <div class="flex flex-col items-center gap-2 opacity-60">
-                <mat-icon class="text-4xl w-12 h-12">search_off</mat-icon>
+                <mat-icon class="text-4xl w-12 h-12" aria-hidden="true">search_off</mat-icon>
                 <span>No clients matching "{{ input.value }}"</span>
               </div>
             </td>
@@ -235,7 +235,7 @@ import { ClientDialogComponent } from './client-dialog.component';
             You haven't added any clients to the directory yet.
           </p>
           <button mat-stroked-button color="primary" (click)="addOwner()">
-            <mat-icon>add</mat-icon> Add your first Client
+            <mat-icon aria-hidden="true">add</mat-icon> Add your first Client
           </button>
         </div>
       }

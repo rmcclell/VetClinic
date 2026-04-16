@@ -38,7 +38,7 @@ import { PATIENT_TAB_LINKS } from './patient-tabs.types';
   template: `
     <div class="flex justify-between items-center mb-4">
       <button mat-button routerLink="/patients">
-        <mat-icon>arrow_back</mat-icon> Back to Directory
+        <mat-icon aria-hidden="true">arrow_back</mat-icon> Back to Directory
       </button>
       <button
         mat-icon-button
@@ -126,7 +126,7 @@ import { PATIENT_TAB_LINKS } from './patient-tabs.types';
                       (click)="editPatient(patient)"
                       class="h-9 px-4 md:px-6 rounded-lg bg-slate-100 text-indigo-700 hover:bg-slate-200 dark:bg-slate-800 dark:text-sky-300 font-bold shadow-sm transition-all border border-transparent active:scale-95 text-sm"
                     >
-                      <mat-icon class="text-base">edit</mat-icon> Edit
+                      <mat-icon class="text-base" aria-hidden="true">edit</mat-icon> Edit
                     </button>
                     <button
                       mat-stroked-button
@@ -290,7 +290,7 @@ import { PATIENT_TAB_LINKS } from './patient-tabs.types';
                   color="primary"
                   class="flex-1 py-6 text-lg"
                 >
-                  <mat-icon>check_circle</mat-icon> Check In
+                  <mat-icon aria-hidden="true">check_circle</mat-icon> Check In
                 </button>
                 <button
                   mat-icon-button
@@ -298,17 +298,17 @@ import { PATIENT_TAB_LINKS } from './patient-tabs.types';
                   aria-label="More patient options"
                   class="border"
                 >
-                  <mat-icon>more_vert</mat-icon>
+                  <mat-icon aria-hidden="true">more_vert</mat-icon>
                 </button>
                 <mat-menu #menu="matMenu">
                   <button mat-menu-item>
-                    <mat-icon>content_copy</mat-icon> Duplicate
+                    <mat-icon aria-hidden="true">content_copy</mat-icon> Duplicate
                   </button>
                   <button mat-menu-item>
-                    <mat-icon>share</mat-icon> Share
+                    <mat-icon aria-hidden="true">share</mat-icon> Share
                   </button>
                   <button mat-menu-item class="text-red-500">
-                    <mat-icon color="warn">delete</mat-icon> Delete
+                    <mat-icon color="warn" aria-hidden="true">delete</mat-icon> Delete
                   </button>
                 </mat-menu>
               </div>
@@ -356,6 +356,7 @@ import { PATIENT_TAB_LINKS } from './patient-tabs.types';
                   Reminders
                   <span
                     class="bg-red-100 text-red-600 text-xs px-2 py-0.5 rounded-full"
+                    aria-label="1 reminder due"
                     >1 Due</span
                   >
                 </h3>
@@ -363,6 +364,7 @@ import { PATIENT_TAB_LINKS } from './patient-tabs.types';
                   class="flex items-center gap-3 p-2 bg-red-50 dark:bg-red-950 rounded border border-red-100 dark:border-red-900"
                 >
                   <mat-icon class="text-red-500 text-lg"
+                    aria-hidden="true"
                     >notifications_active</mat-icon
                   >
                   <div>

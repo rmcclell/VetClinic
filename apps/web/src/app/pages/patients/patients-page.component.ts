@@ -46,8 +46,8 @@ import { PatientDialogComponent } from './patient-dialog.component';
         class="bg-surface rounded-lg mat-elevation-z2 h-auto py-2 px-4 shrink-0 flex flex-wrap gap-4 justify-between"
       >
         <div class="flex gap-3 items-center">
-          <div class="bg-surface-variant p-2 rounded-lg">
-            <mat-icon class="text-on-surface">pets</mat-icon>
+          <div class="bg-surface-variant p-2 rounded-lg" aria-hidden="true">
+            <mat-icon class="text-on-surface" aria-hidden="true">pets</mat-icon>
           </div>
           <div class="flex flex-col justify-center">
             <h1 class="text-xl font-bold text-on-surface m-0 leading-tight">
@@ -115,6 +115,7 @@ import { PatientDialogComponent } from './patient-dialog.component';
                       />
                     } @else {
                       <mat-icon class="text-on-surface-variant opacity-30"
+                        aria-hidden="true"
                         >pets</mat-icon
                       >
                     }
@@ -304,7 +305,7 @@ import { PatientDialogComponent } from './patient-dialog.component';
               <tr class="mat-row" *matNoDataRow>
                 <td class="mat-cell p-8 text-center" colspan="100">
                   <div class="flex flex-col items-center gap-2 opacity-60">
-                    <mat-icon class="text-4xl w-12 h-12">search_off</mat-icon>
+                    <mat-icon class="text-4xl w-12 h-12" aria-hidden="true">search_off</mat-icon>
                     <span>No patients matching "{{ input.value }}"</span>
                   </div>
                 </td>
@@ -329,7 +330,7 @@ import { PatientDialogComponent } from './patient-dialog.component';
               You haven't added any patients to the directory yet.
             </p>
             <button mat-flat-button color="primary" (click)="addPet()">
-              <mat-icon>add</mat-icon> Add your first patient
+              <mat-icon aria-hidden="true">add</mat-icon> Add your first patient
             </button>
           </div>
         }

@@ -52,7 +52,7 @@ import { Patient, Client } from '@vet-clinic/shared-types';
               (click)="fileInput.click()"
               aria-label="Edit photo"
             >
-              <mat-icon class="text-white">edit</mat-icon>
+              <mat-icon class="text-white" aria-hidden="true">edit</mat-icon>
             </button>
           } @else {
             <mat-icon
@@ -69,7 +69,7 @@ import { Patient, Client } from '@vet-clinic/shared-types';
           }
         </div>
         <button mat-stroked-button type="button" (click)="fileInput.click()">
-          <mat-icon>photo_camera</mat-icon>
+          <mat-icon aria-hidden="true">photo_camera</mat-icon>
           {{ photoPreview ? 'Change Photo' : 'Add Photo' }}
         </button>
         <input
@@ -190,12 +190,13 @@ import { Patient, Client } from '@vet-clinic/shared-types';
       </form>
     </div>
     <div mat-dialog-actions class="justify-end p-4">
-      <button mat-button (click)="onCancel()">Cancel</button>
+      <button mat-button (click)="onCancel()" aria-label="Cancel and close dialog">Cancel</button>
       <button
         mat-raised-button
         color="primary"
         [disabled]="petForm.invalid"
         (click)="onSave()"
+        [attr.aria-label]="data ? 'Update patient' : 'Save new patient'"
       >
         Save
       </button>

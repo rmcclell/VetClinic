@@ -112,14 +112,15 @@ import { Appointment, Client, Patient } from '@vet-clinic/shared-types';
       </form>
     </div>
     <div mat-dialog-actions class="justify-end p-4">
-      <button mat-button (click)="onCancel()">Cancel</button>
+      <button mat-button (click)="onCancel()" aria-label="Cancel and close dialog">Cancel</button>
       <button
         mat-raised-button
         color="primary"
         [disabled]="appointmentForm.invalid"
         (click)="onSave()"
+        [attr.aria-label]="data && $any(data).id ? 'Update appointment' : 'Book appointment'"
       >
-        {{ data ? 'Update' : 'Book' }}
+        {{ data && $any(data).id ? 'Update' : 'Book' }}
       </button>
     </div>
   `,

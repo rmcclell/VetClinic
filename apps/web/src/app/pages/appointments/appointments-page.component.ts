@@ -49,8 +49,8 @@ interface CalendarDay {
   template: `
   <mat-toolbar class="bg-surface-variant border-b border-outline h-18! px-6">
       <div class="flex gap-3 w-full md:w-auto grow items-center">
-        <div class="bg-surface-variant border border-outline p-2 rounded-lg">
-          <mat-icon class="text-on-surface">calendar_today</mat-icon>
+        <div class="bg-surface-variant border border-outline p-2 rounded-lg" aria-hidden="true">
+          <mat-icon class="text-on-surface" aria-hidden="true">calendar_today</mat-icon>
         </div>
         <div>
           <h1 class="text-2xl font-bold text-on-surface m-0">Appointments</h1>
@@ -58,11 +58,14 @@ interface CalendarDay {
         </div>
       </div>
       <div class="flex gap-3 w-full md:w-auto items-center">
-        <button mat-icon-button class="md:hidden" (click)="sidebarVisible = !sidebarVisible" aria-label="Toggle calendar filters and mini calendar">
-          <mat-icon>tune</mat-icon>
+        <button mat-icon-button class="md:hidden" (click)="sidebarVisible = !sidebarVisible"
+          [attr.aria-expanded]="sidebarVisible"
+          aria-controls="appointment-sidebar"
+          aria-label="Toggle calendar filters and mini calendar">
+          <mat-icon aria-hidden="true">tune</mat-icon>
         </button>
         <button mat-raised-button color="primary" class="h-10" (click)="bookAppointment()">
-          <mat-icon class="mr-2">add</mat-icon>
+          <mat-icon class="mr-2" aria-hidden="true">add</mat-icon>
           <span class="hidden sm:inline">Book Appointment</span>
           <span class="sm:hidden">Book</span>
         </button>
@@ -77,6 +80,7 @@ interface CalendarDay {
                     fixed md:static top-0 left-0 h-full z-40 md:z-auto
                     bg-surface md:bg-transparent p-4 md:p-0
                     overflow-y-auto md:overflow-visible shadow-xl md:shadow-none"
+             id="appointment-sidebar"
              [style.display]="sidebarVisible ? 'flex' : null"
              aria-label="Calendar sidebar">
 

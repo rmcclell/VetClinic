@@ -145,7 +145,7 @@ import { MatToolbarModule } from '@angular/material/toolbar';
           <mat-card-title>Recent Patients</mat-card-title>
         </mat-card-header>
         <mat-list role="list">
-          <mat-list-item>
+          <mat-list-item role="listitem" aria-label="Charlie, Golden Retriever, 3 years old">
             <img
               matListItemAvatar
               src="https://ui-avatars.com/api/?name=Charlie&background=random"
@@ -162,7 +162,7 @@ import { MatToolbarModule } from '@angular/material/toolbar';
             </button>
           </mat-list-item>
           <mat-divider aria-hidden="true"></mat-divider>
-          <mat-list-item>
+          <mat-list-item role="listitem" aria-label="Misty, Siamese Cat, 2 years old">
             <img
               matListItemAvatar
               src="https://ui-avatars.com/api/?name=Misty&background=random"
@@ -179,7 +179,7 @@ import { MatToolbarModule } from '@angular/material/toolbar';
             </button>
           </mat-list-item>
           <mat-divider aria-hidden="true"></mat-divider>
-          <mat-list-item>
+          <mat-list-item role="listitem" aria-label="Rocky, Bulldog, 5 years old">
             <img
               matListItemAvatar
               src="https://ui-avatars.com/api/?name=Rocky&background=random"

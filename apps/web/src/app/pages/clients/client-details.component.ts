@@ -100,17 +100,18 @@ import { MatDividerModule } from '@angular/material/divider';
               <button
                 mat-stroked-button
                 [matMenuTriggerFor]="clientActions"
+                [attr.aria-label]="'More options for ' + client.firstName + ' ' + client.lastName"
                 class="h-9 min-w-0 px-3 rounded-lg border-outline"
               >
-                <mat-icon class="text-base">more_horiz</mat-icon>
+                <mat-icon class="text-base" aria-hidden="true">more_horiz</mat-icon>
               </button>
               <mat-menu #clientActions="matMenu">
                 <button mat-menu-item (click)="editClient(client)">
-                  <mat-icon>edit</mat-icon> Edit Profile
+                  <mat-icon aria-hidden="true">edit</mat-icon> Edit Profile
                 </button>
                 <mat-divider></mat-divider>
                 <button mat-menu-item class="text-red-600">
-                  <mat-icon color="warn">delete</mat-icon> Delete Client
+                  <mat-icon color="warn" aria-hidden="true">delete</mat-icon> Delete Client
                 </button>
               </mat-menu>
             </div>

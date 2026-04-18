@@ -48,7 +48,7 @@ import { MatSidenav } from '@angular/material/sidenav';
         #sidenav
         [mode]="(isHandset$ | async) ? 'over' : 'side'"
         [opened]="(isHandset$ | async) === false"
-        class="w-64 max-w-[85vw]"
+        class="w-64 max-w-[80vw]"
       >
         <div
           class="flex flex-col h-full bg-white dark:bg-slate-900 overflow-hidden"
@@ -262,7 +262,7 @@ import { MatSidenav } from '@angular/material/sidenav';
             <div class="flex items-center gap-1 sm:gap-2 shrink-0">
               <button
                 mat-icon-button
-                class="sm:mr-1 hidden sm:inline-flex"
+                class="hidden sm:inline-flex sm:mr-1"
                 aria-label="View 3 notifications"
               >
                 <mat-icon matBadge="3" matBadgeColor="warn" aria-hidden="true"
@@ -335,7 +335,7 @@ import { MatSidenav } from '@angular/material/sidenav';
 
         <!-- Page Content -->
         <div
-          class="flex-1 flex flex-col overflow-auto p-[var(--spacing-page-py)] md:p-[calc(var(--spacing-page-py)*1.5)] lg:p-[calc(var(--spacing-page-py)*1.75)] h-[calc(100vh-56px)] sm:h-[calc(100vh-64px)] min-h-0"
+          class="flex-1 flex flex-col overflow-auto p-[var(--spacing-page-py)] md:p-[calc(var(--spacing-page-py)*1.5)] lg:p-[calc(var(--spacing-page-py)*1.75)] min-h-0"
         >
           <router-outlet></router-outlet>
         </div>

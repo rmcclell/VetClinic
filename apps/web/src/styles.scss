@@ -137,6 +137,25 @@ body {
   height: 100%;
 }
 
+*,
+*::before,
+*::after {
+  box-sizing: border-box;
+}
+
+img,
+svg,
+video,
+canvas {
+  max-width: 100%;
+  height: auto;
+}
+
+:focus-visible {
+  outline: 3px solid color-mix(in srgb, var(--color-primary), white 20%);
+  outline-offset: 2px;
+}
+
 :root {
   --mat-sidenav-container-width: 200px;
 }
@@ -204,4 +223,27 @@ body {
   font-size: 1rem;
   font-weight: 700;
   color: var(--color-on-surface);
+}
+
+@media (max-width: 767.98px) {
+  table[mat-table] {
+    display: block;
+    overflow-x: auto;
+    -webkit-overflow-scrolling: touch;
+    min-width: 100%;
+  }
+
+  .mat-mdc-table {
+    min-width: 40rem;
+  }
+
+  .mat-mdc-paginator-container {
+    justify-content: flex-start;
+    row-gap: 8px;
+    padding-inline: 12px;
+  }
+
+  .mat-mdc-form-field {
+    min-width: 0;
+  }
 }

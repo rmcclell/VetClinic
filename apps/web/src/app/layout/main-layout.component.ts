@@ -98,7 +98,7 @@ import { MatSidenav } from '@angular/material/sidenav';
 
           <!-- Scrollable Links -->
           <div class="flex-1 overflow-y-auto py-2 custom-scrollbar">
-            <mat-nav-list aria-label="Primary application navigation">
+            <mat-nav-list aria-label="Main application menu">
               <a
                 mat-list-item
                 routerLink="/dashboard"
@@ -262,7 +262,7 @@ import { MatSidenav } from '@angular/material/sidenav';
             <div class="flex items-center gap-1 sm:gap-2 shrink-0">
               <button
                 mat-icon-button
-                class="hidden sm:inline-flex sm:mr-1"
+                class="sm:mr-1"
                 aria-label="View 3 notifications"
               >
                 <mat-icon matBadge="3" matBadgeColor="warn" aria-hidden="true"

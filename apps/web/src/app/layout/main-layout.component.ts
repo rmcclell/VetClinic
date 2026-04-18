@@ -262,7 +262,7 @@ import { MatSidenav } from '@angular/material/sidenav';
             <div class="flex items-center gap-1 sm:gap-2 shrink-0">
               <button
                 mat-icon-button
-                class="mr-0 sm:mr-1 hidden sm:inline-flex"
+                class="sm:mr-1 hidden sm:inline-flex"
                 aria-label="View 3 notifications"
               >
                 <mat-icon matBadge="3" matBadgeColor="warn" aria-hidden="true"

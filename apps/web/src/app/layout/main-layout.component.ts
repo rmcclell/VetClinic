@@ -17,7 +17,7 @@ import { inject, ViewChild } from '@angular/core';
 import { MatDialog, MatDialogModule } from '@angular/material/dialog';
 import { UserSettingsDialogComponent } from './user-settings-dialog.component';
 import { BreakpointObserver, Breakpoints } from '@angular/cdk/layout';
-import { map, shareReplay } from 'rxjs/operators';
+import { map, shareReplay, take } from 'rxjs/operators';
 import { MatSidenav } from '@angular/material/sidenav';
 
 @Component({
@@ -40,7 +40,7 @@ import { MatSidenav } from '@angular/material/sidenav';
   ],
   template: `
     <mat-sidenav-container
-      class="h-screen"
+      class="h-screen min-h-dvh"
       (backdropClick)="closeSidenavOnMobile()"
     >
       <!-- Sidebar -->
@@ -48,7 +48,7 @@ import { MatSidenav } from '@angular/material/sidenav';
         #sidenav
         [mode]="(isHandset$ | async) ? 'over' : 'side'"
         [opened]="(isHandset$ | async) === false"
-        class="w-64"
+        class="w-64 max-w-[80vw]"
       >
         <div
           class="flex flex-col h-full bg-white dark:bg-slate-900 overflow-hidden"
@@ -98,7 +98,7 @@ import { MatSidenav } from '@angular/material/sidenav';
 
           <!-- Scrollable Links -->
           <div class="flex-1 overflow-y-auto py-2 custom-scrollbar">
-            <mat-nav-list>
+            <mat-nav-list aria-label="Main application menu">
               <a
                 mat-list-item
                 routerLink="/dashboard"
@@ -237,13 +237,13 @@ import { MatSidenav } from '@angular/material/sidenav';
       </mat-sidenav>
 
       <!-- Main Content Area -->
-      <mat-sidenav-content class="flex flex-col h-screen">
+      <mat-sidenav-content class="flex flex-col h-screen min-h-dvh">
         <!-- Toolbar -->
         <mat-toolbar
-          class="mat-elevation-z1 px-4 bg-white dark:bg-slate-900 border-b sticky top-0 z-20"
+          class="mat-elevation-z1 px-2 sm:px-4 bg-white dark:bg-slate-900 border-b sticky top-0 z-20"
         >
-          <div class="flex justify-between w-full items-center">
-            <div class="flex items-center gap-2">
+          <div class="flex justify-between w-full items-center gap-2 min-w-0">
+            <div class="flex items-center gap-2 min-w-0">
               <button
                 mat-icon-button
                 (click)="sidenav.toggle()"
@@ -251,15 +251,18 @@ import { MatSidenav } from '@angular/material/sidenav';
               >
                 <mat-icon aria-hidden="true">menu</mat-icon>
               </button>
-              <span class="ml-2 font-bold text-gray-800 dark:text-gray-100">{{
+              <span
+                class="ml-1 sm:ml-2 font-bold text-gray-800 dark:text-gray-100 truncate"
+                >{{
                 configService.clinicName()
-              }}</span>
+              }}</span
+              >
             </div>
 
-            <div class="flex items-center gap-2">
+            <div class="flex items-center gap-1 sm:gap-2 shrink-0">
               <button
                 mat-icon-button
-                class="mr-1"
+                class="sm:mr-1"
                 aria-label="View 3 notifications"
               >
                 <mat-icon matBadge="3" matBadgeColor="warn" aria-hidden="true"
@@ -296,7 +299,7 @@ import { MatSidenav } from '@angular/material/sidenav';
               </button>
 
               <div
-                class="flex items-center gap-3 border-l pl-4 border-gray-200 dark:border-gray-700 h-8"
+                class="hidden sm:flex items-center gap-2 lg:gap-3 border-l pl-3 lg:pl-4 border-gray-200 dark:border-gray-700 h-8"
               >
                 <div class="text-right hidden sm:block leading-tight">
                   <p
@@ -321,6 +324,7 @@ import { MatSidenav } from '@angular/material/sidenav';
                   mat-icon-button
                   matTooltip="Log out of application"
                   aria-label="Log out of application"
+                  class="hidden md:inline-flex"
                 >
                   <mat-icon fontSet="material-icons-outlined" aria-hidden="true">logout</mat-icon>
                 </button>
@@ -331,7 +335,7 @@ import { MatSidenav } from '@angular/material/sidenav';
 
         <!-- Page Content -->
         <div
-          class="flex-1 flex flex-col overflow-auto p-[var(--spacing-page-py)] md:p-[calc(var(--spacing-page-py)*1.5)] lg:p-[calc(var(--spacing-page-py)*1.75)] h-[calc(100vh-64px)]"
+          class="flex-1 flex flex-col overflow-auto p-[var(--spacing-page-py)] md:p-[calc(var(--spacing-page-py)*1.5)] lg:p-[calc(var(--spacing-page-py)*1.75)] min-h-0"
         >
           <router-outlet></router-outlet>
         </div>
@@ -384,7 +388,7 @@ export class MainLayoutComponent {
   );
 
   closeSidenavOnMobile() {
-    this.isHandset$.subscribe((isHandset) => {
+    this.isHandset$.pipe(take(1)).subscribe((isHandset) => {
       if (isHandset) {
         this.sidenav.close();
       }

@@ -14,6 +14,7 @@ import { LabItem } from '../patient-tabs.types';
 import { DATE_FORMAT } from '../../../core/date-format.token';
 import { MatDialog, MatDialogModule } from '@angular/material/dialog';
 import { PatientLabDialogComponent } from './patient-lab-dialog.component';
+import { PatientLabPrintDialogComponent } from './patient-lab-print-dialog.component';
 import { PatientsService } from '../../../services/patients.service';
 import { ActivatedRoute } from '@angular/router';
 import { MatSnackBar, MatSnackBarModule } from '@angular/material/snack-bar';
@@ -49,10 +50,25 @@ import { MatSnackBar, MatSnackBarModule } from '@angular/material/snack-bar';
         </button>
         <button
           mat-icon-button
-          matTooltip="Documents"
-          aria-label="View lab documents"
+          matTooltip="Download"
+          aria-label="Download lab reports"
         >
-          <mat-icon aria-hidden="true">description</mat-icon>
+          <mat-icon aria-hidden="true">download</mat-icon>
+        </button>
+        <button
+          mat-icon-button
+          matTooltip="Print"
+          aria-label="Print lab reports"
+          (click)="openPrintLabDialog()"
+        >
+          <mat-icon aria-hidden="true">print</mat-icon>
+        </button>
+        <button
+          mat-icon-button
+          matTooltip="Email"
+          aria-label="Email lab reports"
+        >
+          <mat-icon aria-hidden="true">email</mat-icon>
         </button>
         <button mat-icon-button matTooltip="Notes" aria-label="View lab notes">
           <mat-icon aria-hidden="true">note</mat-icon>
@@ -260,6 +276,20 @@ export class PatientLabsComponent implements AfterViewInit {
             }
           });
         }
+      }
+    });
+  }
+
+  openPrintLabDialog() {
+    const dialogRef = this.dialog.open(PatientLabPrintDialogComponent, {
+      width: '400px',
+    });
+
+    dialogRef.afterClosed().subscribe(result => {
+      if (result) {
+        console.log('Printing lab reports with options:', result);
+        this.snackBar.open('Preparing lab reports for print...', 'Close', { duration: 3000 });
+        setTimeout(() => window.print(), 500);
       }
     });
   }

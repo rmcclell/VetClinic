@@ -88,6 +88,26 @@ The patient details view features a route-based tab navigation system for compre
 | **Labs**            | ![Light](docs/screenshots/patient_labs_light.png)          | ![Dark](docs/screenshots/patient_labs_dark.png)          |
 | **Reminders**       | ![Light](docs/screenshots/patient_reminders_light.png)     | ![Dark](docs/screenshots/patient_reminders_dark.png)     |
 
+### Patient Management Dialogs
+
+Standardized modals for adding records and generating reports across all patient sub-sections.
+
+| Section             | Add Record Dialog                                                 | Print / Report Dialog                                              |
+| ------------------- | ----------------------------------------------------------------- | ------------------------------------------------------------------ |
+| **Medical History** | _View-only history_                                               | ![Print](docs/screenshots/patient_history_print_light.png)         |
+| **Vaccinations**    | ![Add](docs/screenshots/patient_vaccinations_add_light.png)       | ![Print](docs/screenshots/patient_vaccinations_print_light.png)    |
+| **Prescriptions**   | ![Add](docs/screenshots/patient_prescriptions_add_light.png)      | ![Print](docs/screenshots/patient_prescriptions_print_light.png)   |
+| **Appointments**    | ![Add](docs/screenshots/patient_appointments_add_light.png)       | ![Print](docs/screenshots/patient_appointments_print_light.png)    |
+| **Boarding**        | ![Add](docs/screenshots/patient_boarding_add_light.png)           | ![Print](docs/screenshots/patient_boarding_print_light.png)        |
+| **Tasks**           | ![Add](docs/screenshots/patient_tasks_add_light.png)              | ![Print](docs/screenshots/patient_tasks_print_light.png)           |
+| **Estimates**       | ![Add](docs/screenshots/patient_estimates_add_light.png)          | ![Print](docs/screenshots/patient_estimates_print_light.png)       |
+| **Forms**           | ![Add](docs/screenshots/patient_forms_add_light.png)              | ![Print](docs/screenshots/patient_forms_print_light.png)           |
+| **Invoices**        | ![Add](docs/screenshots/patient_invoices_add_light.png)           | ![Print](docs/screenshots/patient_invoices_print_light.png)        |
+| **Labs**            | ![Add](docs/screenshots/patient_labs_add_light.png)               | ![Print](docs/screenshots/patient_labs_print_light.png)            |
+| **Reminders**       | ![Add](docs/screenshots/patient_reminders_add_light.png)          | ![Print](docs/screenshots/patient_reminders_print_light.png)       |
+
+_Note: All dialogs fully support both Light and Dark themes (Light shown above)._
+
 ### Client Details
 
 The client details view provides a comprehensive overview of client records with tabbed navigation.

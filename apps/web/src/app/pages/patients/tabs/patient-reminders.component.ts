@@ -13,6 +13,11 @@ import { MatTooltipModule } from '@angular/material/tooltip';
 import { MatDividerModule } from '@angular/material/divider';
 import { ReminderItem } from '../patient-tabs.types';
 import { DATE_FORMAT } from '../../../core/date-format.token';
+import { MatDialog, MatDialogModule } from '@angular/material/dialog';
+import { PatientReminderDialogComponent } from './patient-reminder-dialog.component';
+import { PatientsService } from '../../../services/patients.service';
+import { ActivatedRoute } from '@angular/router';
+import { MatSnackBar, MatSnackBarModule } from '@angular/material/snack-bar';
 
 @Component({
   selector: 'app-patient-reminders',
@@ -30,6 +35,8 @@ import { DATE_FORMAT } from '../../../core/date-format.token';
     MatSlideToggleModule,
     MatTooltipModule,
     MatDividerModule,
+    MatDialogModule,
+    MatSnackBarModule,
   ],
   template: `
     <div class="flex flex-col h-full">
@@ -78,7 +85,7 @@ import { DATE_FORMAT } from '../../../core/date-format.token';
           />
         </mat-form-field>
 
-        <button mat-flat-button color="primary" aria-label="Add a new reminder">
+        <button mat-flat-button color="primary" aria-label="Add a new reminder" (click)="openAddReminderDialog()">
           <mat-icon aria-hidden="true">add</mat-icon> Add Reminder
         </button>
       </mat-toolbar>
@@ -200,6 +207,10 @@ import { DATE_FORMAT } from '../../../core/date-format.token';
 })
 export class PatientRemindersComponent implements AfterViewInit {
   readonly dateFormat = inject(DATE_FORMAT);
+  private dialog = inject(MatDialog);
+  private patientsService = inject(PatientsService);
+  private route = inject(ActivatedRoute);
+  private snackBar = inject(MatSnackBar);
 
   @ViewChild(MatSort) sort!: MatSort;
 
@@ -241,5 +252,35 @@ export class PatientRemindersComponent implements AfterViewInit {
     if (!this.showCompleted && this.dataSource.filter === ' ') {
       this.dataSource.filter = '';
     }
+  }
+
+  openAddReminderDialog() {
+    const patientId = Number(this.route.parent?.snapshot.paramMap.get('id'));
+    const dialogRef = this.dialog.open(PatientReminderDialogComponent, {
+      width: '600px',
+      data: { patientId }
+    });
+
+    dialogRef.afterClosed().subscribe(result => {
+      if (result) {
+        if (patientId) {
+          this.patientsService.addReminder(patientId, result).subscribe({
+            next: (newEntry) => {
+               const entryToAdd = { ...result, id: Date.now() };
+               this.reminders = [entryToAdd, ...this.reminders];
+               this.dataSource.data = this.reminders;
+               this.snackBar.open('Reminder added successfully', 'Close', { duration: 3000 });
+            },
+            error: (err) => {
+              console.error('Error adding reminder', err);
+              const entryToAdd = { ...result, id: Date.now() };
+              this.reminders = [entryToAdd, ...this.reminders];
+              this.dataSource.data = this.reminders;
+              this.snackBar.open('Reminder added locally (API failed)', 'Close', { duration: 3000 });
+            }
+          });
+        }
+      }
+    });
   }
 }

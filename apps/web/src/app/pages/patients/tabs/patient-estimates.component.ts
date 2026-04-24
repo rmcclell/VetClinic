@@ -13,6 +13,11 @@ import { MatTooltipModule } from '@angular/material/tooltip';
 import { MatDividerModule } from '@angular/material/divider';
 import { EstimateItem } from '../patient-tabs.types';
 import { DATE_FORMAT } from '../../../core/date-format.token';
+import { MatDialog, MatDialogModule } from '@angular/material/dialog';
+import { PatientEstimateDialogComponent } from './patient-estimate-dialog.component';
+import { PatientsService } from '../../../services/patients.service';
+import { ActivatedRoute } from '@angular/router';
+import { MatSnackBar, MatSnackBarModule } from '@angular/material/snack-bar';
 
 @Component({
   selector: 'app-patient-estimates',
@@ -30,6 +35,8 @@ import { DATE_FORMAT } from '../../../core/date-format.token';
     MatInputModule,
     MatTooltipModule,
     MatDividerModule,
+    MatDialogModule,
+    MatSnackBarModule,
   ],
   template: `
     <div class="flex flex-col h-full">
@@ -61,7 +68,7 @@ import { DATE_FORMAT } from '../../../core/date-format.token';
           />
         </mat-form-field>
 
-        <button mat-flat-button color="primary" aria-label="Add a new estimate">
+        <button mat-flat-button color="primary" aria-label="Add a new estimate" (click)="openAddEstimateDialog()">
           <mat-icon aria-hidden="true">add</mat-icon> Add Estimate
         </button>
       </mat-toolbar>
@@ -251,6 +258,10 @@ import { DATE_FORMAT } from '../../../core/date-format.token';
 })
 export class PatientEstimatesComponent implements AfterViewInit {
   readonly dateFormat = inject(DATE_FORMAT);
+  private dialog = inject(MatDialog);
+  private patientsService = inject(PatientsService);
+  private route = inject(ActivatedRoute);
+  private snackBar = inject(MatSnackBar);
 
   @ViewChild(MatSort) sort!: MatSort;
 
@@ -305,5 +316,35 @@ export class PatientEstimatesComponent implements AfterViewInit {
   applyFilter(event: Event) {
     const filterValue = (event.target as HTMLInputElement).value;
     this.dataSource.filter = filterValue.trim().toLowerCase();
+  }
+
+  openAddEstimateDialog() {
+    const patientId = Number(this.route.parent?.snapshot.paramMap.get('id'));
+    const dialogRef = this.dialog.open(PatientEstimateDialogComponent, {
+      width: '600px',
+      data: { patientId }
+    });
+
+    dialogRef.afterClosed().subscribe(result => {
+      if (result) {
+        if (patientId) {
+          this.patientsService.addEstimate(patientId, result).subscribe({
+            next: (newEntry) => {
+               const entryToAdd = { ...result, id: Date.now() };
+               this.estimates = [entryToAdd, ...this.estimates];
+               this.dataSource.data = this.estimates;
+               this.snackBar.open('Estimate added successfully', 'Close', { duration: 3000 });
+            },
+            error: (err) => {
+              console.error('Error adding estimate', err);
+              const entryToAdd = { ...result, id: Date.now() };
+              this.estimates = [entryToAdd, ...this.estimates];
+              this.dataSource.data = this.estimates;
+              this.snackBar.open('Estimate added locally (API failed)', 'Close', { duration: 3000 });
+            }
+          });
+        }
+      }
+    });
   }
 }

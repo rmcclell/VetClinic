@@ -12,6 +12,11 @@ import { MatTooltipModule } from '@angular/material/tooltip';
 import { MatDividerModule } from '@angular/material/divider';
 import { InvoiceItem } from '../patient-tabs.types';
 import { DATE_FORMAT } from '../../../core/date-format.token';
+import { MatDialog, MatDialogModule } from '@angular/material/dialog';
+import { PatientInvoiceDialogComponent } from './patient-invoice-dialog.component';
+import { PatientsService } from '../../../services/patients.service';
+import { ActivatedRoute } from '@angular/router';
+import { MatSnackBar, MatSnackBarModule } from '@angular/material/snack-bar';
 
 @Component({
   selector: 'app-patient-invoices',
@@ -28,6 +33,8 @@ import { DATE_FORMAT } from '../../../core/date-format.token';
     MatFormFieldModule,
     MatInputModule,
     MatTooltipModule,
+    MatDialogModule,
+    MatSnackBarModule,
   ],
   template: `
     <div class="flex flex-col h-full">
@@ -62,7 +69,7 @@ import { DATE_FORMAT } from '../../../core/date-format.token';
           />
         </mat-form-field>
 
-        <button mat-flat-button color="primary" aria-label="Add a new invoice">
+        <button mat-flat-button color="primary" aria-label="Add a new invoice" (click)="openAddInvoiceDialog()">
           <mat-icon aria-hidden="true">add</mat-icon> Add Invoice
         </button>
       </mat-toolbar>
@@ -203,6 +210,10 @@ import { DATE_FORMAT } from '../../../core/date-format.token';
 })
 export class PatientInvoicesComponent implements AfterViewInit {
   readonly dateFormat = inject(DATE_FORMAT);
+  private dialog = inject(MatDialog);
+  private patientsService = inject(PatientsService);
+  private route = inject(ActivatedRoute);
+  private snackBar = inject(MatSnackBar);
 
   @ViewChild(MatSort) sort!: MatSort;
 
@@ -254,5 +265,35 @@ export class PatientInvoicesComponent implements AfterViewInit {
   applyFilter(event: Event) {
     const filterValue = (event.target as HTMLInputElement).value;
     this.dataSource.filter = filterValue.trim().toLowerCase();
+  }
+
+  openAddInvoiceDialog() {
+    const patientId = Number(this.route.parent?.snapshot.paramMap.get('id'));
+    const dialogRef = this.dialog.open(PatientInvoiceDialogComponent, {
+      width: '600px',
+      data: { patientId }
+    });
+
+    dialogRef.afterClosed().subscribe(result => {
+      if (result) {
+        if (patientId) {
+          this.patientsService.addInvoice(patientId, result).subscribe({
+            next: (newEntry) => {
+               const entryToAdd = { ...result, id: Date.now() };
+               this.invoiceItems = [entryToAdd, ...this.invoiceItems];
+               this.dataSource.data = this.invoiceItems;
+               this.snackBar.open('Invoice added successfully', 'Close', { duration: 3000 });
+            },
+            error: (err) => {
+              console.error('Error adding invoice', err);
+              const entryToAdd = { ...result, id: Date.now() };
+              this.invoiceItems = [entryToAdd, ...this.invoiceItems];
+              this.dataSource.data = this.invoiceItems;
+              this.snackBar.open('Invoice added locally (API failed)', 'Close', { duration: 3000 });
+            }
+          });
+        }
+      }
+    });
   }
 }

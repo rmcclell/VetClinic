@@ -57,4 +57,28 @@ export class PatientsService {
   addTask(patientId: number, taskData: any): Observable<any> {
     return this.http.post<any>(`${this.apiUrl}/${patientId}/tasks`, taskData);
   }
+
+  addInvoice(patientId: number, invoiceData: any): Observable<any> {
+    return this.http.post<any>(`${this.apiUrl}/${patientId}/invoices`, invoiceData);
+  }
+
+  addReminder(patientId: number, reminderData: any): Observable<any> {
+    return this.http.post<any>(`${this.apiUrl}/${patientId}/reminders`, reminderData);
+  }
+
+  addLab(patientId: number, labData: any): Observable<any> {
+    return this.http.post<any>(`${this.apiUrl}/${patientId}/labs`, labData);
+  }
+
+  addEstimate(patientId: number, estimateData: any): Observable<any> {
+    return this.http.post<any>(`${this.apiUrl}/${patientId}/estimates`, estimateData);
+  }
+
+  addForm(patientId: number, formData: any): Observable<any> {
+    return this.http.post<any>(`${this.apiUrl}/${patientId}/forms`, formData);
+  }
+
+  sendForm(patientId: number, formData: any): Observable<any> {
+    return this.http.post<any>(`${this.apiUrl}/${patientId}/forms/send`, formData);
+  }
 }

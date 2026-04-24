@@ -13,6 +13,12 @@ import { MatTooltipModule } from '@angular/material/tooltip';
 import { MatDividerModule } from '@angular/material/divider';
 import { FormItem } from '../patient-tabs.types';
 import { DATE_FORMAT } from '../../../core/date-format.token';
+import { MatDialog, MatDialogModule } from '@angular/material/dialog';
+import { PatientFormDialogComponent } from './patient-form-dialog.component';
+import { PatientFormSendDialogComponent } from './patient-form-send-dialog.component';
+import { PatientsService } from '../../../services/patients.service';
+import { ActivatedRoute } from '@angular/router';
+import { MatSnackBar, MatSnackBarModule } from '@angular/material/snack-bar';
 
 @Component({
   selector: 'app-patient-forms',
@@ -30,6 +36,8 @@ import { DATE_FORMAT } from '../../../core/date-format.token';
     MatInputModule,
     MatTooltipModule,
     MatDividerModule,
+    MatDialogModule,
+    MatSnackBarModule,
   ],
   template: `
     <div class="flex flex-col gap-6 overflow-auto p-0">
@@ -59,6 +67,7 @@ import { DATE_FORMAT } from '../../../core/date-format.token';
             mat-flat-button
             color="primary"
             aria-label="Send a form to the client"
+            (click)="openSendFormDialog()"
           >
             <mat-icon aria-hidden="true">send</mat-icon> Send Form
           </button>
@@ -200,6 +209,7 @@ import { DATE_FORMAT } from '../../../core/date-format.token';
             mat-flat-button
             color="primary"
             aria-label="Create a new internal form"
+            (click)="openAddFormDialog()"
           >
             <mat-icon aria-hidden="true">add</mat-icon> Add Form
           </button>
@@ -315,6 +325,10 @@ import { DATE_FORMAT } from '../../../core/date-format.token';
 })
 export class PatientFormsComponent implements AfterViewInit {
   readonly dateFormat = inject(DATE_FORMAT);
+  private dialog = inject(MatDialog);
+  private patientsService = inject(PatientsService);
+  private route = inject(ActivatedRoute);
+  private snackBar = inject(MatSnackBar);
 
   @ViewChild('clientSort') clientSort!: MatSort;
   @ViewChild('internalSort') internalSort!: MatSort;
@@ -373,5 +387,66 @@ export class PatientFormsComponent implements AfterViewInit {
     this.internalDataSource.filter = (event.target as HTMLInputElement).value
       .trim()
       .toLowerCase();
+  }
+
+  openAddFormDialog() {
+    const patientId = Number(this.route.parent?.snapshot.paramMap.get('id'));
+    const dialogRef = this.dialog.open(PatientFormDialogComponent, {
+      width: '600px',
+      data: { patientId }
+    });
+
+    dialogRef.afterClosed().subscribe(result => {
+      if (result) {
+        if (patientId) {
+          this.patientsService.addForm(patientId, result).subscribe({
+            next: (newEntry) => {
+               const entryToAdd = { ...result, id: Date.now() };
+               this.internalForms = [entryToAdd, ...this.internalForms];
+               this.internalDataSource.data = this.internalForms;
+               this.snackBar.open('Form added successfully', 'Close', { duration: 3000 });
+            },
+            error: (err) => {
+              console.error('Error adding form', err);
+              const entryToAdd = { ...result, id: Date.now() };
+              this.internalForms = [entryToAdd, ...this.internalForms];
+              this.internalDataSource.data = this.internalForms;
+              this.snackBar.open('Form added locally (API failed)', 'Close', { duration: 3000 });
+            }
+          });
+        }
+      }
+    });
+  }
+
+  openSendFormDialog() {
+    const patientId = Number(this.route.parent?.snapshot.paramMap.get('id'));
+    // Ideally we would look up the client name, but we can just leave it blank for the user to fill based on our form setup
+    const dialogRef = this.dialog.open(PatientFormSendDialogComponent, {
+      width: '600px',
+      data: { patientId }
+    });
+
+    dialogRef.afterClosed().subscribe(result => {
+      if (result) {
+        if (patientId) {
+          this.patientsService.sendForm(patientId, result).subscribe({
+            next: (newEntry) => {
+               const entryToAdd = { ...result, id: Date.now() };
+               this.clientForms = [entryToAdd, ...this.clientForms];
+               this.clientDataSource.data = this.clientForms;
+               this.snackBar.open('Form sent successfully', 'Close', { duration: 3000 });
+            },
+            error: (err) => {
+              console.error('Error sending form', err);
+              const entryToAdd = { ...result, id: Date.now() };
+              this.clientForms = [entryToAdd, ...this.clientForms];
+              this.clientDataSource.data = this.clientForms;
+              this.snackBar.open('Form sent locally (API failed)', 'Close', { duration: 3000 });
+            }
+          });
+        }
+      }
+    });
   }
 }

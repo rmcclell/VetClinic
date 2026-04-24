@@ -15,6 +15,7 @@ import { ReminderItem } from '../patient-tabs.types';
 import { DATE_FORMAT } from '../../../core/date-format.token';
 import { MatDialog, MatDialogModule } from '@angular/material/dialog';
 import { PatientReminderDialogComponent } from './patient-reminder-dialog.component';
+import { PatientReminderPrintDialogComponent } from './patient-reminder-print-dialog.component';
 import { PatientsService } from '../../../services/patients.service';
 import { ActivatedRoute } from '@angular/router';
 import { MatSnackBar, MatSnackBarModule } from '@angular/material/snack-bar';
@@ -56,8 +57,20 @@ import { MatSnackBar, MatSnackBarModule } from '@angular/material/snack-bar';
         >
           <mat-icon aria-hidden="true">download</mat-icon>
         </button>
-        <button mat-icon-button matTooltip="Print" aria-label="Print reminders">
+        <button
+          mat-icon-button
+          matTooltip="Print"
+          aria-label="Print reminders"
+          (click)="openPrintReminderDialog()"
+        >
           <mat-icon aria-hidden="true">print</mat-icon>
+        </button>
+        <button
+          mat-icon-button
+          matTooltip="Email"
+          aria-label="Email reminders"
+        >
+          <mat-icon aria-hidden="true">email</mat-icon>
         </button>
 
         <mat-slide-toggle
@@ -280,6 +293,20 @@ export class PatientRemindersComponent implements AfterViewInit {
             }
           });
         }
+      }
+    });
+  }
+
+  openPrintReminderDialog() {
+    const dialogRef = this.dialog.open(PatientReminderPrintDialogComponent, {
+      width: '400px',
+    });
+
+    dialogRef.afterClosed().subscribe(result => {
+      if (result) {
+        console.log('Printing reminders with options:', result);
+        this.snackBar.open('Preparing reminders for print...', 'Close', { duration: 3000 });
+        setTimeout(() => window.print(), 500);
       }
     });
   }

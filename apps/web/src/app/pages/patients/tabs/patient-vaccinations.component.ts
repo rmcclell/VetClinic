@@ -15,6 +15,7 @@ import { VaccinationItem } from '../patient-tabs.types';
 import { DATE_FORMAT } from '../../../core/date-format.token';
 import { MatDialog, MatDialogModule } from '@angular/material/dialog';
 import { PatientVaccinationDialogComponent } from './patient-vaccination-dialog.component';
+import { PatientVaccinationPrintDialogComponent } from './patient-vaccination-print-dialog.component';
 import { PatientsService } from '../../../services/patients.service';
 import { ActivatedRoute } from '@angular/router';
 import { MatSnackBar, MatSnackBarModule } from '@angular/material/snack-bar';
@@ -53,6 +54,7 @@ import { MatSnackBar, MatSnackBarModule } from '@angular/material/snack-bar';
           mat-icon-button
           matTooltip="Print"
           aria-label="Print vaccination records"
+          (click)="openPrintVaccinationDialog()"
         >
           <mat-icon aria-hidden="true">print</mat-icon>
         </button>
@@ -255,6 +257,20 @@ export class PatientVaccinationsComponent implements AfterViewInit {
             }
           });
         }
+      }
+    });
+  }
+
+  openPrintVaccinationDialog() {
+    const dialogRef = this.dialog.open(PatientVaccinationPrintDialogComponent, {
+      width: '400px',
+    });
+
+    dialogRef.afterClosed().subscribe(result => {
+      if (result) {
+        console.log('Printing vaccination certificate with options:', result);
+        this.snackBar.open('Preparing vaccination certificate for print...', 'Close', { duration: 3000 });
+        setTimeout(() => window.print(), 500);
       }
     });
   }

@@ -15,6 +15,7 @@ import { AppointmentHistoryItem } from '../patient-tabs.types';
 import { DATE_FORMAT } from '../../../core/date-format.token';
 import { MatDialog, MatDialogModule } from '@angular/material/dialog';
 import { PatientAppointmentDialogComponent } from './patient-appointment-dialog.component';
+import { PatientAppointmentPrintDialogComponent } from './patient-appointment-print-dialog.component';
 import { PatientsService } from '../../../services/patients.service';
 import { ActivatedRoute } from '@angular/router';
 import { MatSnackBar, MatSnackBarModule } from '@angular/material/snack-bar';
@@ -53,6 +54,7 @@ import { MatSnackBar, MatSnackBarModule } from '@angular/material/snack-bar';
           mat-icon-button
           matTooltip="Print"
           aria-label="Print appointment records"
+          (click)="openPrintAppointmentDialog()"
         >
           <mat-icon aria-hidden="true">print</mat-icon>
         </button>
@@ -368,6 +370,20 @@ export class PatientAppointmentsComponent implements AfterViewInit {
             }
           });
         }
+      }
+    });
+  }
+
+  openPrintAppointmentDialog() {
+    const dialogRef = this.dialog.open(PatientAppointmentPrintDialogComponent, {
+      width: '400px',
+    });
+
+    dialogRef.afterClosed().subscribe(result => {
+      if (result) {
+        console.log('Printing appointments with options:', result);
+        this.snackBar.open('Preparing appointments for print...', 'Close', { duration: 3000 });
+        setTimeout(() => window.print(), 500);
       }
     });
   }

@@ -15,6 +15,7 @@ import { MedicalHistoryItem } from '../patient-tabs.types';
 import { DATE_FORMAT } from '../../../core/date-format.token';
 import { MatDialog, MatDialogModule } from '@angular/material/dialog';
 import { PatientHistoryDialogComponent } from './patient-history-dialog.component';
+import { PatientHistoryPrintDialogComponent } from './patient-history-print-dialog.component';
 import { PatientsService } from '../../../services/patients.service';
 import { ActivatedRoute } from '@angular/router';
 import { MatSnackBar, MatSnackBarModule } from '@angular/material/snack-bar';
@@ -61,6 +62,7 @@ import { MatSnackBar, MatSnackBarModule } from '@angular/material/snack-bar';
           mat-icon-button
           matTooltip="Print"
           aria-label="Print medical history"
+          (click)="openPrintHistoryDialog()"
           >
           <mat-icon aria-hidden="true">print</mat-icon>
         </button>
@@ -348,6 +350,22 @@ export class PatientHistoryComponent implements AfterViewInit {
             }
           });
         }
+      }
+    });
+  }
+
+  openPrintHistoryDialog() {
+    const dialogRef = this.dialog.open(PatientHistoryPrintDialogComponent, {
+      width: '400px',
+    });
+
+    dialogRef.afterClosed().subscribe(result => {
+      if (result) {
+        // Here we could pass the options to a print service
+        console.log('Printing history with options:', result);
+        this.snackBar.open('Preparing medical history for print...', 'Close', { duration: 3000 });
+        // Simulating the print action
+        setTimeout(() => window.print(), 500);
       }
     });
   }

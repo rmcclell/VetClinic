@@ -16,6 +16,7 @@ import { DATE_FORMAT } from '../../../core/date-format.token';
 import { MatDialog, MatDialogModule } from '@angular/material/dialog';
 import { PatientFormDialogComponent } from './patient-form-dialog.component';
 import { PatientFormSendDialogComponent } from './patient-form-send-dialog.component';
+import { PatientFormPrintDialogComponent } from './patient-form-print-dialog.component';
 import { PatientsService } from '../../../services/patients.service';
 import { ActivatedRoute } from '@angular/router';
 import { MatSnackBar, MatSnackBarModule } from '@angular/material/snack-bar';
@@ -41,12 +42,30 @@ import { MatSnackBar, MatSnackBarModule } from '@angular/material/snack-bar';
   ],
   template: `
     <div class="flex flex-col gap-6 overflow-auto p-0">
-      <!-- ── Client Form Responses ─────────────────────────────────── -->
       <div class="flex flex-col">
         <mat-toolbar class="tab-toolbar">
-          <span class="font-semibold text-sm shrink-0"
-            >Client Form Responses</span
+          <button
+            mat-icon-button
+            matTooltip="Download"
+            aria-label="Download client forms"
           >
+            <mat-icon aria-hidden="true">download</mat-icon>
+          </button>
+          <button
+            mat-icon-button
+            matTooltip="Print"
+            aria-label="Print client forms"
+            (click)="openPrintFormDialog()"
+          >
+            <mat-icon aria-hidden="true">print</mat-icon>
+          </button>
+          <button
+            mat-icon-button
+            matTooltip="Email"
+            aria-label="Email client forms"
+          >
+            <mat-icon aria-hidden="true">email</mat-icon>
+          </button>
 
           <mat-form-field
             appearance="outline"
@@ -189,6 +208,29 @@ import { MatSnackBar, MatSnackBarModule } from '@angular/material/snack-bar';
       <div class="flex flex-col">
         <mat-toolbar class="tab-toolbar">
           <span class="font-semibold text-sm shrink-0">Internal Forms</span>
+
+          <button
+            mat-icon-button
+            matTooltip="Download"
+            aria-label="Download internal forms"
+          >
+            <mat-icon aria-hidden="true">download</mat-icon>
+          </button>
+          <button
+            mat-icon-button
+            matTooltip="Print"
+            aria-label="Print internal forms"
+            (click)="openPrintFormDialog()"
+          >
+            <mat-icon aria-hidden="true">print</mat-icon>
+          </button>
+          <button
+            mat-icon-button
+            matTooltip="Email"
+            aria-label="Email internal forms"
+          >
+            <mat-icon aria-hidden="true">email</mat-icon>
+          </button>
 
           <mat-form-field
             appearance="outline"
@@ -446,6 +488,20 @@ export class PatientFormsComponent implements AfterViewInit {
             }
           });
         }
+      }
+    });
+  }
+
+  openPrintFormDialog() {
+    const dialogRef = this.dialog.open(PatientFormPrintDialogComponent, {
+      width: '400px',
+    });
+
+    dialogRef.afterClosed().subscribe(result => {
+      if (result) {
+        console.log('Printing forms with options:', result);
+        this.snackBar.open('Preparing forms for print...', 'Close', { duration: 3000 });
+        setTimeout(() => window.print(), 500);
       }
     });
   }

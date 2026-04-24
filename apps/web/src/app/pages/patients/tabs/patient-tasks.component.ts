@@ -16,6 +16,7 @@ import { PatientTask } from '../patient-tabs.types';
 import { DATE_FORMAT } from '../../../core/date-format.token';
 import { MatDialog, MatDialogModule } from '@angular/material/dialog';
 import { PatientTaskDialogComponent } from './patient-task-dialog.component';
+import { PatientTaskPrintDialogComponent } from './patient-task-print-dialog.component';
 import { PatientsService } from '../../../services/patients.service';
 import { ActivatedRoute } from '@angular/router';
 import { MatSnackBar, MatSnackBarModule } from '@angular/material/snack-bar';
@@ -44,6 +45,29 @@ import { MatSnackBar, MatSnackBarModule } from '@angular/material/snack-bar';
     <div class="flex flex-col h-full">
       <!-- Main Toolbar -->
       <mat-toolbar class="tab-toolbar">
+        <button
+          mat-icon-button
+          matTooltip="Download"
+          aria-label="Download tasks"
+        >
+          <mat-icon aria-hidden="true">download</mat-icon>
+        </button>
+        <button
+          mat-icon-button
+          matTooltip="Print"
+          aria-label="Print tasks"
+          (click)="openPrintTaskDialog()"
+        >
+          <mat-icon aria-hidden="true">print</mat-icon>
+        </button>
+        <button
+          mat-icon-button
+          matTooltip="Email"
+          aria-label="Email tasks"
+        >
+          <mat-icon aria-hidden="true">email</mat-icon>
+        </button>
+
         <mat-slide-toggle
           color="primary"
           [checked]="showOnlyCompleted"
@@ -324,6 +348,20 @@ export class PatientTasksComponent implements AfterViewInit {
             }
           });
         }
+      }
+    });
+  }
+
+  openPrintTaskDialog() {
+    const dialogRef = this.dialog.open(PatientTaskPrintDialogComponent, {
+      width: '400px',
+    });
+
+    dialogRef.afterClosed().subscribe(result => {
+      if (result) {
+        console.log('Printing tasks with options:', result);
+        this.snackBar.open('Preparing tasks for print...', 'Close', { duration: 3000 });
+        setTimeout(() => window.print(), 500);
       }
     });
   }

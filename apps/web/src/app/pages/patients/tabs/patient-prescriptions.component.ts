@@ -14,6 +14,7 @@ import { PrescriptionItem } from '../patient-tabs.types';
 import { DATE_FORMAT } from '../../../core/date-format.token';
 import { MatDialog, MatDialogModule } from '@angular/material/dialog';
 import { PatientPrescriptionDialogComponent } from './patient-prescription-dialog.component';
+import { PatientPrescriptionPrintDialogComponent } from './patient-prescription-print-dialog.component';
 import { PatientsService } from '../../../services/patients.service';
 import { ActivatedRoute } from '@angular/router';
 import { MatSnackBar, MatSnackBarModule } from '@angular/material/snack-bar';
@@ -51,6 +52,7 @@ import { MatSnackBar, MatSnackBarModule } from '@angular/material/snack-bar';
           mat-icon-button
           matTooltip="Print"
           aria-label="Print prescriptions"
+          (click)="openPrintPrescriptionDialog()"
         >
           <mat-icon aria-hidden="true">print</mat-icon>
         </button>
@@ -314,6 +316,20 @@ export class PatientPrescriptionsComponent implements AfterViewInit {
             }
           });
         }
+      }
+    });
+  }
+
+  openPrintPrescriptionDialog() {
+    const dialogRef = this.dialog.open(PatientPrescriptionPrintDialogComponent, {
+      width: '400px',
+    });
+
+    dialogRef.afterClosed().subscribe(result => {
+      if (result) {
+        console.log('Printing prescriptions with options:', result);
+        this.snackBar.open('Preparing prescriptions for print...', 'Close', { duration: 3000 });
+        setTimeout(() => window.print(), 500);
       }
     });
   }

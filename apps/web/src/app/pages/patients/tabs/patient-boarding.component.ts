@@ -17,6 +17,7 @@ import { BoardingReservation } from '../patient-tabs.types';
 import { DATE_FORMAT } from '../../../core/date-format.token';
 import { MatDialog, MatDialogModule } from '@angular/material/dialog';
 import { PatientBoardingDialogComponent } from './patient-boarding-dialog.component';
+import { PatientBoardingPrintDialogComponent } from './patient-boarding-print-dialog.component';
 import { PatientsService } from '../../../services/patients.service';
 import { ActivatedRoute } from '@angular/router';
 import { MatSnackBar, MatSnackBarModule } from '@angular/material/snack-bar';
@@ -46,6 +47,29 @@ import { MatSnackBar, MatSnackBarModule } from '@angular/material/snack-bar';
     <div class="flex flex-col h-full">
       <!-- Main Toolbar -->
       <mat-toolbar class="tab-toolbar">
+        <button
+          mat-icon-button
+          matTooltip="Download"
+          aria-label="Download boarding records"
+        >
+          <mat-icon aria-hidden="true">download</mat-icon>
+        </button>
+        <button
+          mat-icon-button
+          matTooltip="Print"
+          aria-label="Print boarding records"
+          (click)="openPrintBoardingDialog()"
+        >
+          <mat-icon aria-hidden="true">print</mat-icon>
+        </button>
+        <button
+          mat-icon-button
+          matTooltip="Email"
+          aria-label="Email boarding records"
+        >
+          <mat-icon aria-hidden="true">email</mat-icon>
+        </button>
+
         <mat-slide-toggle
           color="primary"
           [(ngModel)]="showPastCanceled"
@@ -307,6 +331,20 @@ export class PatientBoardingComponent implements AfterViewInit {
             }
           });
         }
+      }
+    });
+  }
+
+  openPrintBoardingDialog() {
+    const dialogRef = this.dialog.open(PatientBoardingPrintDialogComponent, {
+      width: '400px',
+    });
+
+    dialogRef.afterClosed().subscribe(result => {
+      if (result) {
+        console.log('Printing boarding history with options:', result);
+        this.snackBar.open('Preparing boarding history for print...', 'Close', { duration: 3000 });
+        setTimeout(() => window.print(), 500);
       }
     });
   }

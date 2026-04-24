@@ -12,6 +12,11 @@ import { MatInputModule } from '@angular/material/input';
 import { MatDividerModule } from '@angular/material/divider';
 import { PrescriptionItem } from '../patient-tabs.types';
 import { DATE_FORMAT } from '../../../core/date-format.token';
+import { MatDialog, MatDialogModule } from '@angular/material/dialog';
+import { PatientPrescriptionDialogComponent } from './patient-prescription-dialog.component';
+import { PatientsService } from '../../../services/patients.service';
+import { ActivatedRoute } from '@angular/router';
+import { MatSnackBar, MatSnackBarModule } from '@angular/material/snack-bar';
 
 @Component({
   selector: 'app-patient-prescriptions',
@@ -28,6 +33,8 @@ import { DATE_FORMAT } from '../../../core/date-format.token';
     MatDividerModule,
     MatFormFieldModule,
     MatInputModule,
+    MatDialogModule,
+    MatSnackBarModule,
   ],
   template: `
     <div class="flex flex-col h-full">
@@ -74,6 +81,7 @@ import { DATE_FORMAT } from '../../../core/date-format.token';
           mat-flat-button
           color="primary"
           aria-label="Add a new prescription"
+          (click)="openAddPrescriptionDialog()"
         >
           <mat-icon aria-hidden="true">add</mat-icon> Add Prescription
         </button>
@@ -215,6 +223,10 @@ import { DATE_FORMAT } from '../../../core/date-format.token';
 })
 export class PatientPrescriptionsComponent implements AfterViewInit {
   readonly dateFormat = inject(DATE_FORMAT);
+  private dialog = inject(MatDialog);
+  private patientsService = inject(PatientsService);
+  private route = inject(ActivatedRoute);
+  private snackBar = inject(MatSnackBar);
 
   @ViewChild(MatSort) sort!: MatSort;
 
@@ -274,5 +286,35 @@ export class PatientPrescriptionsComponent implements AfterViewInit {
   applyFilter(event: Event) {
     const filterValue = (event.target as HTMLInputElement).value;
     this.dataSource.filter = filterValue.trim().toLowerCase();
+  }
+
+  openAddPrescriptionDialog() {
+    const patientId = Number(this.route.parent?.snapshot.paramMap.get('id'));
+    const dialogRef = this.dialog.open(PatientPrescriptionDialogComponent, {
+      width: '600px',
+      data: { patientId }
+    });
+
+    dialogRef.afterClosed().subscribe(result => {
+      if (result) {
+        if (patientId) {
+          this.patientsService.addPrescription(patientId, result).subscribe({
+            next: (newEntry) => {
+               const entryToAdd = { ...result, id: Date.now() };
+               this.prescriptions = [entryToAdd, ...this.prescriptions];
+               this.dataSource.data = this.prescriptions;
+               this.snackBar.open('Prescription added successfully', 'Close', { duration: 3000 });
+            },
+            error: (err) => {
+              console.error('Error adding prescription', err);
+              const entryToAdd = { ...result, id: Date.now() };
+              this.prescriptions = [entryToAdd, ...this.prescriptions];
+              this.dataSource.data = this.prescriptions;
+              this.snackBar.open('Prescription added locally (API failed)', 'Close', { duration: 3000 });
+            }
+          });
+        }
+      }
+    });
   }
 }

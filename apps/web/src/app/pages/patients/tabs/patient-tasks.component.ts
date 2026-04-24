@@ -14,6 +14,11 @@ import { MatTooltipModule } from '@angular/material/tooltip';
 import { MatDividerModule } from '@angular/material/divider';
 import { PatientTask } from '../patient-tabs.types';
 import { DATE_FORMAT } from '../../../core/date-format.token';
+import { MatDialog, MatDialogModule } from '@angular/material/dialog';
+import { PatientTaskDialogComponent } from './patient-task-dialog.component';
+import { PatientsService } from '../../../services/patients.service';
+import { ActivatedRoute } from '@angular/router';
+import { MatSnackBar, MatSnackBarModule } from '@angular/material/snack-bar';
 
 @Component({
   selector: 'app-patient-tasks',
@@ -32,6 +37,8 @@ import { DATE_FORMAT } from '../../../core/date-format.token';
     MatDividerModule,
     MatChipsModule,
     MatTooltipModule,
+    MatDialogModule,
+    MatSnackBarModule,
   ],
   template: `
     <div class="flex flex-col h-full">
@@ -62,7 +69,7 @@ import { DATE_FORMAT } from '../../../core/date-format.token';
           />
         </mat-form-field>
 
-        <button mat-flat-button color="primary" aria-label="Add a new task">
+        <button mat-flat-button color="primary" aria-label="Add a new task" (click)="openAddTaskDialog()">
           <mat-icon aria-hidden="true">add</mat-icon> Add Task
         </button>
       </mat-toolbar>
@@ -214,6 +221,10 @@ import { DATE_FORMAT } from '../../../core/date-format.token';
 })
 export class PatientTasksComponent implements AfterViewInit {
   readonly dateFormat = inject(DATE_FORMAT);
+  private dialog = inject(MatDialog);
+  private patientsService = inject(PatientsService);
+  private route = inject(ActivatedRoute);
+  private snackBar = inject(MatSnackBar);
 
   @ViewChild(MatSort) sort!: MatSort;
 
@@ -285,5 +296,35 @@ export class PatientTasksComponent implements AfterViewInit {
       .split(' ')
       .map((n) => n[0])
       .join('');
+  }
+
+  openAddTaskDialog() {
+    const patientId = Number(this.route.parent?.snapshot.paramMap.get('id'));
+    const dialogRef = this.dialog.open(PatientTaskDialogComponent, {
+      width: '600px',
+      data: { patientId }
+    });
+
+    dialogRef.afterClosed().subscribe(result => {
+      if (result) {
+        if (patientId) {
+          this.patientsService.addTask(patientId, result).subscribe({
+            next: (newEntry) => {
+               const entryToAdd = { ...result, id: Date.now() };
+               this.patientTasks = [entryToAdd, ...this.patientTasks];
+               this.dataSource.data = this.patientTasks;
+               this.snackBar.open('Task added successfully', 'Close', { duration: 3000 });
+            },
+            error: (err) => {
+              console.error('Error adding task', err);
+              const entryToAdd = { ...result, id: Date.now() };
+              this.patientTasks = [entryToAdd, ...this.patientTasks];
+              this.dataSource.data = this.patientTasks;
+              this.snackBar.open('Task added locally (API failed)', 'Close', { duration: 3000 });
+            }
+          });
+        }
+      }
+    });
   }
 }

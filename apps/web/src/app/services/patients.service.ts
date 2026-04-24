@@ -1,4 +1,4 @@
-﻿import { Injectable, inject } from '@angular/core';
+import { Injectable, inject } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
 import { Observable } from 'rxjs';
 import {
@@ -32,5 +32,29 @@ export class PatientsService {
 
   deletePatient(id: number): Observable<Patient> {
     return this.http.delete<Patient>(`${this.apiUrl}/${id}`);
+  }
+
+  addMedicalHistory(patientId: number, historyData: any): Observable<any> {
+    return this.http.post<any>(`${this.apiUrl}/${patientId}/history`, historyData);
+  }
+
+  addVaccination(patientId: number, vaccinationData: any): Observable<any> {
+    return this.http.post<any>(`${this.apiUrl}/${patientId}/vaccinations`, vaccinationData);
+  }
+
+  addPrescription(patientId: number, prescriptionData: any): Observable<any> {
+    return this.http.post<any>(`${this.apiUrl}/${patientId}/prescriptions`, prescriptionData);
+  }
+
+  addAppointment(patientId: number, appointmentData: any): Observable<any> {
+    return this.http.post<any>(`${this.apiUrl}/${patientId}/appointments`, appointmentData);
+  }
+
+  addBoarding(patientId: number, boardingData: any): Observable<any> {
+    return this.http.post<any>(`${this.apiUrl}/${patientId}/boarding`, boardingData);
+  }
+
+  addTask(patientId: number, taskData: any): Observable<any> {
+    return this.http.post<any>(`${this.apiUrl}/${patientId}/tasks`, taskData);
   }
 }

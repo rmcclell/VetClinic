@@ -13,6 +13,11 @@ import { MatChipsModule } from '@angular/material/chips';
 import { MatDividerModule } from '@angular/material/divider';
 import { AppointmentHistoryItem } from '../patient-tabs.types';
 import { DATE_FORMAT } from '../../../core/date-format.token';
+import { MatDialog, MatDialogModule } from '@angular/material/dialog';
+import { PatientAppointmentDialogComponent } from './patient-appointment-dialog.component';
+import { PatientsService } from '../../../services/patients.service';
+import { ActivatedRoute } from '@angular/router';
+import { MatSnackBar, MatSnackBarModule } from '@angular/material/snack-bar';
 
 @Component({
   selector: 'app-patient-appointments',
@@ -30,6 +35,8 @@ import { DATE_FORMAT } from '../../../core/date-format.token';
     MatInputModule,
     MatTooltipModule,
     MatChipsModule,
+    MatDialogModule,
+    MatSnackBarModule,
   ],
   template: `
     <div class="flex flex-col h-full">
@@ -76,6 +83,7 @@ import { DATE_FORMAT } from '../../../core/date-format.token';
           mat-flat-button
           color="primary"
           aria-label="Add a new appointment"
+          (click)="openAddAppointmentDialog()"
         >
           <mat-icon aria-hidden="true">add</mat-icon> Add Appt
         </button>
@@ -228,6 +236,10 @@ import { DATE_FORMAT } from '../../../core/date-format.token';
 })
 export class PatientAppointmentsComponent implements AfterViewInit {
   readonly dateFormat = inject(DATE_FORMAT);
+  private dialog = inject(MatDialog);
+  private patientsService = inject(PatientsService);
+  private route = inject(ActivatedRoute);
+  private snackBar = inject(MatSnackBar);
 
   @ViewChild(MatSort) sort!: MatSort;
 
@@ -328,5 +340,35 @@ export class PatientAppointmentsComponent implements AfterViewInit {
   applyFilter(event: Event) {
     const filterValue = (event.target as HTMLInputElement).value;
     this.dataSource.filter = filterValue.trim().toLowerCase();
+  }
+
+  openAddAppointmentDialog() {
+    const patientId = Number(this.route.parent?.snapshot.paramMap.get('id'));
+    const dialogRef = this.dialog.open(PatientAppointmentDialogComponent, {
+      width: '600px',
+      data: { patientId }
+    });
+
+    dialogRef.afterClosed().subscribe(result => {
+      if (result) {
+        if (patientId) {
+          this.patientsService.addAppointment(patientId, result).subscribe({
+            next: (newEntry) => {
+               const entryToAdd = { ...result, id: Date.now() };
+               this.appointmentHistory = [entryToAdd, ...this.appointmentHistory];
+               this.dataSource.data = this.appointmentHistory;
+               this.snackBar.open('Appointment added successfully', 'Close', { duration: 3000 });
+            },
+            error: (err) => {
+              console.error('Error adding appointment', err);
+              const entryToAdd = { ...result, id: Date.now() };
+              this.appointmentHistory = [entryToAdd, ...this.appointmentHistory];
+              this.dataSource.data = this.appointmentHistory;
+              this.snackBar.open('Appointment added locally (API failed)', 'Close', { duration: 3000 });
+            }
+          });
+        }
+      }
+    });
   }
 }

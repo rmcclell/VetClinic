@@ -13,6 +13,11 @@ import { MatTooltipModule } from '@angular/material/tooltip';
 import { MatDividerModule } from '@angular/material/divider';
 import { VaccinationItem } from '../patient-tabs.types';
 import { DATE_FORMAT } from '../../../core/date-format.token';
+import { MatDialog, MatDialogModule } from '@angular/material/dialog';
+import { PatientVaccinationDialogComponent } from './patient-vaccination-dialog.component';
+import { PatientsService } from '../../../services/patients.service';
+import { ActivatedRoute } from '@angular/router';
+import { MatSnackBar, MatSnackBarModule } from '@angular/material/snack-bar';
 
 @Component({
   selector: 'app-patient-vaccinations',
@@ -30,6 +35,8 @@ import { DATE_FORMAT } from '../../../core/date-format.token';
     MatFormFieldModule,
     MatInputModule,
     MatTooltipModule,
+    MatDialogModule,
+    MatSnackBarModule,
   ],
   template: `
     <div class="flex flex-col h-full">
@@ -76,6 +83,7 @@ import { DATE_FORMAT } from '../../../core/date-format.token';
           mat-flat-button
           color="primary"
           aria-label="Add a new vaccination record"
+          (click)="openAddVaccinationDialog()"
         >
           <mat-icon aria-hidden="true">add</mat-icon> Add Vaccine
         </button>
@@ -181,6 +189,10 @@ import { DATE_FORMAT } from '../../../core/date-format.token';
 })
 export class PatientVaccinationsComponent implements AfterViewInit {
   readonly dateFormat = inject(DATE_FORMAT);
+  private dialog = inject(MatDialog);
+  private patientsService = inject(PatientsService);
+  private route = inject(ActivatedRoute);
+  private snackBar = inject(MatSnackBar);
 
   @ViewChild(MatSort) sort!: MatSort;
 
@@ -215,5 +227,35 @@ export class PatientVaccinationsComponent implements AfterViewInit {
   applyFilter(event: Event) {
     const filterValue = (event.target as HTMLInputElement).value;
     this.dataSource.filter = filterValue.trim().toLowerCase();
+  }
+
+  openAddVaccinationDialog() {
+    const patientId = Number(this.route.parent?.snapshot.paramMap.get('id'));
+    const dialogRef = this.dialog.open(PatientVaccinationDialogComponent, {
+      width: '400px',
+      data: { patientId }
+    });
+
+    dialogRef.afterClosed().subscribe(result => {
+      if (result) {
+        if (patientId) {
+          this.patientsService.addVaccination(patientId, result).subscribe({
+            next: (newEntry) => {
+               const entryToAdd = { ...result, id: Date.now() };
+               this.vaccinations = [entryToAdd, ...this.vaccinations];
+               this.dataSource.data = this.vaccinations;
+               this.snackBar.open('Vaccination added successfully', 'Close', { duration: 3000 });
+            },
+            error: (err) => {
+              console.error('Error adding vaccination', err);
+              const entryToAdd = { ...result, id: Date.now() };
+              this.vaccinations = [entryToAdd, ...this.vaccinations];
+              this.dataSource.data = this.vaccinations;
+              this.snackBar.open('Vaccination added locally (API failed)', 'Close', { duration: 3000 });
+            }
+          });
+        }
+      }
+    });
   }
 }

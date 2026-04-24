@@ -15,6 +15,11 @@ import { MatTooltipModule } from '@angular/material/tooltip';
 import { MatDividerModule } from '@angular/material/divider';
 import { BoardingReservation } from '../patient-tabs.types';
 import { DATE_FORMAT } from '../../../core/date-format.token';
+import { MatDialog, MatDialogModule } from '@angular/material/dialog';
+import { PatientBoardingDialogComponent } from './patient-boarding-dialog.component';
+import { PatientsService } from '../../../services/patients.service';
+import { ActivatedRoute } from '@angular/router';
+import { MatSnackBar, MatSnackBarModule } from '@angular/material/snack-bar';
 
 @Component({
   selector: 'app-patient-boarding',
@@ -34,6 +39,8 @@ import { DATE_FORMAT } from '../../../core/date-format.token';
     MatInputModule,
     MatSlideToggleModule,
     MatTooltipModule,
+    MatDialogModule,
+    MatSnackBarModule,
   ],
   template: `
     <div class="flex flex-col h-full">
@@ -67,6 +74,7 @@ import { DATE_FORMAT } from '../../../core/date-format.token';
           mat-flat-button
           color="primary"
           aria-label="Add a new boarding reservation"
+          (click)="openAddBoardingDialog()"
         >
           <mat-icon aria-hidden="true">add</mat-icon> Add Reservation
         </button>
@@ -220,6 +228,10 @@ import { DATE_FORMAT } from '../../../core/date-format.token';
 })
 export class PatientBoardingComponent implements AfterViewInit {
   readonly dateFormat = inject(DATE_FORMAT);
+  private dialog = inject(MatDialog);
+  private patientsService = inject(PatientsService);
+  private route = inject(ActivatedRoute);
+  private snackBar = inject(MatSnackBar);
 
   @ViewChild(MatSort) sort!: MatSort;
 
@@ -267,5 +279,35 @@ export class PatientBoardingComponent implements AfterViewInit {
   applyFilter(event: Event) {
     const filterValue = (event.target as HTMLInputElement).value;
     this.dataSource.filter = filterValue.trim().toLowerCase();
+  }
+
+  openAddBoardingDialog() {
+    const patientId = Number(this.route.parent?.snapshot.paramMap.get('id'));
+    const dialogRef = this.dialog.open(PatientBoardingDialogComponent, {
+      width: '600px',
+      data: { patientId }
+    });
+
+    dialogRef.afterClosed().subscribe(result => {
+      if (result) {
+        if (patientId) {
+          this.patientsService.addBoarding(patientId, result).subscribe({
+            next: (newEntry) => {
+               const entryToAdd = { ...result, id: Date.now() };
+               this.boardingReservations = [entryToAdd, ...this.boardingReservations];
+               this.dataSource.data = this.boardingReservations;
+               this.snackBar.open('Boarding reservation added successfully', 'Close', { duration: 3000 });
+            },
+            error: (err) => {
+              console.error('Error adding boarding reservation', err);
+              const entryToAdd = { ...result, id: Date.now() };
+              this.boardingReservations = [entryToAdd, ...this.boardingReservations];
+              this.dataSource.data = this.boardingReservations;
+              this.snackBar.open('Boarding reservation added locally (API failed)', 'Close', { duration: 3000 });
+            }
+          });
+        }
+      }
+    });
   }
 }

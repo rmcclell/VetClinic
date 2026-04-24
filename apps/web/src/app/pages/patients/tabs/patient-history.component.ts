@@ -13,6 +13,11 @@ import { MatInputModule } from '@angular/material/input';
 import { MatDividerModule } from '@angular/material/divider';
 import { MedicalHistoryItem } from '../patient-tabs.types';
 import { DATE_FORMAT } from '../../../core/date-format.token';
+import { MatDialog, MatDialogModule } from '@angular/material/dialog';
+import { PatientHistoryDialogComponent } from './patient-history-dialog.component';
+import { PatientsService } from '../../../services/patients.service';
+import { ActivatedRoute } from '@angular/router';
+import { MatSnackBar, MatSnackBarModule } from '@angular/material/snack-bar';
 
 @Component({
   selector: 'app-patient-history',
@@ -30,6 +35,8 @@ import { DATE_FORMAT } from '../../../core/date-format.token';
     MatChipsModule,
     MatFormFieldModule,
     MatInputModule,
+    MatDialogModule,
+    MatSnackBarModule,
   ],
   template: `
     <div class="flex flex-col h-full">
@@ -86,6 +93,7 @@ import { DATE_FORMAT } from '../../../core/date-format.token';
           mat-flat-button
           color="primary"
           aria-label="Add a new medical history entry"
+          (click)="openAddHistoryDialog()"
           >
           <mat-icon aria-hidden="true">add</mat-icon> Add Entry
         </button>
@@ -242,6 +250,10 @@ import { DATE_FORMAT } from '../../../core/date-format.token';
 })
 export class PatientHistoryComponent implements AfterViewInit {
   readonly dateFormat = inject(DATE_FORMAT);
+  private dialog = inject(MatDialog);
+  private patientsService = inject(PatientsService);
+  private route = inject(ActivatedRoute);
+  private snackBar = inject(MatSnackBar);
 
   @ViewChild(MatSort) sort!: MatSort;
 
@@ -305,5 +317,38 @@ export class PatientHistoryComponent implements AfterViewInit {
   applyFilter(event: Event) {
     const filterValue = (event.target as HTMLInputElement).value;
     this.dataSource.filter = filterValue.trim().toLowerCase();
+  }
+
+  openAddHistoryDialog() {
+    const patientId = Number(this.route.parent?.snapshot.paramMap.get('id'));
+    const dialogRef = this.dialog.open(PatientHistoryDialogComponent, {
+      width: '600px',
+      data: { patientId }
+    });
+
+    dialogRef.afterClosed().subscribe(result => {
+      if (result) {
+        if (patientId) {
+          this.patientsService.addMedicalHistory(patientId, result).subscribe({
+            next: (newEntry) => {
+               // Assuming the API returns the created entry or we use the local result.
+               // We assign a pseudo ID and add to our local array for demo purposes
+               const entryToAdd = { ...result, id: Date.now() };
+               this.medicalHistory = [entryToAdd, ...this.medicalHistory];
+               this.dataSource.data = this.medicalHistory;
+               this.snackBar.open('Medical history added successfully', 'Close', { duration: 3000 });
+            },
+            error: (err) => {
+              console.error('Error adding medical history', err);
+              // Since there is no actual backend endpoint implementation, we fallback to local update
+              const entryToAdd = { ...result, id: Date.now() };
+              this.medicalHistory = [entryToAdd, ...this.medicalHistory];
+              this.dataSource.data = this.medicalHistory;
+              this.snackBar.open('Medical history added locally (API failed)', 'Close', { duration: 3000 });
+            }
+          });
+        }
+      }
+    });
   }
 }

@@ -39,27 +39,27 @@ import { MatTooltipModule } from '@angular/material/tooltip';
             </div>
             
             <div class="grid grid-cols-1 sm:grid-cols-2 gap-x-6 gap-y-4">
-              <div class="info-group">
-                <label id="email-label" class="info-label">Email Address</label>
+              <div class="flex flex-col gap-1">
+                <label id="email-label" class="text-[10px] font-black uppercase text-gray-400 tracking-[0.1em] leading-none">Email Address</label>
                 <a [href]="'mailto:' + client.email" 
                    aria-labelledby="email-label"
-                   class="info-value text-blue-600 hover:underline flex items-center gap-1">
+                   class="text-sm font-bold text-gray-800 break-words text-blue-600 hover:underline flex items-center gap-1">
                    {{ client.email || '-' }}
                    <mat-icon class="text-xs w-3 h-3! leading-3">open_in_new</mat-icon>
                 </a>
               </div>
               
-              <div class="info-group">
-                <label id="phone-label" class="info-label">Phone Number</label>
-                <div aria-labelledby="phone-label" class="info-value flex items-center gap-2">
+              <div class="flex flex-col gap-1">
+                <label id="phone-label" class="text-[10px] font-black uppercase text-gray-400 tracking-[0.1em] leading-none">Phone Number</label>
+                <div aria-labelledby="phone-label" class="text-sm font-bold text-gray-800 break-words flex items-center gap-2">
                   <mat-icon class="text-gray-400 text-sm w-4 h-4! leading-4">smartphone</mat-icon>
                   {{ client.phone || '-' }}
                 </div>
               </div>
               
-              <div class="info-group sm:col-span-2">
-                <label id="address-label" class="info-label">Physical Address</label>
-                <div aria-labelledby="address-label" class="info-value">
+              <div class="flex flex-col gap-1 sm:col-span-2">
+                <label id="address-label" class="text-[10px] font-black uppercase text-gray-400 tracking-[0.1em] leading-none">Physical Address</label>
+                <div aria-labelledby="address-label" class="text-sm font-bold text-gray-800 break-words">
                   {{ client.address || '-' }}
                 </div>
               </div>
@@ -79,32 +79,32 @@ import { MatTooltipModule } from '@angular/material/tooltip';
             </div>
             
             <div class="grid grid-cols-2 gap-x-6 gap-y-4">
-              <div class="info-group">
-                <label id="id-label" class="info-label">Client ID</label>
-                <div aria-labelledby="id-label" class="info-value font-mono font-black text-gray-400">
+              <div class="flex flex-col gap-1">
+                <label id="id-label" class="text-[10px] font-black uppercase text-gray-400 tracking-[0.1em] leading-none">Client ID</label>
+                <div aria-labelledby="id-label" class="text-sm font-bold text-gray-800 break-words font-mono font-black text-gray-400">
                   {{ client.id ? 'C-' + client.id : '-' }}
                 </div>
               </div>
               
-              <div class="info-group">
-                <label id="type-label" class="info-label">Client Type</label>
-                <div aria-labelledby="type-label" class="info-value">
+              <div class="flex flex-col gap-1">
+                <label id="type-label" class="text-[10px] font-black uppercase text-gray-400 tracking-[0.1em] leading-none">Client Type</label>
+                <div aria-labelledby="type-label" class="text-sm font-bold text-gray-800 break-words">
                   <span class="bg-blue-50 text-blue-700 px-2.5 py-0.5 rounded-full text-[10px] font-black uppercase tracking-wider">
                     {{ client.clientType || 'Standard' }}
                   </span>
                 </div>
               </div>
               
-              <div class="info-group">
-                <label id="dob-label" class="info-label">Date of Birth</label>
-                <div aria-labelledby="dob-label" class="info-value">
+              <div class="flex flex-col gap-1">
+                <label id="dob-label" class="text-[10px] font-black uppercase text-gray-400 tracking-[0.1em] leading-none">Date of Birth</label>
+                <div aria-labelledby="dob-label" class="text-sm font-bold text-gray-800 break-words">
                   {{ (client.dob | date: dateFormat) || '-' }}
                 </div>
               </div>
               
-              <div class="info-group">
-                <label id="gender-label" class="info-label">Gender</label>
-                <div aria-labelledby="gender-label" class="info-value">
+              <div class="flex flex-col gap-1">
+                <label id="gender-label" class="text-[10px] font-black uppercase text-gray-400 tracking-[0.1em] leading-none">Gender</label>
+                <div aria-labelledby="gender-label" class="text-sm font-bold text-gray-800 break-words">
                   {{ client.gender || '-' }}
                 </div>
               </div>
@@ -124,23 +124,23 @@ import { MatTooltipModule } from '@angular/material/tooltip';
             </div>
             
             <div class="grid grid-cols-1 sm:grid-cols-2 gap-x-6 gap-y-4">
-              <div class="info-group">
-                <label id="dl-state-label" class="info-label">DL State</label>
-                <div aria-labelledby="dl-state-label" class="info-value">
+              <div class="flex flex-col gap-1">
+                <label id="dl-state-label" class="text-[10px] font-black uppercase text-gray-400 tracking-[0.1em] leading-none">DL State</label>
+                <div aria-labelledby="dl-state-label" class="text-sm font-bold text-gray-800 break-words">
                   {{ client.driverLicenseState || '-' }}
                 </div>
               </div>
               
-              <div class="info-group">
-                <label id="dl-num-label" class="info-label">DL Number</label>
-                <div aria-labelledby="dl-num-label" class="info-value font-mono">
+              <div class="flex flex-col gap-1">
+                <label id="dl-num-label" class="text-[10px] font-black uppercase text-gray-400 tracking-[0.1em] leading-none">DL Number</label>
+                <div aria-labelledby="dl-num-label" class="text-sm font-bold text-gray-800 break-words font-mono">
                   {{ client.driverLicenseNumber || '-' }}
                 </div>
               </div>
               
-              <div class="info-group">
-                <label id="dl-exp-label" class="info-label">DL Expiration</label>
-                <div aria-labelledby="dl-exp-label" class="info-value">
+              <div class="flex flex-col gap-1">
+                <label id="dl-exp-label" class="text-[10px] font-black uppercase text-gray-400 tracking-[0.1em] leading-none">DL Expiration</label>
+                <div aria-labelledby="dl-exp-label" class="text-sm font-bold text-gray-800 break-words">
                   {{ (client.driverLicenseExp | date: dateFormat) || '-' }}
                 </div>
               </div>
@@ -160,16 +160,16 @@ import { MatTooltipModule } from '@angular/material/tooltip';
             </div>
             
             <div class="grid grid-cols-1 sm:grid-cols-2 gap-x-6 gap-y-4">
-              <div class="info-group">
-                <label id="ec-name-label" class="info-label">Contact Name</label>
-                <div aria-labelledby="ec-name-label" class="info-value">
+              <div class="flex flex-col gap-1">
+                <label id="ec-name-label" class="text-[10px] font-black uppercase text-gray-400 tracking-[0.1em] leading-none">Contact Name</label>
+                <div aria-labelledby="ec-name-label" class="text-sm font-bold text-gray-800 break-words">
                   {{ client.emergencyContactName || '-' }}
                 </div>
               </div>
               
-              <div class="info-group">
-                <label id="ec-phone-label" class="info-label">Contact Phone</label>
-                <div aria-labelledby="ec-phone-label" class="info-value">
+              <div class="flex flex-col gap-1">
+                <label id="ec-phone-label" class="text-[10px] font-black uppercase text-gray-400 tracking-[0.1em] leading-none">Contact Phone</label>
+                <div aria-labelledby="ec-phone-label" class="text-sm font-bold text-gray-800 break-words">
                   {{ client.emergencyContactPhone || '-' }}
                 </div>
               </div>
@@ -227,15 +227,6 @@ import { MatTooltipModule } from '@angular/material/tooltip';
       display: block;
       height: 100%;
       background-color: transparent;
-    }
-    .info-group {
-      @apply flex flex-col gap-1;
-    }
-    .info-label {
-      @apply text-[10px] font-black uppercase text-gray-400 tracking-[0.1em] leading-none;
-    }
-    .info-value {
-      @apply text-sm font-bold text-gray-800 break-words;
     }
   `],
 })

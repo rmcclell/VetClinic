@@ -3,8 +3,8 @@ const path = require('path');
 const fs = require('fs');
 
 const BASE_URL = 'http://localhost:4200';
-const CLIENT_ID = 6;
-const PATIENT_ID = 13;
+const CLIENT_ID = 2; // Michael Chen
+const PATIENT_ID = 3; // Buddy
 const OUTPUT_DIR = path.join(__dirname, '..', 'screenshots');
 
 if (!fs.existsSync(OUTPUT_DIR)) {
@@ -12,45 +12,45 @@ if (!fs.existsSync(OUTPUT_DIR)) {
 }
 
 const routes = [
-  { path: '/dashboard', name: 'dashboard' },
-  { path: '/patients', name: 'patients' },
-  { path: '/clients', name: 'owners' },
-  { path: '/tasks', name: 'tasks' },
-  { path: '/messages', name: 'messages' },
-  { path: '/invoices', name: 'invoices' },
-  { path: '/appointments', name: 'appointments' },
-  { path: '/settings', name: 'settings' },
+  { path: '/#/dashboard', name: 'dashboard' },
+  { path: '/#/patients', name: 'patients' },
+  { path: '/#/clients', name: 'owners' },
+  { path: '/#/tasks', name: 'tasks' },
+  { path: '/#/messages', name: 'messages' },
+  { path: '/#/invoices', name: 'invoices' },
+  { path: '/#/appointments', name: 'appointments' },
+  { path: '/#/settings', name: 'settings' },
   // Patient details
-  { path: `/patients/${PATIENT_ID}/history`, name: 'patient_history' },
+  { path: `/#/patients/${PATIENT_ID}/history`, name: 'patient_history' },
   {
-    path: `/patients/${PATIENT_ID}/vaccinations`,
+    path: `/#/patients/${PATIENT_ID}/vaccinations`,
     name: 'patient_vaccinations',
   },
   {
-    path: `/patients/${PATIENT_ID}/prescriptions`,
+    path: `/#/patients/${PATIENT_ID}/prescriptions`,
     name: 'patient_prescriptions',
   },
   {
-    path: `/patients/${PATIENT_ID}/appointments`,
+    path: `/#/patients/${PATIENT_ID}/appointments`,
     name: 'patient_appointments',
   },
-  { path: `/patients/${PATIENT_ID}/boarding`, name: 'patient_boarding' },
-  { path: `/patients/${PATIENT_ID}/tasks`, name: 'patient_tasks' },
-  { path: `/patients/${PATIENT_ID}/invoices`, name: 'patient_invoices' },
-  { path: `/patients/${PATIENT_ID}/forms`, name: 'patient_forms' },
-  { path: `/patients/${PATIENT_ID}/reminders`, name: 'patient_reminders' },
-  { path: `/patients/${PATIENT_ID}/labs`, name: 'patient_labs' },
-  { path: `/patients/${PATIENT_ID}/estimates`, name: 'patient_estimates' },
+  { path: `/#/patients/${PATIENT_ID}/boarding`, name: 'patient_boarding' },
+  { path: `/#/patients/${PATIENT_ID}/tasks`, name: 'patient_tasks' },
+  { path: `/#/patients/${PATIENT_ID}/invoices`, name: 'patient_invoices' },
+  { path: `/#/patients/${PATIENT_ID}/forms`, name: 'patient_forms' },
+  { path: `/#/patients/${PATIENT_ID}/reminders`, name: 'patient_reminders' },
+  { path: `/#/patients/${PATIENT_ID}/labs`, name: 'patient_labs' },
+  { path: `/#/patients/${PATIENT_ID}/estimates`, name: 'patient_estimates' },
   // Client details
-  { path: `/clients/${CLIENT_ID}/info`, name: 'client_info' },
-  { path: `/clients/${CLIENT_ID}/patients`, name: 'client_patients' },
-  { path: `/clients/${CLIENT_ID}/financial`, name: 'client_financial' },
-  { path: `/clients/${CLIENT_ID}/tasks`, name: 'client_tasks' },
-  { path: `/clients/${CLIENT_ID}/appointments`, name: 'client_appointments' },
-  { path: `/clients/${CLIENT_ID}/boarding`, name: 'client_boarding' },
-  { path: `/clients/${CLIENT_ID}/reminders`, name: 'client_reminders' },
-  { path: `/clients/${CLIENT_ID}/forms`, name: 'client_forms' },
-  { path: `/clients/${CLIENT_ID}/messaging`, name: 'client_messaging' },
+  { path: `/#/clients/${CLIENT_ID}/info`, name: 'client_info' },
+  { path: `/#/clients/${CLIENT_ID}/patients`, name: 'client_patients' },
+  { path: `/#/clients/${CLIENT_ID}/financial`, name: 'client_financial' },
+  { path: `/#/clients/${CLIENT_ID}/tasks`, name: 'client_tasks' },
+  { path: `/#/clients/${CLIENT_ID}/appointments`, name: 'client_appointments' },
+  { path: `/#/clients/${CLIENT_ID}/boarding`, name: 'client_boarding' },
+  { path: `/#/clients/${CLIENT_ID}/reminders`, name: 'client_reminders' },
+  { path: `/#/clients/${CLIENT_ID}/forms`, name: 'client_forms' },
+  { path: `/#/clients/${CLIENT_ID}/messaging`, name: 'client_messaging' },
 ];
 
 async function generateScreenshots() {
@@ -72,7 +72,7 @@ async function generateScreenshots() {
     const isDarkMode = await page.evaluate(
       () =>
         document.documentElement.classList.contains('dark') ||
-        document.body.classList.contains('dark-theme'),
+        document.documentElement.classList.contains('dark-theme'),
     );
 
     if (

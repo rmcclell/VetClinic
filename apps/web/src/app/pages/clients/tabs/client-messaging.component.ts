@@ -11,6 +11,13 @@ import { MatToolbarModule } from '@angular/material/toolbar';
 import { MatDividerModule } from '@angular/material/divider';
 import { MatChipsModule } from '@angular/material/chips';
 import { DATE_FORMAT } from '../../../core/date-format.token';
+import { MatDialog, MatDialogModule } from '@angular/material/dialog';
+import { MatSnackBar, MatSnackBarModule } from '@angular/material/snack-bar';
+import { PatientsService } from '../../../services/patients.service';
+import { ClientsService } from '../../../services/clients.service';
+import { ActivatedRoute } from '@angular/router';
+import { ClientMessageDialogComponent } from './client-message-dialog.component';
+import { firstValueFrom, of } from 'rxjs';
 
 @Component({
   selector: 'app-client-messaging',
@@ -27,6 +34,8 @@ import { DATE_FORMAT } from '../../../core/date-format.token';
     MatToolbarModule,
     MatDividerModule,
     MatChipsModule,
+    MatDialogModule,
+    MatSnackBarModule,
   ],
   template: `
     <div class="flex flex-col h-full">
@@ -46,7 +55,7 @@ import { DATE_FORMAT } from '../../../core/date-format.token';
             (input)="applyFilter($event)"
           />
         </mat-form-field>
-        <button mat-flat-button color="primary" aria-label="New Message">
+        <button mat-flat-button color="primary" aria-label="New Message" (click)="openNewMessageDialog()">
           <mat-icon aria-hidden="true">add</mat-icon>
           <span class="hidden sm:inline ml-1">New Message</span>
         </button>
@@ -164,6 +173,11 @@ import { DATE_FORMAT } from '../../../core/date-format.token';
 })
 export class ClientMessagingComponent implements AfterViewInit {
   readonly dateFormat = inject(DATE_FORMAT);
+  private dialog = inject(MatDialog);
+  private patientsService = inject(PatientsService);
+  private clientsService = inject(ClientsService);
+  private route = inject(ActivatedRoute);
+  private snackBar = inject(MatSnackBar);
 
   @ViewChild(MatSort) sort!: MatSort;
 
@@ -204,14 +218,59 @@ export class ClientMessagingComponent implements AfterViewInit {
     this.dataSource.filter = filterValue.trim().toLowerCase();
   }
 
+  async openNewMessageDialog() {
+    const clientId = Number(this.route.parent?.snapshot.paramMap.get('id'));
+    if (!clientId) return;
+
+    try {
+      const client = await firstValueFrom(this.clientsService.getOwner(clientId));
+      const dialogRef = this.dialog.open(ClientMessageDialogComponent, {
+        width: '600px',
+        data: { 
+          clientId,
+          patients: client.patients || [] 
+        }
+      });
+
+      dialogRef.afterClosed().subscribe(result => {
+        if (result) {
+          // Mock send operation
+          of(result).subscribe({
+            next: () => {
+              const newEntry = {
+                id: Date.now(),
+                date: new Date(),
+                time: new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }),
+                direction: 'Outbound',
+                subject: result.subject,
+                status: 'Sent'
+              };
+              this.dummyData = [newEntry, ...this.dummyData];
+              this.dataSource.data = this.dummyData;
+              this.snackBar.open('Message sent successfully', 'Close', { duration: 3000 });
+            },
+            error: (err) => {
+              console.error('Error sending message:', err);
+              this.snackBar.open('Error sending message', 'Close', { duration: 3000 });
+            }
+          });
+        }
+      });
+    } catch (err) {
+      console.error('Error fetching client patients:', err);
+      this.snackBar.open('Error loading patient data', 'Close', { duration: 3000 });
+    }
+  }
+
   getStatusClass(status: string): string {
     switch (status) {
       case 'Unread':
         return 'bg-blue-100 text-blue-800';
       case 'Delivered':
-        return 'bg-gray-100 text-gray-700';
+      case 'Sent':
+        return 'bg-emerald-100 text-emerald-800';
       default:
-        return 'bg-gray-50 text-gray-700';
+        return 'bg-gray-100 text-gray-700';
     }
   }
 }

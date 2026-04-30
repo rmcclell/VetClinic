@@ -7,8 +7,12 @@ import { MatButtonModule } from '@angular/material/button';
 import { ClientsService } from '../../../services/clients.service';
 import { ConfigService } from '../../../services/config.service';
 import { Client } from '@vet-clinic/shared-types';
-import { Observable, switchMap } from 'rxjs';
+import { BehaviorSubject, Observable, switchMap } from 'rxjs';
 import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
+import { MatDialog, MatDialogModule } from '@angular/material/dialog';
+import { MatSnackBar, MatSnackBarModule } from '@angular/material/snack-bar';
+import { PatientsService } from '../../../services/patients.service';
+import { ClientPatientDialogComponent } from './client-patient-dialog.component';
 
 @Component({
   selector: 'app-client-patients',
@@ -20,6 +24,8 @@ import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
     MatSlideToggleModule,
     MatButtonModule,
     MatProgressSpinnerModule,
+    MatDialogModule,
+    MatSnackBarModule,
   ],
   template: `
     <div class="h-full flex flex-col pt-6 p-6">
@@ -33,7 +39,12 @@ import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
               aria-label="Include inactive and deceased patients"
             ></mat-slide-toggle>
           </div>
-          <button mat-flat-button color="primary" class="rounded-lg">
+          <button
+            mat-flat-button
+            color="primary"
+            class="rounded-lg"
+            (click)="openAddPatientDialog(client.id)"
+          >
             <mat-icon aria-hidden="true" class="mr-1">add</mat-icon> Add Patient
           </button>
         </div>
@@ -135,16 +146,47 @@ import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
 export class ClientPatientsComponent implements OnInit {
   private route = inject(ActivatedRoute);
   private clientsService = inject(ClientsService);
+  private patientsService = inject(PatientsService);
+  private dialog = inject(MatDialog);
+  private snackBar = inject(MatSnackBar);
   public configService = inject(ConfigService);
 
+  private refreshSubject = new BehaviorSubject<void>(undefined);
   client$: Observable<Client> | undefined;
 
   ngOnInit() {
-    this.client$ = this.route.parent!.paramMap.pipe(
+    this.client$ = this.refreshSubject.pipe(
+      switchMap(() => this.route.parent!.paramMap),
       switchMap((params) => {
         const id = Number(params.get('id'));
         return this.clientsService.getOwner(id);
       }),
     );
+  }
+
+  openAddPatientDialog(clientId: number) {
+    const dialogRef = this.dialog.open(ClientPatientDialogComponent, {
+      width: '700px',
+      data: { clientId },
+    });
+
+    dialogRef.afterClosed().subscribe((result) => {
+      if (result) {
+        this.patientsService.createPatient(result).subscribe({
+          next: () => {
+            this.snackBar.open('Patient added successfully', 'Close', {
+              duration: 3000,
+            });
+            this.refreshSubject.next();
+          },
+          error: (err) => {
+            console.error('Error adding patient:', err);
+            this.snackBar.open('Error adding patient', 'Close', {
+              duration: 3000,
+            });
+          },
+        });
+      }
+    });
   }
 }

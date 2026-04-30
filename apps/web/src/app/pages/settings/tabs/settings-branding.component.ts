@@ -23,7 +23,7 @@ import { SettingsFormService } from '../settings-form.service';
       <div class="flex flex-col md:flex-row gap-8 items-start">
         <div class="flex flex-col items-center">
           <div
-            class="w-48 h-32 border-2 border-dashed border-outline rounded flex items-center justify-center bg-surface-variant mb-3 relative group overflow-hidden"
+            class="w-32 h-32 rounded flex items-center justify-center bg-surface-variant mb-3 relative group overflow-hidden"
           >
             @if (settingsService.logoPreview$ | async; as logoUrl) {
               <img

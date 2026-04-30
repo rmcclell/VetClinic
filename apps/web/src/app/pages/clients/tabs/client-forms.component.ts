@@ -11,6 +11,13 @@ import { MatToolbarModule } from '@angular/material/toolbar';
 import { MatDividerModule } from '@angular/material/divider';
 import { MatChipsModule } from '@angular/material/chips';
 import { DATE_FORMAT } from '../../../core/date-format.token';
+import { MatDialog, MatDialogModule } from '@angular/material/dialog';
+import { MatSnackBar, MatSnackBarModule } from '@angular/material/snack-bar';
+import { PatientsService } from '../../../services/patients.service';
+import { ClientsService } from '../../../services/clients.service';
+import { ActivatedRoute } from '@angular/router';
+import { ClientFormDialogComponent } from './client-form-dialog.component';
+import { firstValueFrom } from 'rxjs';
 
 @Component({
   selector: 'app-client-forms',
@@ -27,6 +34,8 @@ import { DATE_FORMAT } from '../../../core/date-format.token';
     MatToolbarModule,
     MatDividerModule,
     MatChipsModule,
+    MatDialogModule,
+    MatSnackBarModule,
   ],
   template: `
     <div class="flex flex-col h-full">
@@ -46,7 +55,7 @@ import { DATE_FORMAT } from '../../../core/date-format.token';
             (input)="applyFilter($event)"
           />
         </mat-form-field>
-        <button mat-flat-button color="primary" aria-label="Add Form">
+        <button mat-flat-button color="primary" aria-label="Add Form" (click)="openSendFormDialog()">
           <mat-icon aria-hidden="true">add</mat-icon>
           <span class="hidden sm:inline ml-1">Send Form</span>
         </button>
@@ -140,6 +149,11 @@ import { DATE_FORMAT } from '../../../core/date-format.token';
 })
 export class ClientFormsComponent implements AfterViewInit {
   readonly dateFormat = inject(DATE_FORMAT);
+  private dialog = inject(MatDialog);
+  private patientsService = inject(PatientsService);
+  private clientsService = inject(ClientsService);
+  private route = inject(ActivatedRoute);
+  private snackBar = inject(MatSnackBar);
 
   @ViewChild(MatSort) sort!: MatSort;
 
@@ -176,6 +190,56 @@ export class ClientFormsComponent implements AfterViewInit {
   applyFilter(event: Event) {
     const filterValue = (event.target as HTMLInputElement).value;
     this.dataSource.filter = filterValue.trim().toLowerCase();
+  }
+
+  async openSendFormDialog() {
+    const clientId = Number(this.route.parent?.snapshot.paramMap.get('id'));
+    if (!clientId) return;
+
+    try {
+      const client = await firstValueFrom(this.clientsService.getOwner(clientId));
+      const dialogRef = this.dialog.open(ClientFormDialogComponent, {
+        width: '600px',
+        data: { 
+          clientId,
+          patients: client.patients || [] 
+        }
+      });
+
+      dialogRef.afterClosed().subscribe(result => {
+        if (result) {
+          this.patientsService.sendForm(result.patientId || 0, result).subscribe({
+            next: () => {
+              const patientName = client.patients?.find(p => p.id === result.patientId)?.name || 'N/A';
+              const templateNames: {[key: string]: string} = {
+                '1': 'New Client Registration',
+                '2': 'Surgery Consent Form',
+                '3': 'Anesthesia Consent',
+                '4': 'Vaccine Waiver',
+                '5': 'Boarding Agreement'
+              };
+              const newEntry = {
+                id: Date.now(),
+                dateSent: new Date(),
+                formName: templateNames[result.templateId] || 'Digital Form',
+                patient: patientName,
+                status: 'Pending'
+              };
+              this.dummyData = [newEntry, ...this.dummyData];
+              this.dataSource.data = this.dummyData;
+              this.snackBar.open('Form sent successfully', 'Close', { duration: 3000 });
+            },
+            error: (err) => {
+              console.error('Error sending form:', err);
+              this.snackBar.open('Error sending form', 'Close', { duration: 3000 });
+            }
+          });
+        }
+      });
+    } catch (err) {
+      console.error('Error fetching client patients:', err);
+      this.snackBar.open('Error loading patient data', 'Close', { duration: 3000 });
+    }
   }
 
   getStatusClass(status: string): string {

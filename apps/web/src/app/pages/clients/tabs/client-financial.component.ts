@@ -12,6 +12,13 @@ import { MatMenuModule } from '@angular/material/menu';
 import { MatDividerModule } from '@angular/material/divider';
 import { MatTooltipModule } from '@angular/material/tooltip';
 import { DATE_FORMAT } from '../../../core/date-format.token';
+import { MatDialog, MatDialogModule } from '@angular/material/dialog';
+import { MatSnackBar, MatSnackBarModule } from '@angular/material/snack-bar';
+import { PatientsService } from '../../../services/patients.service';
+import { ClientsService } from '../../../services/clients.service';
+import { ActivatedRoute } from '@angular/router';
+import { ClientFinancialDialogComponent } from './client-financial-dialog.component';
+import { firstValueFrom, of } from 'rxjs';
 
 @Component({
   selector: 'app-client-financial',
@@ -29,6 +36,8 @@ import { DATE_FORMAT } from '../../../core/date-format.token';
     MatMenuModule,
     MatDividerModule,
     MatTooltipModule,
+    MatDialogModule,
+    MatSnackBarModule,
   ],
   template: `
     <div class="p-6 flex flex-col gap-6">
@@ -54,9 +63,24 @@ import { DATE_FORMAT } from '../../../core/date-format.token';
 
       <!-- Action Bar -->
       <div class="flex justify-end gap-3">
-        <button mat-stroked-button color="primary">
+        <button mat-stroked-button color="primary" [matMenuTriggerFor]="financialMenu">
           More Actions <mat-icon iconPositionEnd aria-hidden="true">expand_more</mat-icon>
         </button>
+        <mat-menu #financialMenu="matMenu">
+          <button mat-menu-item (click)="openFinancialDialog('invoice')">
+            <mat-icon>receipt</mat-icon>
+            <span>Create Invoice</span>
+          </button>
+          <button mat-menu-item (click)="openFinancialDialog('estimate')">
+            <mat-icon>request_quote</mat-icon>
+            <span>New Estimate</span>
+          </button>
+          <mat-divider></mat-divider>
+          <button mat-menu-item>
+            <mat-icon>history</mat-icon>
+            <span>View Statement</span>
+          </button>
+        </mat-menu>
         <button mat-raised-button color="primary">Take Payment</button>
       </div>
 
@@ -105,6 +129,17 @@ import { DATE_FORMAT } from '../../../core/date-format.token';
               placeholder="Search invoices..."
             />
           </mat-form-field>
+          
+          <button
+            mat-flat-button
+            color="primary"
+            class="ml-4"
+            (click)="openFinancialDialog('invoice')"
+          >
+            <mat-icon>add</mat-icon>
+            Create Invoice
+          </button>
+
           <button
             mat-icon-button
             aria-label="Send invoices"
@@ -217,11 +252,14 @@ import { DATE_FORMAT } from '../../../core/date-format.token';
               >
                 <span
                   class="px-3 py-1 rounded-full text-[11px] font-bold uppercase border-2 flex items-center gap-1 w-fit"
-                  [class.bg-emerald-50]="element.status === 'Checked Out'"
-                  [class.text-emerald-700]="element.status === 'Checked Out'"
-                  [class.border-emerald-100]="element.status === 'Checked Out'"
+                  [class.bg-emerald-50]="element.status === 'Checked Out' || element.status === 'Paid'"
+                  [class.text-emerald-700]="element.status === 'Checked Out' || element.status === 'Paid'"
+                  [class.border-emerald-100]="element.status === 'Checked Out' || element.status === 'Paid'"
+                  [class.bg-blue-50]="element.status === 'Open'"
+                  [class.text-blue-700]="element.status === 'Open'"
+                  [class.border-blue-100]="element.status === 'Open'"
                 >
-                  <span class="w-1.5 h-1.5 rounded-full bg-emerald-500"></span>
+                  <span class="w-1.5 h-1.5 rounded-full" [class.bg-emerald-500]="element.status === 'Checked Out' || element.status === 'Paid'" [class.bg-blue-500]="element.status === 'Open'"></span>
                   {{ element.status }}
                 </span>
               </td>
@@ -242,7 +280,7 @@ import { DATE_FORMAT } from '../../../core/date-format.token';
                 *matCellDef="let element"
                 class="p-4 text-sm text-gray-600 border-b border-gray-50"
               >
-                {{ element.checkedOut | date: dateFormat }}
+                {{ element.checkedOut ? (element.checkedOut | date: dateFormat) : '-' }}
               </td>
             </ng-container>
 
@@ -357,6 +395,11 @@ import { DATE_FORMAT } from '../../../core/date-format.token';
 })
 export class ClientFinancialComponent implements AfterViewInit {
   readonly dateFormat = inject(DATE_FORMAT);
+  private dialog = inject(MatDialog);
+  private patientsService = inject(PatientsService);
+  private clientsService = inject(ClientsService);
+  private route = inject(ActivatedRoute);
+  private snackBar = inject(MatSnackBar);
 
   @ViewChild(MatSort) sort!: MatSort;
 
@@ -428,5 +471,54 @@ export class ClientFinancialComponent implements AfterViewInit {
   applyFilter(event: Event) {
     const filterValue = (event.target as HTMLInputElement).value;
     this.dataSource.filter = filterValue.trim().toLowerCase();
+  }
+
+  async openFinancialDialog(type: 'invoice' | 'estimate') {
+    const clientId = Number(this.route.parent?.snapshot.paramMap.get('id'));
+    if (!clientId) return;
+
+    try {
+      const client = await firstValueFrom(this.clientsService.getOwner(clientId));
+      const dialogRef = this.dialog.open(ClientFinancialDialogComponent, {
+        width: '600px',
+        data: { 
+          clientId,
+          type,
+          patients: client.patients || [] 
+        }
+      });
+
+      dialogRef.afterClosed().subscribe(result => {
+        if (result) {
+          const save$ = type === 'invoice' 
+            ? this.patientsService.addInvoice(result.patientId || 0, result) // Corrected method name
+            : this.patientsService.addEstimate(result.patientId || 0, result); // Corrected method name
+
+          save$.subscribe({
+            next: () => {
+              if (type === 'invoice') {
+                const newEntry = {
+                  ...result,
+                  id: String(Math.floor(Math.random() * 1000)),
+                  paid: result.status === 'Paid' ? result.total : '0.00',
+                  balance: result.status === 'Paid' ? '0.00' : result.total,
+                  checkedOut: result.status === 'Checked Out' ? result.date : null
+                };
+                this.dummyInvoices = [newEntry, ...this.dummyInvoices];
+                this.dataSource.data = this.dummyInvoices;
+              }
+              this.snackBar.open(`${type === 'invoice' ? 'Invoice' : 'Estimate'} created successfully`, 'Close', { duration: 3000 });
+            },
+            error: (err) => {
+              console.error(`Error creating ${type}:`, err);
+              this.snackBar.open(`Error creating ${type}`, 'Close', { duration: 3000 });
+            }
+          });
+        }
+      });
+    } catch (err) {
+      console.error('Error fetching client patients:', err);
+      this.snackBar.open('Error loading patient data', 'Close', { duration: 3000 });
+    }
   }
 }

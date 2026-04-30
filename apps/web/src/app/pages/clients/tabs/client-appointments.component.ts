@@ -1,4 +1,4 @@
-import { Component, ViewChild, AfterViewInit, inject } from '@angular/core';
+import { Component, ViewChild, AfterViewInit, inject, OnInit } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { MatTableModule, MatTableDataSource } from '@angular/material/table';
 import { MatSortModule, MatSort } from '@angular/material/sort';
@@ -11,6 +11,13 @@ import { MatToolbarModule } from '@angular/material/toolbar';
 import { MatDividerModule } from '@angular/material/divider';
 import { MatChipsModule } from '@angular/material/chips';
 import { DATE_FORMAT } from '../../../core/date-format.token';
+import { MatDialog, MatDialogModule } from '@angular/material/dialog';
+import { MatSnackBar, MatSnackBarModule } from '@angular/material/snack-bar';
+import { PatientsService } from '../../../services/patients.service';
+import { ClientsService } from '../../../services/clients.service';
+import { ActivatedRoute } from '@angular/router';
+import { ClientAppointmentDialogComponent } from './client-appointment-dialog.component';
+import { firstValueFrom } from 'rxjs';
 
 @Component({
   selector: 'app-client-appointments',
@@ -27,6 +34,8 @@ import { DATE_FORMAT } from '../../../core/date-format.token';
     MatToolbarModule,
     MatDividerModule,
     MatChipsModule,
+    MatDialogModule,
+    MatSnackBarModule,
   ],
   template: `
     <div class="flex flex-col h-full">
@@ -60,6 +69,7 @@ import { DATE_FORMAT } from '../../../core/date-format.token';
           mat-flat-button
           color="primary"
           aria-label="Schedule appointment"
+          (click)="openAddAppointmentDialog()"
         >
           <mat-icon aria-hidden="true">add</mat-icon>
           <span class="hidden sm:inline ml-1">Schedule Appointment</span>
@@ -171,6 +181,11 @@ import { DATE_FORMAT } from '../../../core/date-format.token';
 })
 export class ClientAppointmentsComponent implements AfterViewInit {
   readonly dateFormat = inject(DATE_FORMAT);
+  private dialog = inject(MatDialog);
+  private patientsService = inject(PatientsService);
+  private clientsService = inject(ClientsService);
+  private route = inject(ActivatedRoute);
+  private snackBar = inject(MatSnackBar);
 
   @ViewChild(MatSort) sort!: MatSort;
 
@@ -221,6 +236,54 @@ export class ClientAppointmentsComponent implements AfterViewInit {
   applyFilter(event: Event) {
     const filterValue = (event.target as HTMLInputElement).value;
     this.dataSource.filter = filterValue.trim().toLowerCase();
+  }
+
+  async openAddAppointmentDialog() {
+    const clientId = Number(this.route.parent?.snapshot.paramMap.get('id'));
+    if (!clientId) return;
+
+    try {
+      const client = await firstValueFrom(this.clientsService.getOwner(clientId));
+      const dialogRef = this.dialog.open(ClientAppointmentDialogComponent, {
+        width: '600px',
+        data: { 
+          clientId,
+          patients: client.patients || [] 
+        }
+      });
+
+      dialogRef.afterClosed().subscribe(result => {
+        if (result) {
+          const appointmentData = {
+            ...result,
+            clientId,
+            startTime: new Date(result.date), // Simplified
+            endTime: new Date(result.date),   // Simplified
+          };
+
+          this.patientsService.addAppointment(result.patientId, appointmentData).subscribe({
+            next: () => {
+              const patientName = client.patients?.find(p => p.id === result.patientId)?.name || 'Unknown';
+              const newEntry = {
+                ...result,
+                id: Date.now(),
+                patient: patientName
+              };
+              this.dummyData = [newEntry, ...this.dummyData];
+              this.dataSource.data = this.dummyData;
+              this.snackBar.open('Appointment scheduled successfully', 'Close', { duration: 3000 });
+            },
+            error: (err) => {
+              console.error('Error scheduling appointment:', err);
+              this.snackBar.open('Error scheduling appointment', 'Close', { duration: 3000 });
+            }
+          });
+        }
+      });
+    } catch (err) {
+      console.error('Error fetching client patients:', err);
+      this.snackBar.open('Error loading patient data', 'Close', { duration: 3000 });
+    }
   }
 
   getStatusClass(status: string): string {

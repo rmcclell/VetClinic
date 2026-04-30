@@ -12,6 +12,13 @@ import { MatDividerModule } from '@angular/material/divider';
 import { MatChipsModule } from '@angular/material/chips';
 import { MatSlideToggleModule } from '@angular/material/slide-toggle';
 import { DATE_FORMAT } from '../../../core/date-format.token';
+import { MatDialog, MatDialogModule } from '@angular/material/dialog';
+import { MatSnackBar, MatSnackBarModule } from '@angular/material/snack-bar';
+import { PatientsService } from '../../../services/patients.service';
+import { ClientsService } from '../../../services/clients.service';
+import { ActivatedRoute } from '@angular/router';
+import { ClientTaskDialogComponent } from './client-task-dialog.component';
+import { firstValueFrom, of } from 'rxjs';
 
 @Component({
   selector: 'app-client-tasks',
@@ -29,6 +36,8 @@ import { DATE_FORMAT } from '../../../core/date-format.token';
     MatDividerModule,
     MatChipsModule,
     MatSlideToggleModule,
+    MatDialogModule,
+    MatSnackBarModule,
   ],
   template: `
     <div class="flex flex-col h-full">
@@ -38,7 +47,7 @@ import { DATE_FORMAT } from '../../../core/date-format.token';
           [checked]="showOnlyCompleted"
           (change)="
             showOnlyCompleted = !showOnlyCompleted;
-            dataSource.data = showOnlyCompleted ? dummyData : activeData
+            updateDataSource()
           "
           class="text-sm shrink-0"
         >
@@ -59,7 +68,7 @@ import { DATE_FORMAT } from '../../../core/date-format.token';
             (input)="applyFilter($event)"
           />
         </mat-form-field>
-        <button mat-flat-button color="primary" aria-label="Add Task">
+        <button mat-flat-button color="primary" aria-label="Add Task" (click)="openAddTaskDialog()">
           <mat-icon aria-hidden="true">add</mat-icon>
           <span class="hidden sm:inline ml-1">Add Task</span>
         </button>
@@ -150,6 +159,11 @@ import { DATE_FORMAT } from '../../../core/date-format.token';
 })
 export class ClientTasksComponent implements AfterViewInit {
   readonly dateFormat = inject(DATE_FORMAT);
+  private dialog = inject(MatDialog);
+  private patientsService = inject(PatientsService);
+  private clientsService = inject(ClientsService);
+  private route = inject(ActivatedRoute);
+  private snackBar = inject(MatSnackBar);
 
   @ViewChild(MatSort) sort!: MatSort;
 
@@ -171,8 +185,8 @@ export class ClientTasksComponent implements AfterViewInit {
       status: 'Completed',
     },
   ];
-  activeData = this.dummyData.filter((d) => d.status === 'Pending');
-  dataSource = new MatTableDataSource(this.activeData);
+  
+  dataSource = new MatTableDataSource(this.dummyData.filter((d) => d.status === 'Pending'));
   displayedColumns: string[] = [
     'dueDate',
     'title',
@@ -185,8 +199,61 @@ export class ClientTasksComponent implements AfterViewInit {
     this.dataSource.sort = this.sort;
   }
 
+  updateDataSource() {
+    this.dataSource.data = this.showOnlyCompleted 
+      ? this.dummyData 
+      : this.dummyData.filter((d) => d.status === 'Pending');
+  }
+
   applyFilter(event: Event) {
     const filterValue = (event.target as HTMLInputElement).value;
     this.dataSource.filter = filterValue.trim().toLowerCase();
+  }
+
+  async openAddTaskDialog() {
+    const clientId = Number(this.route.parent?.snapshot.paramMap.get('id'));
+    if (!clientId) return;
+
+    try {
+      const client = await firstValueFrom(this.clientsService.getOwner(clientId));
+      const dialogRef = this.dialog.open(ClientTaskDialogComponent, {
+        width: '600px',
+        data: { 
+          clientId,
+          patients: client.patients || [] 
+        }
+      });
+
+      dialogRef.afterClosed().subscribe(result => {
+        if (result) {
+          // If a patient is selected, we use PatientsService.addTask
+          // If no patient is selected, we might need a ClientService.addTask (which doesn't exist yet)
+          // For now, if no patient selected, we'll just show success locally as requested
+          
+          const save$ = result.patientId 
+            ? this.patientsService.addTask(result.patientId, result)
+            : of(result); // Mock for general client task using 'of'
+
+          save$.subscribe({
+            next: () => {
+              const newEntry = {
+                ...result,
+                id: Date.now()
+              };
+              this.dummyData = [newEntry, ...this.dummyData];
+              this.updateDataSource();
+              this.snackBar.open('Task added successfully', 'Close', { duration: 3000 });
+            },
+            error: (err) => {
+              console.error('Error adding task:', err);
+              this.snackBar.open('Error adding task', 'Close', { duration: 3000 });
+            }
+          });
+        }
+      });
+    } catch (err) {
+      console.error('Error fetching client patients:', err);
+      this.snackBar.open('Error loading patient data', 'Close', { duration: 3000 });
+    }
   }
 }

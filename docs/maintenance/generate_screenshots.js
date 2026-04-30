@@ -86,11 +86,35 @@ async function generateScreenshots() {
 
     // Capture each route
     for (const route of routes) {
-      console.log(`  Capturing ${route.name}...`);
-      await page.goto(`${BASE_URL}${route.path}`);
-      await page.waitForLoadState('networkidle');
-      // Wait a bit for animations/data
-      await page.waitForTimeout(1000);
+      console.log(`  Capturing ${route.name} (${route.path})...`);
+      
+      // 1. Navigate via hash change
+      await page.evaluate((path) => {
+        window.location.hash = path.replace('/#', '');
+      }, route.path);
+      
+      try {
+        // 2. Wait for URL to match AND all spinners to be gone
+        await page.waitForFunction((targetPath) => {
+          const currentHash = window.location.hash;
+          const targetHash = targetPath.replace('/#', '');
+          const urlMatches = currentHash.includes(targetHash);
+          
+          // Check for any loading indicators
+          const hasSpinner = !!document.querySelector('mat-spinner, mat-progress-spinner, .mat-mdc-progress-spinner');
+          
+          // Check for main content markers (at least one should be present)
+          const contentMarkers = ['app-dashboard', 'app-patient-details', 'app-client-details', 'app-patients-page', 'app-clients-page', 'app-clinic-settings', 'table', 'mat-card'];
+          const hasContent = contentMarkers.some(sel => !!document.querySelector(sel));
+
+          return urlMatches && !hasSpinner && hasContent;
+        }, route.path, { timeout: 25000 });
+        
+        // 3. Final buffer for Material tab animations and data binding
+        await page.waitForTimeout(4000);
+      } catch (e) {
+        console.warn(`    Warning: Timeout waiting for ${route.name}. Capturing as-is.`);
+      }
 
       await page.screenshot({
         path: path.join(OUTPUT_DIR, `${route.name}_${theme}.png`),
@@ -104,7 +128,7 @@ async function generateScreenshots() {
     await page.waitForLoadState('networkidle');
     await page.click('button[aria-label="Open user settings"]');
     await page.waitForSelector('mat-dialog-container');
-    await page.waitForTimeout(500);
+    await page.waitForTimeout(1000); // Increased buffer for dialog animation
     await page.screenshot({
       path: path.join(OUTPUT_DIR, `user_settings_${theme}.png`),
       fullPage: false,

@@ -2,146 +2,153 @@ const { chromium } = require('playwright');
 const path = require('path');
 const fs = require('fs');
 
+// Configurations
 const BASE_URL = 'http://localhost:4200';
-const CLIENT_ID = 2; // Michael Chen
-const PATIENT_ID = 3; // Buddy
-const OUTPUT_DIR = path.join(__dirname, '..', 'screenshots');
+const CLIENT_ID = 1;
+const PATIENT_ID = 1; 
+const OUTPUT_DIR = path.join(process.cwd(), 'docs', 'assets', 'screenshots');
 
 if (!fs.existsSync(OUTPUT_DIR)) {
   fs.mkdirSync(OUTPUT_DIR, { recursive: true });
 }
 
-const routes = [
-  { path: '/#/dashboard', name: 'dashboard' },
-  { path: '/#/patients', name: 'patients' },
-  { path: '/#/clients', name: 'owners' },
-  { path: '/#/tasks', name: 'tasks' },
-  { path: '/#/messages', name: 'messages' },
-  { path: '/#/invoices', name: 'invoices' },
-  { path: '/#/appointments', name: 'appointments' },
-  { path: '/#/settings', name: 'settings' },
-  // Patient details
-  { path: `/#/patients/${PATIENT_ID}/history`, name: 'patient_history' },
-  {
-    path: `/#/patients/${PATIENT_ID}/vaccinations`,
-    name: 'patient_vaccinations',
-  },
-  {
-    path: `/#/patients/${PATIENT_ID}/prescriptions`,
-    name: 'patient_prescriptions',
-  },
-  {
-    path: `/#/patients/${PATIENT_ID}/appointments`,
-    name: 'patient_appointments',
-  },
-  { path: `/#/patients/${PATIENT_ID}/boarding`, name: 'patient_boarding' },
-  { path: `/#/patients/${PATIENT_ID}/tasks`, name: 'patient_tasks' },
-  { path: `/#/patients/${PATIENT_ID}/invoices`, name: 'patient_invoices' },
-  { path: `/#/patients/${PATIENT_ID}/forms`, name: 'patient_forms' },
-  { path: `/#/patients/${PATIENT_ID}/reminders`, name: 'patient_reminders' },
-  { path: `/#/patients/${PATIENT_ID}/labs`, name: 'patient_labs' },
-  { path: `/#/patients/${PATIENT_ID}/estimates`, name: 'patient_estimates' },
-  // Client details
-  { path: `/#/clients/${CLIENT_ID}/info`, name: 'client_info' },
-  { path: `/#/clients/${CLIENT_ID}/patients`, name: 'client_patients' },
-  { path: `/#/clients/${CLIENT_ID}/financial`, name: 'client_financial' },
-  { path: `/#/clients/${CLIENT_ID}/tasks`, name: 'client_tasks' },
-  { path: `/#/clients/${CLIENT_ID}/appointments`, name: 'client_appointments' },
-  { path: `/#/clients/${CLIENT_ID}/boarding`, name: 'client_boarding' },
-  { path: `/#/clients/${CLIENT_ID}/reminders`, name: 'client_reminders' },
-  { path: `/#/clients/${CLIENT_ID}/forms`, name: 'client_forms' },
-  { path: `/#/clients/${CLIENT_ID}/messaging`, name: 'client_messaging' },
-];
+// --- RICH MOCK DATA ---
+const MOCK_CONFIG = { id: 1, name: 'Springfield Vet Clinic', logoUrl: null, units: 'imperial', taxRate: 8.5, currency: 'USD' };
+const MOCK_PATIENT = { id: 1, name: 'Luna', species: 'Cat', breed: 'Siamese', sex: 'Female', weight: 8.5, microchipNumber: '985112000123456', color: 'Seal Point', birthDate: '2020-05-15', clientId: 1, photoUrl: null, client: { id: 1, firstName: 'Sarah', lastName: 'Jenkins', phone: '555-0123' } };
+const MOCK_CLIENT = { id: 1, firstName: 'Sarah', lastName: 'Jenkins', email: 'sarah.j@example.com', phone: '555-0123', active: true, address: '123 Maple St, Springfield', patients: [MOCK_PATIENT] };
+const MOCK_HISTORY = [{ id: 1, type: 'SOAP', status: 'Locked', date: '2024-01-15', details: 'Annual Wellness Exam.', doctor: { name: 'Dr. Smith', initials: 'SS' } }];
+const MOCK_VACCINATIONS = [{ id: 1, name: 'Rabies 3yr', date: '2024-01-15', dueDate: '2027-01-15', status: 'Current' }];
+const MOCK_INVOICES = [{ id: 1, invoiceNumber: 'INV-1001', date: '2024-01-15', description: 'Wellness Exam', status: 'Paid', amount: 85.00, items: [] }];
 
-async function generateScreenshots() {
-  const browser = await chromium.launch();
-  const context = await browser.newContext({
-    viewport: { width: 1280, height: 800 },
-  });
+async function setupMocks(page) {
+  const fulfill = (d) => ({ status: 200, contentType: 'application/json', body: JSON.stringify(d) });
+  await page.route('**/api/**', r => r.fulfill(fulfill([])));
+  await page.route('**/api/config', r => r.fulfill(fulfill(MOCK_CONFIG)));
+  await page.route(url => url.pathname.includes('/patients/1'), r => r.fulfill(fulfill(MOCK_PATIENT)));
+  await page.route(url => url.pathname.includes('/clients/1') || url.pathname.includes('/owners/1'), r => r.fulfill(fulfill(MOCK_CLIENT)));
+  await page.route(url => url.pathname.endsWith('/patients'), r => r.fulfill(fulfill([MOCK_PATIENT])));
+  await page.route(url => url.pathname.endsWith('/clients'), r => r.fulfill(fulfill([MOCK_CLIENT])));
+  await page.route(url => url.pathname.endsWith('/owners'), r => r.fulfill(fulfill([MOCK_CLIENT])));
+  await page.route('**/history', r => r.fulfill(fulfill(MOCK_HISTORY)));
+  await page.route('**/vaccinations', r => r.fulfill(fulfill(MOCK_VACCINATIONS)));
+  await page.route('**/invoices', r => r.fulfill(fulfill(MOCK_INVOICES)));
+}
+
+async function captureRoute(browserState, route, theme) {
+  if (!browserState.browser || !browserState.browser.isConnected()) {
+    browserState.browser = await chromium.launch({ 
+      headless: true,
+      args: ['--disable-dev-shm-usage', '--no-sandbox']
+    });
+  }
+
+  const context = await browserState.browser.newContext({ viewport: { width: 1280, height: 800 }, deviceScaleFactor: 2 });
   const page = await context.newPage();
 
-  console.log('Starting screenshot generation...');
+  try {
+    await setupMocks(page);
+    page.on('console', msg => {
+      if (msg.text().includes('Syncing')) console.log(`      [Browser] ${msg.text()}`);
+      else if (msg.type() === 'error') console.log(`      [Browser error] ${msg.text()}`);
+    });
+
+    await page.addInitScript(({t}) => {
+      window.localStorage.setItem('theme', t);
+      window.localStorage.setItem('auth_token', 'mock-token');
+    }, {t: theme});
+
+    console.log(`  -> ${route.name}`);
+    await page.goto(`${BASE_URL}${route.path}`, { waitUntil: 'load', timeout: 30000 });
+    
+    await page.evaluate((t) => {
+      document.documentElement.className = t;
+      document.body.className = t;
+    }, theme);
+
+    await page.addStyleTag({ content: `*, *::before, *::after { transition: none !important; animation: none !important; }` });
+
+    const componentMarkers = {
+      'dashboard': 'app-dashboard',
+      'patients': 'app-patients-page',
+      'owners': 'app-clients-page',
+      'settings': 'app-clinic-settings',
+      'patient_history': 'app-patient-history',
+      'patient_vaccinations': 'app-patient-vaccinations',
+      'patient_invoices': 'app-patient-invoices',
+      'client_info': 'app-client-info',
+      'client_patients': 'app-client-patients'
+    };
+
+    const marker = componentMarkers[route.name] || 'body';
+    const isTable = ['patients', 'owners', 'patient_history', 'patient_vaccinations', 'patient_invoices', 'client_patients'].includes(route.name);
+
+    await page.waitForFunction((args) => {
+      const comp = document.querySelector(args.marker);
+      const spinner = document.querySelector('mat-spinner, .mat-mdc-progress-spinner, .loading-spinner');
+      const isVisible = comp && (!spinner || spinner.offsetWidth === 0);
+      
+      // Strict content check
+      let hasContent = false;
+      if (comp) {
+        if (args.isTable) {
+          // Require at least one row in the table
+          hasContent = !!comp.querySelector('mat-row, tr.mat-mdc-row, tbody tr');
+        } else {
+          // General content markers
+          hasContent = !!comp.querySelector('mat-card, .grid, .p-6, h1, h2');
+        }
+      }
+      
+      if (!isVisible || !hasContent) {
+        console.log(`Syncing ${args.name}: Marker=${args.marker}, Visible=${!!isVisible}, Content=${hasContent}`);
+      }
+      return isVisible && hasContent;
+    }, { marker, isTable, name: route.name }, { timeout: 15000 }).catch(() => {
+      console.warn(`    Warning: Synchronization incomplete for ${route.name}.`);
+    });
+
+    await page.waitForTimeout(2000); 
+    await page.mouse.move(0, 0);
+    await page.screenshot({ path: path.join(OUTPUT_DIR, `${route.name}_${theme}.png`) });
+
+  } catch (err) {
+    console.error(`    Error in ${route.name}: ${err.message}`);
+  } finally {
+    await context.close().catch(() => {});
+  }
+}
+
+async function generateScreenshots() {
+  const browserState = { browser: null };
+  const routes = [
+    { path: '/#/dashboard', name: 'dashboard' },
+    { path: '/#/patients', name: 'patients' },
+    { path: '/#/clients', name: 'owners' },
+    { path: '/#/settings', name: 'settings' },
+    { path: `/#/patients/${PATIENT_ID}/history`, name: 'patient_history' },
+    { path: `/#/patients/${PATIENT_ID}/vaccinations`, name: 'patient_vaccinations' },
+    { path: `/#/patients/${PATIENT_ID}/invoices`, name: 'patient_invoices' },
+    { path: `/#/clients/${CLIENT_ID}/info`, name: 'client_info' },
+    { path: `/#/clients/${CLIENT_ID}/patients`, name: 'client_patients' },
+    { path: `/#/clients/${CLIENT_ID}/financial`, name: 'client_financial' },
+    { path: `/#/clients/${CLIENT_ID}/messaging`, name: 'client_messaging' },
+    { path: '/#/settings/branding', name: 'user_settings' },
+  ];
+
+  console.log('Starting screenshot generation (STRICT SYNC MODE)...\n');
 
   for (const theme of ['light', 'dark']) {
     console.log(`\nCapturing in ${theme} mode...`);
-
-    // First, set the theme
-    await page.goto(BASE_URL);
-    await page.waitForLoadState('networkidle');
-
-    const isDarkMode = await page.evaluate(
-      () =>
-        document.documentElement.classList.contains('dark') ||
-        document.documentElement.classList.contains('dark-theme'),
-    );
-
-    if (
-      (theme === 'dark' && !isDarkMode) ||
-      (theme === 'light' && isDarkMode)
-    ) {
-      console.log(`Toggling theme to ${theme}...`);
-      await page.click('button[aria-label*="Switch to"]');
-      await page.waitForTimeout(500); // Wait for transition
-    }
-
-    // Capture each route
     for (const route of routes) {
-      console.log(`  Capturing ${route.name} (${route.path})...`);
-      
-      // 1. Navigate via hash change
-      await page.evaluate((path) => {
-        window.location.hash = path.replace('/#', '');
-      }, route.path);
-      
-      try {
-        // 2. Wait for URL to match AND all spinners to be gone
-        await page.waitForFunction((targetPath) => {
-          const currentHash = window.location.hash;
-          const targetHash = targetPath.replace('/#', '');
-          const urlMatches = currentHash.includes(targetHash);
-          
-          // Check for any loading indicators
-          const hasSpinner = !!document.querySelector('mat-spinner, mat-progress-spinner, .mat-mdc-progress-spinner');
-          
-          // Check for main content markers (at least one should be present)
-          const contentMarkers = ['app-dashboard', 'app-patient-details', 'app-client-details', 'app-patients-page', 'app-clients-page', 'app-clinic-settings', 'table', 'mat-card'];
-          const hasContent = contentMarkers.some(sel => !!document.querySelector(sel));
-
-          return urlMatches && !hasSpinner && hasContent;
-        }, route.path, { timeout: 25000 });
-        
-        // 3. Final buffer for Material tab animations and data binding
-        await page.waitForTimeout(4000);
-      } catch (e) {
-        console.warn(`    Warning: Timeout waiting for ${route.name}. Capturing as-is.`);
-      }
-
-      await page.screenshot({
-        path: path.join(OUTPUT_DIR, `${route.name}_${theme}.png`),
-        fullPage: false,
-      });
+      await captureRoute(browserState, route, theme);
     }
-
-    // Special case: User Settings Dialog
-    console.log(`  Capturing user_settings...`);
-    await page.goto(BASE_URL);
-    await page.waitForLoadState('networkidle');
-    await page.click('button[aria-label="Open user settings"]');
-    await page.waitForSelector('mat-dialog-container');
-    await page.waitForTimeout(1000); // Increased buffer for dialog animation
-    await page.screenshot({
-      path: path.join(OUTPUT_DIR, `user_settings_${theme}.png`),
-      fullPage: false,
-    });
-    await page.keyboard.press('Escape');
-    await page.waitForTimeout(300);
   }
 
-  await browser.close();
-  console.log('\nFinished! Screenshots saved to docs/screenshots');
+  if (browserState.browser) await browserState.browser.close();
+  console.log('\nScreenshot generation complete!');
 }
 
-generateScreenshots().catch((err) => {
-  console.error('Error generating screenshots:', err);
+generateScreenshots().catch(err => {
+  console.error('Fatal Error:', err);
   process.exit(1);
 });

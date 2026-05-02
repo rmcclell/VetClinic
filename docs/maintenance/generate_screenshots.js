@@ -25,10 +25,9 @@ async function setupMocks(page) {
   await page.route('**/api/**', r => r.fulfill(fulfill([])));
   await page.route('**/api/config', r => r.fulfill(fulfill(MOCK_CONFIG)));
   await page.route(url => url.pathname.includes('/patients/1'), r => r.fulfill(fulfill(MOCK_PATIENT)));
-  await page.route(url => url.pathname.includes('/clients/1') || url.pathname.includes('/owners/1'), r => r.fulfill(fulfill(MOCK_CLIENT)));
+  await page.route(url => url.pathname.includes('/clients/1') || url.pathname.includes('/clients/1'), r => r.fulfill(fulfill(MOCK_CLIENT)));
   await page.route(url => url.pathname.endsWith('/patients'), r => r.fulfill(fulfill([MOCK_PATIENT])));
   await page.route(url => url.pathname.endsWith('/clients'), r => r.fulfill(fulfill([MOCK_CLIENT])));
-  await page.route(url => url.pathname.endsWith('/owners'), r => r.fulfill(fulfill([MOCK_CLIENT])));
   await page.route('**/history', r => r.fulfill(fulfill(MOCK_HISTORY)));
   await page.route('**/vaccinations', r => r.fulfill(fulfill(MOCK_VACCINATIONS)));
   await page.route('**/invoices', r => r.fulfill(fulfill(MOCK_INVOICES)));
@@ -70,7 +69,7 @@ async function captureRoute(browserState, route, theme) {
     const componentMarkers = {
       'dashboard': 'app-dashboard',
       'patients': 'app-patients-page',
-      'owners': 'app-clients-page',
+      'clients': 'app-clients-page',
       'settings': 'app-clinic-settings',
       'patient_history': 'app-patient-history',
       'patient_vaccinations': 'app-patient-vaccinations',
@@ -80,7 +79,7 @@ async function captureRoute(browserState, route, theme) {
     };
 
     const marker = componentMarkers[route.name] || 'body';
-    const isTable = ['patients', 'owners', 'patient_history', 'patient_vaccinations', 'patient_invoices', 'client_patients'].includes(route.name);
+    const isTable = ['patients', 'clients', 'patient_history', 'patient_vaccinations', 'patient_invoices', 'client_patients'].includes(route.name);
 
     await page.waitForFunction((args) => {
       const comp = document.querySelector(args.marker);
@@ -123,7 +122,7 @@ async function generateScreenshots() {
   const routes = [
     { path: '/#/dashboard', name: 'dashboard' },
     { path: '/#/patients', name: 'patients' },
-    { path: '/#/clients', name: 'owners' },
+    { path: '/#/clients', name: 'clients' },
     { path: '/#/settings', name: 'settings' },
     { path: `/#/patients/${PATIENT_ID}/history`, name: 'patient_history' },
     { path: `/#/patients/${PATIENT_ID}/vaccinations`, name: 'patient_vaccinations' },

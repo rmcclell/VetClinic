@@ -71,17 +71,22 @@ async function captureRoute(browserState, route, theme) {
       'patients': 'app-patients-page',
       'clients': 'app-clients-page',
       'settings': 'app-clinic-settings',
-      'patient_history': 'app-patient-history',
-      'patient_history_add': 'app-patient-history',
-      'patient_history_print': 'app-patient-history',
-      'patient_vaccinations': 'app-patient-vaccinations',
-      'patient_invoices': 'app-patient-invoices',
       'client_info': 'app-client-info',
-      'client_patients': 'app-client-patients'
+      'client_patients': 'app-client-patients',
+      'client_financial': 'app-client-financial',
+      'client_messaging': 'app-client-messaging'
     };
 
-    const marker = componentMarkers[route.name] || 'body';
-    const isTable = ['patients', 'clients', 'patient_history', 'patient_history_add', 'patient_history_print', 'patient_vaccinations', 'patient_invoices', 'client_patients'].includes(route.name);
+    const markerKey = route.name.replace(/_(add|print)$/, '');
+    // Dynamically match patient_ tabs to their component tags
+    let marker = componentMarkers[markerKey];
+    if (!marker && markerKey.startsWith('patient_')) {
+      const tabName = markerKey.replace('patient_', '');
+      marker = `app-patient-${tabName.replace('_', '-')}`;
+    }
+    marker = marker || 'body';
+
+    const isTable = ['patients', 'clients', 'client_patients'].includes(markerKey) || markerKey.startsWith('patient_');
 
     await page.waitForFunction((args) => {
       const comp = document.querySelector(args.marker);
@@ -92,8 +97,8 @@ async function captureRoute(browserState, route, theme) {
       let hasContent = false;
       if (comp) {
         if (args.isTable) {
-          // Require at least one row in the table
-          hasContent = !!comp.querySelector('mat-row, tr.mat-mdc-row, tbody tr');
+          // Require at least one row in the table, or the no-data row, or a card
+          hasContent = !!comp.querySelector('mat-row, tr.mat-mdc-row, tbody tr, tr.mat-mdc-no-data-row, mat-card, .grid');
         } else {
           // General content markers
           hasContent = !!comp.querySelector('mat-card, .grid, .p-6, h1, h2');
@@ -126,36 +131,53 @@ async function captureRoute(browserState, route, theme) {
 
 async function generateScreenshots() {
   const browserState = { browser: null };
+  const patientTabs = [
+    'history', 'vaccinations', 'prescriptions', 'appointments', 
+    'boarding', 'tasks', 'estimates', 'forms', 'invoices', 'labs', 'reminders'
+  ];
+
   const routes = [
     { path: '/#/dashboard', name: 'dashboard' },
     { path: '/#/patients', name: 'patients' },
     { path: '/#/clients', name: 'clients' },
-    { path: '/#/settings', name: 'settings' },
-    { path: `/#/patients/${PATIENT_ID}/history`, name: 'patient_history' },
-    { 
-      path: `/#/patients/${PATIENT_ID}/history`, 
-      name: 'patient_history_add',
+    { path: '/#/settings', name: 'settings' }
+  ];
+
+  for (const tab of patientTabs) {
+    routes.push({ path: `/#/patients/${PATIENT_ID}/${tab}`, name: `patient_${tab}` });
+    routes.push({ 
+      path: `/#/patients/${PATIENT_ID}/${tab}`, 
+      name: `patient_${tab}_add`,
       action: async (page) => {
-        await page.click('button:has-text("Add Entry")');
+        const addBtn = page.locator('button', { hasText: /Add /i });
+        if (await addBtn.count() > 0) {
+          await addBtn.first().click();
+        } else {
+          const primaryBtn = page.locator('button[color="primary"]');
+          if (await primaryBtn.count() > 0) {
+            await primaryBtn.first().click();
+          }
+        }
         await page.waitForSelector('mat-dialog-container', { state: 'visible' });
       }
-    },
-    { 
-      path: `/#/patients/${PATIENT_ID}/history`, 
-      name: 'patient_history_print',
+    });
+    routes.push({ 
+      path: `/#/patients/${PATIENT_ID}/${tab}`, 
+      name: `patient_${tab}_print`,
       action: async (page) => {
         await page.click('button[matTooltip="Print"]');
         await page.waitForSelector('mat-dialog-container', { state: 'visible' });
       }
-    },
-    { path: `/#/patients/${PATIENT_ID}/vaccinations`, name: 'patient_vaccinations' },
-    { path: `/#/patients/${PATIENT_ID}/invoices`, name: 'patient_invoices' },
+    });
+  }
+
+  routes.push(
     { path: `/#/clients/${CLIENT_ID}/info`, name: 'client_info' },
     { path: `/#/clients/${CLIENT_ID}/patients`, name: 'client_patients' },
     { path: `/#/clients/${CLIENT_ID}/financial`, name: 'client_financial' },
     { path: `/#/clients/${CLIENT_ID}/messaging`, name: 'client_messaging' },
-    { path: '/#/settings/branding', name: 'user_settings' },
-  ];
+    { path: '/#/settings/branding', name: 'user_settings' }
+  );
 
   console.log('Starting screenshot generation (STRICT SYNC MODE)...\n');
 

@@ -94,7 +94,7 @@ Standardized modals for adding records and generating reports across all patient
 
 | Section             | Add Record Dialog                                            | Print / Report Dialog                                            |
 | ------------------- | ------------------------------------------------------------ | ---------------------------------------------------------------- |
-| **Medical History** | _View-only history_                                          | ![Print](docs/screenshots/patient_history_print_light.png)       |
+| **Medical History** | ![Add](docs/screenshots/patient_history_add_light.png)       | ![Print](docs/screenshots/patient_history_print_light.png)       |
 | **Vaccinations**    | ![Add](docs/screenshots/patient_vaccinations_add_light.png)  | ![Print](docs/screenshots/patient_vaccinations_print_light.png)  |
 | **Prescriptions**   | ![Add](docs/screenshots/patient_prescriptions_add_light.png) | ![Print](docs/screenshots/patient_prescriptions_print_light.png) |
 | **Appointments**    | ![Add](docs/screenshots/patient_appointments_add_light.png)  | ![Print](docs/screenshots/patient_appointments_print_light.png)  |

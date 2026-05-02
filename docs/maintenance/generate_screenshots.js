@@ -72,6 +72,8 @@ async function captureRoute(browserState, route, theme) {
       'clients': 'app-clients-page',
       'settings': 'app-clinic-settings',
       'patient_history': 'app-patient-history',
+      'patient_history_add': 'app-patient-history',
+      'patient_history_print': 'app-patient-history',
       'patient_vaccinations': 'app-patient-vaccinations',
       'patient_invoices': 'app-patient-invoices',
       'client_info': 'app-client-info',
@@ -79,7 +81,7 @@ async function captureRoute(browserState, route, theme) {
     };
 
     const marker = componentMarkers[route.name] || 'body';
-    const isTable = ['patients', 'clients', 'patient_history', 'patient_vaccinations', 'patient_invoices', 'client_patients'].includes(route.name);
+    const isTable = ['patients', 'clients', 'patient_history', 'patient_history_add', 'patient_history_print', 'patient_vaccinations', 'patient_invoices', 'client_patients'].includes(route.name);
 
     await page.waitForFunction((args) => {
       const comp = document.querySelector(args.marker);
@@ -106,6 +108,11 @@ async function captureRoute(browserState, route, theme) {
       console.warn(`    Warning: Synchronization incomplete for ${route.name}.`);
     });
 
+    if (route.action) {
+      await route.action(page);
+      await page.waitForTimeout(1000); // Wait for dialog animation
+    }
+
     await page.waitForTimeout(2000); 
     await page.mouse.move(0, 0);
     await page.screenshot({ path: path.join(OUTPUT_DIR, `${route.name}_${theme}.png`) });
@@ -125,6 +132,22 @@ async function generateScreenshots() {
     { path: '/#/clients', name: 'clients' },
     { path: '/#/settings', name: 'settings' },
     { path: `/#/patients/${PATIENT_ID}/history`, name: 'patient_history' },
+    { 
+      path: `/#/patients/${PATIENT_ID}/history`, 
+      name: 'patient_history_add',
+      action: async (page) => {
+        await page.click('button:has-text("Add Entry")');
+        await page.waitForSelector('mat-dialog-container', { state: 'visible' });
+      }
+    },
+    { 
+      path: `/#/patients/${PATIENT_ID}/history`, 
+      name: 'patient_history_print',
+      action: async (page) => {
+        await page.click('button[matTooltip="Print"]');
+        await page.waitForSelector('mat-dialog-container', { state: 'visible' });
+      }
+    },
     { path: `/#/patients/${PATIENT_ID}/vaccinations`, name: 'patient_vaccinations' },
     { path: `/#/patients/${PATIENT_ID}/invoices`, name: 'patient_invoices' },
     { path: `/#/clients/${CLIENT_ID}/info`, name: 'client_info' },

@@ -67,7 +67,7 @@ npm run start:web
 | **Messages**          | ![Light](docs/screenshots/messages_light.png)      | ![Dark](docs/screenshots/messages_dark.png)      |
 | **Invoices**          | ![Light](docs/screenshots/invoices_light.png)      | ![Dark](docs/screenshots/invoices_dark.png)      |
 | **Appointments**      | ![Light](docs/screenshots/appointments_light.png)  | ![Dark](docs/screenshots/appointments_dark.png)  |
-| **Owners / Clients**  | ![Light](docs/screenshots/owners_light.png)        | ![Dark](docs/screenshots/owners_dark.png)        |
+| **Owners / Clients**  | ![Light](docs/screenshots/clients_light.png)       | ![Dark](docs/screenshots/clients_dark.png)       |
 | **User Settings**     | ![Light](docs/screenshots/user_settings_light.png) | ![Dark](docs/screenshots/user_settings_dark.png) |
 
 ### Patient Details
@@ -92,19 +92,19 @@ The patient details view features a route-based tab navigation system for compre
 
 Standardized modals for adding records and generating reports across all patient sub-sections.
 
-| Section             | Add Record Dialog                                                 | Print / Report Dialog                                              |
-| ------------------- | ----------------------------------------------------------------- | ------------------------------------------------------------------ |
-| **Medical History** | _View-only history_                                               | ![Print](docs/screenshots/patient_history_print_light.png)         |
-| **Vaccinations**    | ![Add](docs/screenshots/patient_vaccinations_add_light.png)       | ![Print](docs/screenshots/patient_vaccinations_print_light.png)    |
-| **Prescriptions**   | ![Add](docs/screenshots/patient_prescriptions_add_light.png)      | ![Print](docs/screenshots/patient_prescriptions_print_light.png)   |
-| **Appointments**    | ![Add](docs/screenshots/patient_appointments_add_light.png)       | ![Print](docs/screenshots/patient_appointments_print_light.png)    |
-| **Boarding**        | ![Add](docs/screenshots/patient_boarding_add_light.png)           | ![Print](docs/screenshots/patient_boarding_print_light.png)        |
-| **Tasks**           | ![Add](docs/screenshots/patient_tasks_add_light.png)              | ![Print](docs/screenshots/patient_tasks_print_light.png)           |
-| **Estimates**       | ![Add](docs/screenshots/patient_estimates_add_light.png)          | ![Print](docs/screenshots/patient_estimates_print_light.png)       |
-| **Forms**           | ![Add](docs/screenshots/patient_forms_add_light.png)              | ![Print](docs/screenshots/patient_forms_print_light.png)           |
-| **Invoices**        | ![Add](docs/screenshots/patient_invoices_add_light.png)           | ![Print](docs/screenshots/patient_invoices_print_light.png)        |
-| **Labs**            | ![Add](docs/screenshots/patient_labs_add_light.png)               | ![Print](docs/screenshots/patient_labs_print_light.png)            |
-| **Reminders**       | ![Add](docs/screenshots/patient_reminders_add_light.png)          | ![Print](docs/screenshots/patient_reminders_print_light.png)       |
+| Section             | Add Record Dialog                                            | Print / Report Dialog                                            |
+| ------------------- | ------------------------------------------------------------ | ---------------------------------------------------------------- |
+| **Medical History** | _View-only history_                                          | ![Print](docs/screenshots/patient_history_print_light.png)       |
+| **Vaccinations**    | ![Add](docs/screenshots/patient_vaccinations_add_light.png)  | ![Print](docs/screenshots/patient_vaccinations_print_light.png)  |
+| **Prescriptions**   | ![Add](docs/screenshots/patient_prescriptions_add_light.png) | ![Print](docs/screenshots/patient_prescriptions_print_light.png) |
+| **Appointments**    | ![Add](docs/screenshots/patient_appointments_add_light.png)  | ![Print](docs/screenshots/patient_appointments_print_light.png)  |
+| **Boarding**        | ![Add](docs/screenshots/patient_boarding_add_light.png)      | ![Print](docs/screenshots/patient_boarding_print_light.png)      |
+| **Tasks**           | ![Add](docs/screenshots/patient_tasks_add_light.png)         | ![Print](docs/screenshots/patient_tasks_print_light.png)         |
+| **Estimates**       | ![Add](docs/screenshots/patient_estimates_add_light.png)     | ![Print](docs/screenshots/patient_estimates_print_light.png)     |
+| **Forms**           | ![Add](docs/screenshots/patient_forms_add_light.png)         | ![Print](docs/screenshots/patient_forms_print_light.png)         |
+| **Invoices**        | ![Add](docs/screenshots/patient_invoices_add_light.png)      | ![Print](docs/screenshots/patient_invoices_print_light.png)      |
+| **Labs**            | ![Add](docs/screenshots/patient_labs_add_light.png)          | ![Print](docs/screenshots/patient_labs_print_light.png)          |
+| **Reminders**       | ![Add](docs/screenshots/patient_reminders_add_light.png)     | ![Print](docs/screenshots/patient_reminders_print_light.png)     |
 
 _Note: All dialogs fully support both Light and Dark themes (Light shown above)._
 

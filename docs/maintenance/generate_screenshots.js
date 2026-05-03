@@ -6,7 +6,7 @@ const fs = require('fs');
 const BASE_URL = 'http://localhost:4200';
 const CLIENT_ID = 1;
 const PATIENT_ID = 1; 
-const OUTPUT_DIR = path.join(process.cwd(), 'docs', 'assets', 'screenshots');
+const OUTPUT_DIR = path.join(process.cwd(), 'docs', 'screenshots');
 
 if (!fs.existsSync(OUTPUT_DIR)) {
   fs.mkdirSync(OUTPUT_DIR, { recursive: true });

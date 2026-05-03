@@ -12,6 +12,9 @@ import { inject } from '@angular/core';
 import { BreakpointObserver, Breakpoints } from '@angular/cdk/layout';
 import { map, shareReplay } from 'rxjs/operators';
 import { MatButtonToggleModule } from '@angular/material/button-toggle';
+import { MatDialog, MatDialogModule } from '@angular/material/dialog';
+import { MatSnackBar, MatSnackBarModule } from '@angular/material/snack-bar';
+import { ComposeMessageDialogComponent } from './compose-message-dialog.component';
 
 interface Message {
   id: string;
@@ -39,6 +42,8 @@ interface Message {
     MatBadgeModule,
     MatToolbarModule,
     MatButtonToggleModule,
+    MatDialogModule,
+    MatSnackBarModule,
   ],
   template: `
     <mat-toolbar class="bg-surface-variant border-b border-outline h-18! px-6">
@@ -83,7 +88,7 @@ interface Message {
         >
           <mat-icon aria-hidden="true">settings</mat-icon>
         </button>
-        <button mat-raised-button color="primary" class="h-10" aria-label="Compose new message">
+        <button mat-raised-button color="primary" class="h-10" aria-label="Compose new message" (click)="composeMessage()">
           <mat-icon class="mr-2" aria-hidden="true">edit</mat-icon>
           <span class="hidden sm:inline">Compose</span>
         </button>
@@ -423,4 +428,27 @@ export class MessagesPageComponent {
   ];
 
   selectedMessage: Message | null = this.messages[0];
+
+  private dialog = inject(MatDialog);
+  private snackBar = inject(MatSnackBar);
+
+  composeMessage(): void {
+    const dialogRef = this.dialog.open(ComposeMessageDialogComponent, {
+      width: '700px',
+      maxWidth: '95vw',
+      maxHeight: '90vh',
+    });
+
+    dialogRef.afterClosed().subscribe((result) => {
+      if (result) {
+        // Here we just show a success message since there isn't a robust backend
+        this.snackBar.open('Message sent successfully!', 'Close', {
+          duration: 3000,
+          horizontalPosition: 'center',
+          verticalPosition: 'bottom',
+          panelClass: ['bg-emerald-600', 'text-white', 'font-bold']
+        });
+      }
+    });
+  }
 }

@@ -15,6 +15,7 @@ import { MatButtonToggleModule } from '@angular/material/button-toggle';
 import { MatDialog, MatDialogModule } from '@angular/material/dialog';
 import { MatSnackBar, MatSnackBarModule } from '@angular/material/snack-bar';
 import { ComposeMessageDialogComponent } from './compose-message-dialog.component';
+import { MessageSettingsDialogComponent, MessageSettings } from './message-settings-dialog.component';
 
 interface Message {
   id: string;
@@ -87,6 +88,7 @@ interface Message {
           mat-icon-button
           class="text-on-surface-variant"
           aria-label="Message settings"
+          (click)="openSettings()"
         >
           <mat-icon aria-hidden="true">settings</mat-icon>
         </button>
@@ -486,8 +488,37 @@ export class MessagesPageComponent {
     this.selectedMessage = this.filteredMessages.length > 0 ? this.filteredMessages[0] : null;
   }
 
+  // --- Settings State ---
+  messageSettings: MessageSettings = {
+    autoReply: false,
+    autoReplyMessage: 'Thank you for your message. Our clinic hours are Monday-Friday 8AM to 6PM. We will respond as soon as possible.',
+    signature: 'Springfield Vet Clinic\n123 Healing Way\n555-0199',
+    emailNotifications: true
+  };
+
   private dialog = inject(MatDialog);
   private snackBar = inject(MatSnackBar);
+
+  openSettings(): void {
+    const dialogRef = this.dialog.open(MessageSettingsDialogComponent, {
+      width: '600px',
+      maxWidth: '95vw',
+      maxHeight: '90vh',
+      data: this.messageSettings,
+    });
+
+    dialogRef.afterClosed().subscribe((result: MessageSettings) => {
+      if (result) {
+        this.messageSettings = result;
+        this.snackBar.open('Message settings saved successfully!', 'Close', {
+          duration: 3000,
+          horizontalPosition: 'center',
+          verticalPosition: 'bottom',
+          panelClass: ['bg-emerald-600', 'text-white', 'font-bold']
+        });
+      }
+    });
+  }
 
   composeMessage(): void {
     const dialogRef = this.dialog.open(ComposeMessageDialogComponent, {

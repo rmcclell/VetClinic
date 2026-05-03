@@ -1,5 +1,6 @@
 import { Component } from '@angular/core';
 import { CommonModule } from '@angular/common';
+import { RouterLink } from '@angular/router';
 import { MatCardModule } from '@angular/material/card';
 import { MatIconModule } from '@angular/material/icon';
 import { MatListModule } from '@angular/material/list';
@@ -26,6 +27,7 @@ interface Message {
   body: string;
   date: string;
   petName?: string;
+  patientId?: number;
   isRead: boolean;
   isStarred: boolean;
   initials: string;
@@ -48,6 +50,7 @@ interface Message {
     MatButtonToggleModule,
     MatDialogModule,
     MatSnackBarModule,
+    RouterLink,
   ],
   template: `
     <mat-toolbar class="bg-surface-variant border-b border-outline h-18! px-6">
@@ -285,16 +288,19 @@ interface Message {
                         {{ selectedMessage.petName }}
                       </p>
                     </div>
-                    <button
-                      mat-button
-                      color="primary"
-                      class="ml-auto text-xs font-bold"
-                      [aria-label]="
-                        'View record for ' + selectedMessage.petName
-                      "
-                    >
-                      View Patient File
-                    </button>
+                @if (selectedMessage.patientId) {
+                  <button
+                    mat-button
+                    color="primary"
+                    class="ml-auto text-xs font-bold"
+                    [routerLink]="['/patients', selectedMessage.patientId]"
+                    [aria-label]="
+                      'View record for ' + selectedMessage.petName
+                    "
+                  >
+                    View Patient File
+                  </button>
+                }
                   </div>
                 }
 
@@ -408,43 +414,47 @@ export class MessagesPageComponent {
       subject: "Luna's post-op checkup",
       body: "Hi Team,\n\nI just wanted to check in about Luna's recovery after her spay surgery last Tuesday. She seems mostly back to her normal self, but I noticed she hasn't been as interested in her kibble the last two days. \n\nIs this normal during the first week or should I be bringing her back in? She is drinking water and still loves her treats.\n\nThanks,\nSarah",
       date: 'Aug 14',
-      petName: 'Luna (Cat)',
+      petName: 'Luna (Siamese)',
+      patientId: 2,
       isRead: false,
       isStarred: true,
     },
     {
       id: '2',
-      sender: 'Robert Wilson',
-      initials: 'RW',
+      sender: 'Michael Chen',
+      initials: 'MC',
       color: '#0891b2',
-      subject: "Rex's Vaccination Record Request",
-      body: 'Hello,\n\nWe are planning to board Rex at a kennel next weekend and they require proof of his latest rabies vaccination. Could you please send over a digital copy of his records? \n\nI believe he had his boosters back in November.\n\nBest regards,\nRobert Wilson',
+      subject: "Buddy's Vaccination Record Request",
+      body: 'Hello,\n\nWe are planning to board Buddy at a kennel next weekend and they require proof of his latest rabies vaccination. Could you please send over a digital copy of his records? \n\nI believe he had his boosters back in November.\n\nBest regards,\nMichael Chen',
       date: 'Aug 13',
-      petName: 'Rex (German Shepherd)',
+      petName: 'Buddy (Labrador Mix)',
+      patientId: 3,
       isRead: true,
       isStarred: false,
     },
     {
       id: '3',
-      sender: 'Emily Davis',
-      initials: 'ED',
+      sender: 'Emily Rodriguez',
+      initials: 'ER',
       color: '#059669',
-      subject: "Bella's dietary concerns",
-      body: 'Hi Dr. Smith,\n\nBella seems to be having a mild allergic reaction (extra itching) since we switched to the new grain-free food you recommended. \n\nAre there any antihistamines I should start her on, or should we switch back to her old diet immediately?\n\nThank you,\nEmily',
+      subject: "Whiskers' dietary concerns",
+      body: 'Hi Dr. Smith,\n\nWhiskers seems to be having a mild allergic reaction (extra itching) since we switched to the new grain-free food you recommended. \n\nAre there any antihistamines I should start him on, or should we switch back to his old diet immediately?\n\nThank you,\nEmily',
       date: 'Aug 12',
-      petName: 'Bella (French Bulldog)',
+      petName: 'Whiskers (Tabby)',
+      patientId: 4,
       isRead: true,
       isStarred: false,
     },
     {
       id: '4',
-      sender: 'Michael Chen',
-      initials: 'MC',
+      sender: 'David Thompson',
+      initials: 'DT',
       color: '#d97706',
       subject: 'Question about medication dosage',
-      body: "Dear Clinic Staff,\n\nI'm a bit confused about the instructions on Charlie's ear drops. Is it 3 drops per ear once a day or twice a day? The bottle says once but the summary I got says twice.\n\nPlease clarify when you have a moment.",
+      body: "Dear Clinic Staff,\n\nI'm a bit confused about the instructions on Daisy's ear drops. Is it 3 drops per ear once a day or twice a day? The bottle says once but the summary I got says twice.\n\nPlease clarify when you have a moment.",
       date: 'Aug 10',
-      petName: 'Charlie (Golden Retriever)',
+      petName: 'Daisy (Border Collie)',
+      patientId: 7,
       isRead: true,
       isStarred: false,
     },
@@ -457,9 +467,10 @@ export class MessagesPageComponent {
       initials: 'SV',
       color: '#10b981',
       subject: "Reminder: Max's Annual Exam",
-      body: "Hi Amanda,\n\nThis is a friendly reminder that Max is due for his annual wellness exam and vaccination boosters next month. Regular checkups are vital for keeping Max healthy and happy!\n\nPlease call us at 555-0199 or use the client portal to schedule an appointment at your earliest convenience.\n\nBest,\nSpringfield Vet Clinic",
+      body: "Hi Sarah,\n\nThis is a friendly reminder that Max is due for his annual wellness exam and vaccination boosters next month. Regular checkups are vital for keeping Max healthy and happy!\n\nPlease call us at 555-0199 or use the client portal to schedule an appointment at your earliest convenience.\n\nBest,\nSpringfield Vet Clinic",
       date: 'Aug 15',
-      petName: 'Max (Beagle)',
+      petName: 'Max (Golden Retriever)',
+      patientId: 1,
       isRead: true,
       isStarred: false,
     },
@@ -468,10 +479,11 @@ export class MessagesPageComponent {
       sender: 'Springfield Vet Clinic',
       initials: 'SV',
       color: '#10b981',
-      subject: 'Lab Results for Daisy',
-      body: "Dear Thomas,\n\nDr. Smith has reviewed Daisy's bloodwork from her visit yesterday. Everything looks completely normal, and her kidney values have improved since her last checkup!\n\nWe recommend continuing her current prescription diet. Let us know if you need a refill soon.\n\nRegards,\nThe team at Springfield Vet Clinic",
+      subject: 'Lab Results for Charlie',
+      body: "Dear Emily,\n\nDr. Smith has reviewed Charlie's bloodwork from his visit yesterday. Everything looks completely normal, and his kidney values have improved since his last checkup!\n\nWe recommend continuing his current prescription diet. Let us know if you need a refill soon.\n\nRegards,\nThe team at Springfield Vet Clinic",
       date: 'Aug 11',
-      petName: 'Daisy (Poodle)',
+      petName: 'Charlie (Beagle)',
+      patientId: 6,
       isRead: true,
       isStarred: false,
     }

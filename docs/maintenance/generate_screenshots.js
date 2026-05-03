@@ -76,7 +76,11 @@ async function captureRoute(browserState, route, theme) {
       'patients': 'app-patients-page',
       'clients': 'app-clients-page',
       'settings': 'app-clinic-settings',
-      'client_info': 'app-client-info'
+      'client_info': 'app-client-info',
+      'tasks': 'app-tasks-page',
+      'messages': 'app-messages-page',
+      'invoices': 'app-invoices-page',
+      'appointments': 'app-appointments-page'
     };
 
     const markerKey = route.name.replace(/_(add|print)$/, '');
@@ -91,7 +95,7 @@ async function captureRoute(browserState, route, theme) {
     }
     marker = marker || 'body';
 
-    const isTable = ['patients', 'clients'].includes(markerKey) || markerKey.startsWith('patient_') || markerKey.startsWith('client_');
+    const isTable = ['patients', 'clients', 'tasks', 'invoices', 'appointments'].includes(markerKey) || markerKey.startsWith('patient_') || markerKey.startsWith('client_');
 
     await page.waitForFunction((args) => {
       const comp = document.querySelector(args.marker);
@@ -145,7 +149,11 @@ async function generateScreenshots() {
     { path: '/#/dashboard', name: 'dashboard' },
     { path: '/#/patients', name: 'patients' },
     { path: '/#/clients', name: 'clients' },
-    { path: '/#/settings', name: 'settings' }
+    { path: '/#/settings', name: 'settings' },
+    { path: '/#/tasks', name: 'tasks' },
+    { path: '/#/messages', name: 'messages' },
+    { path: '/#/invoices', name: 'invoices' },
+    { path: '/#/appointments', name: 'appointments' }
   ];
 
   for (const tab of patientTabs) {

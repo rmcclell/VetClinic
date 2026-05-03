@@ -67,6 +67,8 @@ interface Message {
             name="message-folder"
             aria-label="Filter messages by folder"
             [hideSingleSelectionIndicator]="false"
+            [value]="currentFolder"
+            (change)="setFolder($event.value)"
           >
             <mat-button-toggle value="inbox">Inbox</mat-button-toggle>
             <mat-button-toggle value="outbox">Outbox</mat-button-toggle>
@@ -113,12 +115,13 @@ interface Message {
                   placeholder="Search messages..."
                   aria-label="Search messages in inbox"
                   class="w-full pl-9 pr-4 py-2 bg-surface border border-outline rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-primary"
+                  (input)="applySearch($event)"
                 />
               </div>
             </div>
             <div class="flex-1 overflow-y-auto">
               <mat-nav-list class="pt-0">
-                @for (msg of messages; track msg.id) {
+                @for (msg of filteredMessages; track msg.id) {
                   <button
                     mat-list-item
                     (click)="selectedMessage = msg"
@@ -380,7 +383,7 @@ export class MessagesPageComponent {
     shareReplay(),
   );
 
-  messages: Message[] = [
+  inboxMessages: Message[] = [
     {
       id: '1',
       sender: 'Sarah Jenkins',
@@ -427,7 +430,61 @@ export class MessagesPageComponent {
     },
   ];
 
-  selectedMessage: Message | null = this.messages[0];
+  outboxMessages: Message[] = [
+    {
+      id: 'o1',
+      sender: 'Springfield Vet Clinic',
+      initials: 'SV',
+      color: '#10b981',
+      subject: "Reminder: Max's Annual Exam",
+      body: "Hi Amanda,\n\nThis is a friendly reminder that Max is due for his annual wellness exam and vaccination boosters next month. Regular checkups are vital for keeping Max healthy and happy!\n\nPlease call us at 555-0199 or use the client portal to schedule an appointment at your earliest convenience.\n\nBest,\nSpringfield Vet Clinic",
+      date: 'Aug 15',
+      petName: 'Max (Beagle)',
+      isRead: true,
+    },
+    {
+      id: 'o2',
+      sender: 'Springfield Vet Clinic',
+      initials: 'SV',
+      color: '#10b981',
+      subject: 'Lab Results for Daisy',
+      body: "Dear Thomas,\n\nDr. Smith has reviewed Daisy's bloodwork from her visit yesterday. Everything looks completely normal, and her kidney values have improved since her last checkup!\n\nWe recommend continuing her current prescription diet. Let us know if you need a refill soon.\n\nRegards,\nThe team at Springfield Vet Clinic",
+      date: 'Aug 11',
+      petName: 'Daisy (Poodle)',
+      isRead: true,
+    }
+  ];
+
+  currentFolder: 'inbox' | 'outbox' = 'inbox';
+  currentMessages: Message[] = this.inboxMessages;
+  filteredMessages: Message[] = this.inboxMessages;
+  selectedMessage: Message | null = this.inboxMessages[0];
+  searchQuery: string = '';
+
+  setFolder(folder: 'inbox' | 'outbox') {
+    this.currentFolder = folder;
+    this.currentMessages = folder === 'inbox' ? this.inboxMessages : this.outboxMessages;
+    this.applySearchFilter();
+  }
+
+  applySearch(event: Event) {
+    this.searchQuery = (event.target as HTMLInputElement).value.trim().toLowerCase();
+    this.applySearchFilter();
+  }
+
+  private applySearchFilter() {
+    if (!this.searchQuery) {
+      this.filteredMessages = [...this.currentMessages];
+    } else {
+      this.filteredMessages = this.currentMessages.filter((msg) =>
+        msg.sender.toLowerCase().includes(this.searchQuery) ||
+        msg.subject.toLowerCase().includes(this.searchQuery) ||
+        msg.body.toLowerCase().includes(this.searchQuery) ||
+        (msg.petName && msg.petName.toLowerCase().includes(this.searchQuery))
+      );
+    }
+    this.selectedMessage = this.filteredMessages.length > 0 ? this.filteredMessages[0] : null;
+  }
 
   private dialog = inject(MatDialog);
   private snackBar = inject(MatSnackBar);

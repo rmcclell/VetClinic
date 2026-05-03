@@ -71,22 +71,22 @@ async function captureRoute(browserState, route, theme) {
       'patients': 'app-patients-page',
       'clients': 'app-clients-page',
       'settings': 'app-clinic-settings',
-      'client_info': 'app-client-info',
-      'client_patients': 'app-client-patients',
-      'client_financial': 'app-client-financial',
-      'client_messaging': 'app-client-messaging'
+      'client_info': 'app-client-info'
     };
 
     const markerKey = route.name.replace(/_(add|print)$/, '');
-    // Dynamically match patient_ tabs to their component tags
+    // Dynamically match tabs to their component tags
     let marker = componentMarkers[markerKey];
     if (!marker && markerKey.startsWith('patient_')) {
       const tabName = markerKey.replace('patient_', '');
       marker = `app-patient-${tabName.replace('_', '-')}`;
+    } else if (!marker && markerKey.startsWith('client_')) {
+      const tabName = markerKey.replace('client_', '');
+      marker = `app-client-${tabName.replace('_', '-')}`;
     }
     marker = marker || 'body';
 
-    const isTable = ['patients', 'clients', 'client_patients'].includes(markerKey) || markerKey.startsWith('patient_');
+    const isTable = ['patients', 'clients'].includes(markerKey) || markerKey.startsWith('patient_') || markerKey.startsWith('client_');
 
     await page.waitForFunction((args) => {
       const comp = document.querySelector(args.marker);
@@ -171,11 +171,34 @@ async function generateScreenshots() {
     });
   }
 
+  const clientTabsWithAdd = [
+    'patients', 'financial', 'appointments', 'boarding', 
+    'tasks', 'reminders', 'forms', 'messaging'
+  ];
+
+  routes.push({ path: `/#/clients/${CLIENT_ID}/info`, name: 'client_info' });
+
+  for (const tab of clientTabsWithAdd) {
+    routes.push({ path: `/#/clients/${CLIENT_ID}/${tab}`, name: `client_${tab}` });
+    routes.push({ 
+      path: `/#/clients/${CLIENT_ID}/${tab}`, 
+      name: `client_${tab}_add`,
+      action: async (page) => {
+        const addBtn = page.locator('button', { hasText: /Add /i });
+        if (await addBtn.count() > 0) {
+          await addBtn.first().click();
+        } else {
+          const primaryBtn = page.locator('button[color="primary"]');
+          if (await primaryBtn.count() > 0) {
+            await primaryBtn.first().click();
+          }
+        }
+        await page.waitForSelector('mat-dialog-container', { state: 'visible' });
+      }
+    });
+  }
+
   routes.push(
-    { path: `/#/clients/${CLIENT_ID}/info`, name: 'client_info' },
-    { path: `/#/clients/${CLIENT_ID}/patients`, name: 'client_patients' },
-    { path: `/#/clients/${CLIENT_ID}/financial`, name: 'client_financial' },
-    { path: `/#/clients/${CLIENT_ID}/messaging`, name: 'client_messaging' },
     { path: '/#/settings/branding', name: 'user_settings' }
   );
 

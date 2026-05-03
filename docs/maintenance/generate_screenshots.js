@@ -184,11 +184,11 @@ async function generateScreenshots() {
       path: `/#/clients/${CLIENT_ID}/${tab}`, 
       name: `client_${tab}_add`,
       action: async (page) => {
-        const addBtn = page.locator('button', { hasText: /Add /i });
+        const addBtn = page.locator('mat-tab-nav-panel button', { hasText: /Add /i });
         if (await addBtn.count() > 0) {
           await addBtn.first().click();
         } else {
-          const primaryBtn = page.locator('button[color="primary"]');
+          const primaryBtn = page.locator('mat-tab-nav-panel button[color="primary"]');
           if (await primaryBtn.count() > 0) {
             await primaryBtn.first().click();
           }

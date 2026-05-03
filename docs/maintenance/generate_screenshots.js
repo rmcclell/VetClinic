@@ -52,7 +52,7 @@ async function captureRoute(browserState, route, theme) {
     });
 
     await page.addInitScript(({t}) => {
-      window.localStorage.setItem('theme', t);
+      window.localStorage.setItem('user-theme', t);
       window.localStorage.setItem('auth_token', 'mock-token');
     }, {t: theme});
 
@@ -60,8 +60,13 @@ async function captureRoute(browserState, route, theme) {
     await page.goto(`${BASE_URL}${route.path}`, { waitUntil: 'load', timeout: 30000 });
     
     await page.evaluate((t) => {
-      document.documentElement.className = t;
-      document.body.className = t;
+      if (t === 'dark') {
+        document.documentElement.classList.add('dark-theme', 'dark');
+        document.body.classList.add('dark-theme', 'dark');
+      } else {
+        document.documentElement.classList.remove('dark-theme', 'dark');
+        document.body.classList.remove('dark-theme', 'dark');
+      }
     }, theme);
 
     await page.addStyleTag({ content: `*, *::before, *::after { transition: none !important; animation: none !important; }` });

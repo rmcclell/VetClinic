@@ -16,6 +16,8 @@ import { MatDialog, MatDialogModule } from '@angular/material/dialog';
 import { MatSnackBar, MatSnackBarModule } from '@angular/material/snack-bar';
 import { ComposeMessageDialogComponent } from './compose-message-dialog.component';
 import { MessageSettingsDialogComponent, MessageSettings } from './message-settings-dialog.component';
+import { ClientsService } from '../../services/clients.service';
+import { firstValueFrom } from 'rxjs';
 
 interface Message {
   id: string;
@@ -25,6 +27,7 @@ interface Message {
   date: string;
   petName?: string;
   isRead: boolean;
+  isStarred: boolean;
   initials: string;
   color: string;
 }
@@ -146,15 +149,20 @@ interface Message {
                     </div>
                     <div
                       matListItemTitle
-                      class="flex justify-between items-start"
+                      class="flex justify-between items-center gap-2"
                     >
+                      <div class="flex items-center gap-1.5 min-w-0">
+                        <span
+                          class="font-bold text-on-surface truncate"
+                          [class.font-semibold]="!msg.isRead"
+                          >{{ msg.sender }}</span
+                        >
+                        @if (msg.isStarred) {
+                          <mat-icon class="text-amber-500 text-xs w-2.5 h-2.5 leading-2.5 flex-none">star</mat-icon>
+                        }
+                      </div>
                       <span
-                        class="font-bold text-on-surface"
-                        [class.font-semibold]="!msg.isRead"
-                        >{{ msg.sender }}</span
-                      >
-                      <span
-                        class="text-xs text-on-surface-variant font-normal uppercase"
+                        class="text-xs text-on-surface-variant font-normal uppercase flex-none"
                         >{{ msg.date }}</span
                       >
                     </div>
@@ -220,10 +228,12 @@ interface Message {
                     <div class="flex gap-1 sm:justify-end">
                       <button
                         mat-icon-button
-                        class="text-on-surface-variant"
-                        aria-label="Star message"
+                        (click)="toggleStar(selectedMessage); $event.stopPropagation()"
+                        [class.text-amber-500]="selectedMessage.isStarred"
+                        [class.text-on-surface-variant]="!selectedMessage.isStarred"
+                        [aria-label]="selectedMessage.isStarred ? 'Unstar message' : 'Star message'"
                       >
-                        <mat-icon aria-hidden="true">star_border</mat-icon>
+                        <mat-icon aria-hidden="true">{{ selectedMessage.isStarred ? 'star' : 'star_border' }}</mat-icon>
                       </button>
                       <button
                         mat-icon-button
@@ -237,6 +247,7 @@ interface Message {
                         mat-icon-button
                         class="text-on-surface-variant"
                         aria-label="Reply to message"
+                        (click)="replyToMessage()"
                       >
                         <mat-icon aria-hidden="true">reply</mat-icon>
                       </button>
@@ -297,12 +308,13 @@ interface Message {
 
                 <!-- Reply Box Placeholder -->
                 <div
-                  class="border border-outline rounded-2xl p-4 bg-surface-variant focus-within:ring-2 focus-within:ring-primary/20 focus-within:border-primary transition-all"
+                  class="border border-outline rounded-2xl p-4 bg-surface-variant hover:border-primary/50 transition-all cursor-text group"
+                  (click)="replyToMessage()"
                 >
-                  <p class="text-sm text-on-surface-variant mb-4 px-2 italic">
+                  <p class="text-sm text-on-surface-variant mb-4 px-2 italic group-hover:text-primary transition-colors">
                     Click here to reply...
                   </p>
-                  <div class="flex justify-between items-center">
+                  <div class="flex justify-between items-center pointer-events-none opacity-60">
                     <div class="flex gap-1">
                       <button
                         mat-icon-button
@@ -332,10 +344,12 @@ interface Message {
                       mat-raised-button
                       color="primary"
                       aria-label="Send reply"
+                      class="pointer-events-auto opacity-100"
+                      (click)="replyToMessage(); $event.stopPropagation()"
                     >
-                      Send
+                      Reply
                       <mat-icon class="ml-1 text-sm pt-1" aria-hidden="true"
-                        >send</mat-icon
+                        >reply</mat-icon
                       >
                     </button>
                   </div>
@@ -388,7 +402,7 @@ export class MessagesPageComponent {
   inboxMessages: Message[] = [
     {
       id: '1',
-      sender: 'Sarah Jenkins',
+      sender: 'Sarah Johnson',
       initials: 'SJ',
       color: '#4f46e5',
       subject: "Luna's post-op checkup",
@@ -396,6 +410,7 @@ export class MessagesPageComponent {
       date: 'Aug 14',
       petName: 'Luna (Cat)',
       isRead: false,
+      isStarred: true,
     },
     {
       id: '2',
@@ -407,6 +422,7 @@ export class MessagesPageComponent {
       date: 'Aug 13',
       petName: 'Rex (German Shepherd)',
       isRead: true,
+      isStarred: false,
     },
     {
       id: '3',
@@ -418,17 +434,19 @@ export class MessagesPageComponent {
       date: 'Aug 12',
       petName: 'Bella (French Bulldog)',
       isRead: true,
+      isStarred: false,
     },
     {
       id: '4',
-      sender: 'Michael Brown',
-      initials: 'MB',
+      sender: 'Michael Chen',
+      initials: 'MC',
       color: '#d97706',
       subject: 'Question about medication dosage',
       body: "Dear Clinic Staff,\n\nI'm a bit confused about the instructions on Charlie's ear drops. Is it 3 drops per ear once a day or twice a day? The bottle says once but the summary I got says twice.\n\nPlease clarify when you have a moment.",
       date: 'Aug 10',
       petName: 'Charlie (Golden Retriever)',
       isRead: true,
+      isStarred: false,
     },
   ];
 
@@ -443,6 +461,7 @@ export class MessagesPageComponent {
       date: 'Aug 15',
       petName: 'Max (Beagle)',
       isRead: true,
+      isStarred: false,
     },
     {
       id: 'o2',
@@ -454,6 +473,7 @@ export class MessagesPageComponent {
       date: 'Aug 11',
       petName: 'Daisy (Poodle)',
       isRead: true,
+      isStarred: false,
     }
   ];
 
@@ -498,6 +518,7 @@ export class MessagesPageComponent {
 
   private dialog = inject(MatDialog);
   private snackBar = inject(MatSnackBar);
+  private clientsService = inject(ClientsService);
 
   openSettings(): void {
     const dialogRef = this.dialog.open(MessageSettingsDialogComponent, {
@@ -520,16 +541,20 @@ export class MessagesPageComponent {
     });
   }
 
-  composeMessage(): void {
-    const dialogRef = this.dialog.open(ComposeMessageDialogComponent, {
-      width: '700px',
-      maxWidth: '95vw',
-      maxHeight: '90vh',
+  toggleStar(message: Message): void {
+    message.isStarred = !message.isStarred;
+    this.snackBar.open(
+      message.isStarred ? 'Message starred' : 'Message unstarred',
+      'Undo',
+      { duration: 2000 }
+    ).onAction().subscribe(() => {
+      message.isStarred = !message.isStarred;
     });
+  }
 
-    dialogRef.afterClosed().subscribe((result) => {
+  handleMessageClose(dialogRef: any): void {
+    dialogRef.afterClosed().subscribe((result: any) => {
       if (result) {
-        // Here we just show a success message since there isn't a robust backend
         this.snackBar.open('Message sent successfully!', 'Close', {
           duration: 3000,
           horizontalPosition: 'center',
@@ -538,5 +563,54 @@ export class MessagesPageComponent {
         });
       }
     });
+  }
+
+  composeMessage(): void {
+    const dialogRef = this.dialog.open(ComposeMessageDialogComponent, {
+      width: '700px',
+      maxWidth: '95vw',
+      maxHeight: '90vh',
+    });
+
+    this.handleMessageClose(dialogRef);
+  }
+
+  async replyToMessage(): Promise<void> {
+    if (!this.selectedMessage) return;
+
+    // Try to match the sender to a client
+    let matchedClientId: number | undefined = undefined;
+    
+    try {
+      const clients = await firstValueFrom(this.clientsService.getClients());
+      const senderName = this.selectedMessage.sender.toLowerCase();
+      const matchedClient = clients.find(c => 
+        senderName.includes(c.firstName.toLowerCase()) || 
+        senderName.includes(c.lastName.toLowerCase())
+      );
+      if (matchedClient) {
+        matchedClientId = matchedClient.id;
+      }
+    } catch (err) {
+      console.error('Failed to load clients for reply match', err);
+    }
+
+    const replySubject = this.selectedMessage.subject.startsWith('Re:') 
+      ? this.selectedMessage.subject 
+      : `Re: ${this.selectedMessage.subject}`;
+
+    const dialogRef = this.dialog.open(ComposeMessageDialogComponent, {
+      width: '700px',
+      maxWidth: '95vw',
+      maxHeight: '90vh',
+      data: {
+        isReply: true,
+        clientId: matchedClientId,
+        subject: replySubject,
+        body: `\n\n--- Original Message from ${this.selectedMessage.sender} ---\n${this.selectedMessage.body}`
+      }
+    });
+
+    this.handleMessageClose(dialogRef);
   }
 }

@@ -1,7 +1,7 @@
 import { Component, inject, OnInit } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormBuilder, FormGroup, ReactiveFormsModule, Validators } from '@angular/forms';
-import { MatDialogRef, MatDialogModule } from '@angular/material/dialog';
+import { MatDialogRef, MatDialogModule, MAT_DIALOG_DATA } from '@angular/material/dialog';
 import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatInputModule } from '@angular/material/input';
 import { MatButtonModule } from '@angular/material/button';
@@ -30,8 +30,8 @@ import { Client } from '@vet-clinic/shared-types';
           <mat-icon aria-hidden="true">edit_square</mat-icon>
         </div>
         <div class="flex flex-col">
-          <span class="text-xl font-bold tracking-tight">Compose Message</span>
-          <span class="text-xs text-on-surface-variant font-medium">Send a new message to a client</span>
+          <span class="text-xl font-bold tracking-tight">{{ data?.isReply ? 'Reply to Message' : 'Compose Message' }}</span>
+          <span class="text-xs text-on-surface-variant font-medium">{{ data?.isReply ? 'Send a reply' : 'Send a new message to a client' }}</span>
         </div>
       </h1>
 
@@ -108,15 +108,16 @@ export class ComposeMessageDialogComponent implements OnInit {
   private fb = inject(FormBuilder);
   private clientsService = inject(ClientsService);
   private dialogRef = inject(MatDialogRef<ComposeMessageDialogComponent>);
+  public data = inject<{ clientId?: number, subject?: string, body?: string, isReply?: boolean } | null>(MAT_DIALOG_DATA, { optional: true });
 
   messageForm: FormGroup;
   clients: Client[] = [];
 
   constructor() {
     this.messageForm = this.fb.group({
-      clientId: ['', Validators.required],
-      subject: ['', Validators.required],
-      body: ['', Validators.required]
+      clientId: [this.data?.clientId || '', Validators.required],
+      subject: [this.data?.subject || '', Validators.required],
+      body: [this.data?.body || '', Validators.required]
     });
   }
 

@@ -241,7 +241,7 @@ export class ClientInfoComponent implements OnInit {
     this.client$ = this.route.parent!.paramMap.pipe(
       switchMap((params) => {
         const id = Number(params.get('id'));
-        return this.clientsService.getOwner(id);
+        return this.clientsService.getClient(id);
       }),
     );
   }

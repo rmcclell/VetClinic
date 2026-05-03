@@ -191,7 +191,7 @@ export class ClientDetailsComponent implements OnInit {
     this.client$ = combineLatest([this.route.paramMap, this.refresh$]).pipe(
       switchMap(([params, _]) => {
         const id = Number(params.get('id'));
-        return this.clientsService.getOwner(id);
+        return this.clientsService.getClient(id);
       }),
     );
   }

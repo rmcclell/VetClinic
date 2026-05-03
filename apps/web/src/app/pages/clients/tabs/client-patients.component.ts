@@ -159,7 +159,7 @@ export class ClientPatientsComponent implements OnInit {
       switchMap(() => this.route.parent!.paramMap),
       switchMap((params) => {
         const id = Number(params.get('id'));
-        return this.clientsService.getOwner(id);
+        return this.clientsService.getClient(id);
       }),
     );
   }

@@ -243,7 +243,7 @@ export class ClientAppointmentsComponent implements AfterViewInit {
     if (!clientId) return;
 
     try {
-      const client = await firstValueFrom(this.clientsService.getOwner(clientId));
+      const client = await firstValueFrom(this.clientsService.getClient(clientId));
       const dialogRef = this.dialog.open(ClientAppointmentDialogComponent, {
         width: '600px',
         data: { 

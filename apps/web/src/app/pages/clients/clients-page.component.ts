@@ -70,7 +70,7 @@ import { ClientDialogComponent } from './client-dialog.component';
         <button
           mat-raised-button
           color="primary"
-          (click)="addOwner()"
+          (click)="addClient()"
           class="h-10"
           aria-label="Add client"
         >
@@ -176,7 +176,7 @@ import { ClientDialogComponent } from './client-dialog.component';
                 <button
                   mat-icon-button
                   color="primary"
-                  (click)="editOwner(client); $event.stopPropagation()"
+                  (click)="editClient(client); $event.stopPropagation()"
                   matTooltip="Edit Client"
                   [attr.aria-label]="
                     'Edit client ' + client.firstName + ' ' + client.lastName
@@ -187,7 +187,7 @@ import { ClientDialogComponent } from './client-dialog.component';
                 <button
                   mat-icon-button
                   color="warn"
-                  (click)="deleteOwner(client); $event.stopPropagation()"
+                  (click)="deleteClient(client); $event.stopPropagation()"
                   matTooltip="Delete Client"
                   [attr.aria-label]="
                     'Delete client ' + client.firstName + ' ' + client.lastName
@@ -203,8 +203,8 @@ import { ClientDialogComponent } from './client-dialog.component';
           <tr
             mat-row
             *matRowDef="let row; columns: displayedColumns"
-            (click)="viewOwner(row)"
-            (keydown.enter)="viewOwner(row)"
+            (click)="viewClient(row)"
+            (keydown.enter)="viewClient(row)"
             tabindex="0"
             [attr.aria-label]="'View details for ' + row.firstName + ' ' + row.lastName"
             class="hover:bg-surface-variant transition-colors"
@@ -234,7 +234,7 @@ import { ClientDialogComponent } from './client-dialog.component';
           <p class="text-sm mb-4">
             You haven't added any clients to the directory yet.
           </p>
-          <button mat-stroked-button color="primary" (click)="addOwner()">
+          <button mat-stroked-button color="primary" (click)="addClient()">
             <mat-icon aria-hidden="true">add</mat-icon> Add your first Client
           </button>
         </div>
@@ -309,7 +309,7 @@ export class ClientsPageComponent implements OnInit, AfterViewInit {
     this.dataSource.filter = filterValue.trim().toLowerCase();
   }
 
-  addOwner(): void {
+  addClient(): void {
     const dialogRef = this.dialog.open(ClientDialogComponent, {
       width: '600px',
       maxWidth: '95vw',
@@ -323,23 +323,35 @@ export class ClientsPageComponent implements OnInit, AfterViewInit {
     });
   }
 
-  viewOwner(Client: Client): void {
-    this.router.navigate(['/clients', Client.id]);
+  viewClient(client: Client): void {
+    this.router.navigate(['/clients', client.id]);
   }
 
-  editOwner(Client: Client): void {
+  editClient(clientRow: Client): void {
     // Stop propagation so it doesn't also trigger the row click
     event?.stopPropagation();
-    this.router.navigate(['/clients', Client.id, 'edit']);
+    
+    const dialogRef = this.dialog.open(ClientDialogComponent, {
+      width: '600px',
+      maxWidth: '95vw',
+      maxHeight: '90vh',
+      data: clientRow,
+    });
+
+    dialogRef.afterClosed().subscribe((result) => {
+      if (result) {
+        this.loadClients();
+      }
+    });
   }
 
-  deleteOwner(Client: Client): void {
+  deleteClient(client: Client): void {
     if (
       confirm(
-        `Are you sure you want to delete ${Client.firstName} ${Client.lastName}? This will also delete their associated patients and visit history.`,
+        `Are you sure you want to delete ${client.firstName} ${client.lastName}? This will also delete their associated patients and visit history.`,
       )
     ) {
-      this.ClientsService.deleteOwner(Client.id).subscribe(() => {
+      this.ClientsService.deleteClient(client.id).subscribe(() => {
         this.loadClients();
       });
     }

@@ -73,7 +73,7 @@ async function main() {
         email: 'michael.chen@email.com',
         phone: '555-0201',
         address: '456 Maple Avenue, Springfield, IL 62702',
-        notes: 'First-time pet owner',
+        notes: 'First-time pet client',
         pets: {
           create: [
             {

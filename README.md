@@ -67,7 +67,7 @@ npm run start:web
 | **Messages**          | ![Light](docs/screenshots/messages_light.png)      | ![Dark](docs/screenshots/messages_dark.png)      |
 | **Invoices**          | ![Light](docs/screenshots/invoices_light.png)      | ![Dark](docs/screenshots/invoices_dark.png)      |
 | **Appointments**      | ![Light](docs/screenshots/appointments_light.png)  | ![Dark](docs/screenshots/appointments_dark.png)  |
-| **Owners / Clients**  | ![Light](docs/screenshots/clients_light.png)       | ![Dark](docs/screenshots/clients_dark.png)       |
+| **Clients / Clients**  | ![Light](docs/screenshots/clients_light.png)       | ![Dark](docs/screenshots/clients_dark.png)       |
 | **User Settings**     | ![Light](docs/screenshots/user_settings_light.png) | ![Dark](docs/screenshots/user_settings_dark.png) |
 
 ### Patient Details

@@ -33,7 +33,7 @@ import { Observable, switchMap } from 'rxjs';
   template: `
     <div class="p-6">
       <form
-        [formGroup]="ownerForm"
+        [formGroup]="clientForm"
         class="flex flex-col gap-4 mt-2 mb-4 max-w-4xl"
       >
         <!-- Basic Info Section -->
@@ -50,14 +50,14 @@ import { Observable, switchMap } from 'rxjs';
               formControlName="firstName"
               placeholder="e.g. John"
             />
-            @if (ownerForm.get('firstName')?.hasError('required')) {
+            @if (clientForm.get('firstName')?.hasError('required')) {
               <mat-error>First name is required</mat-error>
             }
           </mat-form-field>
           <mat-form-field class="flex-1" appearance="outline">
             <mat-label>Last Name</mat-label>
             <input matInput formControlName="lastName" placeholder="e.g. Doe" />
-            @if (ownerForm.get('lastName')?.hasError('required')) {
+            @if (clientForm.get('lastName')?.hasError('required')) {
               <mat-error>Last name is required</mat-error>
             }
           </mat-form-field>
@@ -78,7 +78,7 @@ import { Observable, switchMap } from 'rxjs';
             type="email"
             placeholder="client@example.com"
           />
-          @if (ownerForm.get('email')?.hasError('email')) {
+          @if (clientForm.get('email')?.hasError('email')) {
             <mat-error>Please enter a valid email address</mat-error>
           }
         </mat-form-field>
@@ -228,7 +228,7 @@ import { Observable, switchMap } from 'rxjs';
           <button
             mat-raised-button
             color="primary"
-            [disabled]="ownerForm.invalid || ownerForm.pristine"
+            [disabled]="clientForm.invalid || clientForm.pristine"
             (click)="onSave()"
           >
             <mat-icon aria-hidden="true">save</mat-icon> Save Changes
@@ -246,10 +246,10 @@ export class ClientEditComponent implements OnInit {
   private snackBar = inject(MatSnackBar);
 
   clientId!: number;
-  ownerForm: FormGroup;
+  clientForm: FormGroup;
 
   constructor() {
-    this.ownerForm = this.fb.group({
+    this.clientForm = this.fb.group({
       firstName: ['', Validators.required],
       lastName: ['', Validators.required],
       email: ['', [Validators.email]],
@@ -274,12 +274,12 @@ export class ClientEditComponent implements OnInit {
       .parent!.paramMap.pipe(
         switchMap((params) => {
           this.clientId = Number(params.get('id'));
-          return this.clientsService.getOwner(this.clientId);
+          return this.clientsService.getClient(this.clientId);
         }),
       )
       .subscribe((data) => {
         if (data) {
-          this.ownerForm.patchValue({
+          this.clientForm.patchValue({
             firstName: data.firstName || '',
             lastName: data.lastName || '',
             email: data.email || '',
@@ -306,15 +306,15 @@ export class ClientEditComponent implements OnInit {
   }
 
   onSave(): void {
-    if (this.ownerForm.valid) {
+    if (this.clientForm.valid) {
       this.clientsService
-        .updateOwner(this.clientId, this.ownerForm.value)
+        .updateClient(this.clientId, this.clientForm.value)
         .subscribe({
           next: () => {
             this.snackBar.open('Client updated successfully', 'Close', {
               duration: 3000,
             });
-            this.ownerForm.markAsPristine();
+            this.clientForm.markAsPristine();
             // Also redirect them back to info tab to see the saved changes
             this.router.navigate(['../info'], { relativeTo: this.route });
           },

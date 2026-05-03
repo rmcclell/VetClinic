@@ -53,7 +53,7 @@ import { CommonModule } from '@angular/common';
       </h1>
 
       <div mat-dialog-content class="p-8 pt-4 overflow-x-hidden">
-        <form [formGroup]="ownerForm" class="flex flex-col gap-10 mt-4">
+        <form [formGroup]="clientForm" class="flex flex-col gap-10 mt-4">
           
           <!-- Personal Details Section -->
           <section class="flex flex-col gap-5">
@@ -73,7 +73,7 @@ import { CommonModule } from '@angular/common';
               <mat-form-field appearance="outline" subscriptSizing="dynamic">
                 <mat-label>First Name</mat-label>
                 <input matInput formControlName="firstName" placeholder="e.g. Michael" />
-                @if (ownerForm.get('firstName')?.hasError('required')) {
+                @if (clientForm.get('firstName')?.hasError('required')) {
                   <mat-error>First name is required</mat-error>
                 }
               </mat-form-field>
@@ -81,7 +81,7 @@ import { CommonModule } from '@angular/common';
               <mat-form-field appearance="outline" subscriptSizing="dynamic">
                 <mat-label>Last Name</mat-label>
                 <input matInput formControlName="lastName" placeholder="e.g. Chen" />
-                @if (ownerForm.get('lastName')?.hasError('required')) {
+                @if (clientForm.get('lastName')?.hasError('required')) {
                   <mat-error>Last name is required</mat-error>
                 }
               </mat-form-field>
@@ -126,7 +126,7 @@ import { CommonModule } from '@angular/common';
                 <mat-label>Email Address</mat-label>
                 <mat-icon matPrefix class="mr-2 opacity-40">email</mat-icon>
                 <input matInput formControlName="email" type="email" placeholder="name@example.com" />
-                @if (ownerForm.get('email')?.hasError('email')) {
+                @if (clientForm.get('email')?.hasError('email')) {
                   <mat-error>Invalid email format</mat-error>
                 }
               </mat-form-field>
@@ -247,7 +247,7 @@ import { CommonModule } from '@angular/common';
         <button
           mat-flat-button
           color="primary"
-          [disabled]="ownerForm.invalid"
+          [disabled]="clientForm.invalid"
           (click)="onSave()"
           class="px-8 rounded-xl font-bold shadow-lg"
         >
@@ -269,12 +269,12 @@ export class ClientDialogComponent {
   private ClientsService = inject(ClientsService);
   private dialogRef = inject(MatDialogRef<ClientDialogComponent>);
 
-  ownerForm: FormGroup;
+  clientForm: FormGroup;
 
   constructor() {
     const data = this.data;
 
-    this.ownerForm = this.fb.group({
+    this.clientForm = this.fb.group({
       firstName: [data?.firstName || '', Validators.required],
       lastName: [data?.lastName || '', Validators.required],
       email: [data?.email || '', [Validators.email]],
@@ -299,16 +299,16 @@ export class ClientDialogComponent {
   }
 
   onSave(): void {
-    if (this.ownerForm.valid) {
-      const ownerData = this.ownerForm.value;
+    if (this.clientForm.valid) {
+      const clientData = this.clientForm.value;
       if (this.data) {
-        this.ClientsService.updateOwner(this.data.id, ownerData).subscribe(
+        this.ClientsService.updateClient(this.data.id, clientData).subscribe(
           () => {
             this.dialogRef.close(true);
           },
         );
       } else {
-        this.ClientsService.createOwner(ownerData).subscribe(() => {
+        this.ClientsService.createClient(clientData).subscribe(() => {
           this.dialogRef.close(true);
         });
       }

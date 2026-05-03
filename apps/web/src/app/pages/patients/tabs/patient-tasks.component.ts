@@ -259,7 +259,7 @@ export class PatientTasksComponent implements AfterViewInit {
       id: 1,
       dueDate: new Date('2026-02-20'),
       priority: 'High',
-      title: 'Call Owner',
+      title: 'Call Client',
       description: 'Discuss bloodwork results',
       assignedTo: 'Dr. Smith',
       status: 'Pending',

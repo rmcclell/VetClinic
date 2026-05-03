@@ -37,7 +37,7 @@ export const MOCK_CLIENTS: Client[] = [
     address: '456 Maple Avenue, Springfield, IL 62702',
     emergencyContactName: 'Jane Chen',
     emergencyContactPhone: '555-0203',
-    notes: 'First-time pet owner',
+    notes: 'First-time pet client',
     active: true,
     dob: new Date('1990-03-22'),
     gender: 'Male',

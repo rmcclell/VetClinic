@@ -1,4 +1,4 @@
-﻿import { Injectable, inject } from '@angular/core';
+import { Injectable, inject } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
 import { Observable } from 'rxjs';
 import {
@@ -18,19 +18,19 @@ export class ClientsService {
     return this.http.get<Client[]>(this.apiUrl);
   }
 
-  getOwner(id: number): Observable<Client> {
+  getClient(id: number): Observable<Client> {
     return this.http.get<Client>(`${this.apiUrl}/${id}`);
   }
 
-  createOwner(Client: CreateClientDto): Observable<Client> {
-    return this.http.post<Client>(this.apiUrl, Client);
+  createClient(client: CreateClientDto): Observable<Client> {
+    return this.http.post<Client>(this.apiUrl, client);
   }
 
-  updateOwner(id: number, Client: UpdateClientDto): Observable<Client> {
-    return this.http.put<Client>(`${this.apiUrl}/${id}`, Client);
+  updateClient(id: number, client: UpdateClientDto): Observable<Client> {
+    return this.http.put<Client>(`${this.apiUrl}/${id}`, client);
   }
 
-  deleteOwner(id: number): Observable<Client> {
+  deleteClient(id: number): Observable<Client> {
     return this.http.delete<Client>(`${this.apiUrl}/${id}`);
   }
 }

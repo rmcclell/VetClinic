@@ -43,7 +43,7 @@ import { Appointment, Client, Patient } from '@vet-clinic/shared-types';
           <mat-label>Client</mat-label>
           <mat-select
             formControlName="clientId"
-            (selectionChange)="onOwnerChange($event.value)"
+            (selectionChange)="onClientChange($event.value)"
           >
             @for (client of clients; track client.id) {
               <mat-option [value]="client.id">
@@ -175,14 +175,14 @@ export class AppointmentDialogComponent implements OnInit {
     this.PatientsService.getPatients().subscribe((patients) => {
       this.allPatients = patients;
       if (this.appointmentForm.get('clientId')?.value) {
-        this.onOwnerChange(this.appointmentForm.get('clientId')?.value);
+        this.onClientChange(this.appointmentForm.get('clientId')?.value);
       }
     });
   }
 
-  onOwnerChange(ownerId: number): void {
+  onClientChange(clientId: number): void {
     this.filteredPatients = this.allPatients.filter(
-      (p) => p.clientId === ownerId,
+      (p) => p.clientId === clientId,
     );
     if (
       !this.filteredPatients.find(

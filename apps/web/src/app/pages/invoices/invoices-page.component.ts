@@ -8,6 +8,10 @@ import { MatChipsModule } from '@angular/material/chips';
 import { MatInputModule } from '@angular/material/input';
 import { MatToolbarModule } from '@angular/material/toolbar';
 import { MatFormFieldModule } from '@angular/material/form-field';
+import { MatDialog, MatDialogModule } from '@angular/material/dialog';
+import { inject } from '@angular/core';
+import { ExportInvoicesDialogComponent } from './export-invoices-dialog.component';
+import { CurrencyPipe } from '@angular/common';
 
 interface Invoice {
   id: string;
@@ -32,7 +36,9 @@ interface Invoice {
     MatInputModule,
     MatFormFieldModule,
     MatToolbarModule,
+    MatDialogModule,
   ],
+  providers: [CurrencyPipe],
   template: `
     <mat-toolbar class="bg-surface-variant border-b border-outline h-18! px-6">
       <div class="flex gap-3 w-full md:w-auto grow items-center">
@@ -71,6 +77,7 @@ interface Invoice {
             mat-stroked-button
             color="primary"
             aria-label="Export invoices to file"
+            (click)="openExportDialog()"
           >
             <mat-icon class="mr-1" aria-hidden="true">download</mat-icon>
             <span class="hidden sm:inline">Export</span>
@@ -313,6 +320,9 @@ interface Invoice {
   ],
 })
 export class InvoicesPageComponent {
+  private dialog = inject(MatDialog);
+  private currencyPipe = inject(CurrencyPipe);
+
   displayedColumns: string[] = [
     'invoiceNumber',
     'clientName',
@@ -378,4 +388,53 @@ export class InvoicesPageComponent {
       status: 'Overdue',
     },
   ];
+
+  openExportDialog(): void {
+    const dialogRef = this.dialog.open(ExportInvoicesDialogComponent, {
+      width: '450px',
+    });
+
+    dialogRef.afterClosed().subscribe((result) => {
+      if (result) {
+        this.exportInvoices(result.start, result.end);
+      }
+    });
+  }
+
+  private exportInvoices(start: Date, end: Date): void {
+    const filteredInvoices = this.invoices.filter((invoice) => {
+      const invoiceDate = new Date(invoice.date);
+      return invoiceDate >= start && invoiceDate <= end;
+    });
+
+    if (filteredInvoices.length === 0) {
+      alert('No invoices found for the selected date range.');
+      return;
+    }
+
+    const headers = ['Invoice #', 'Client', 'Date', 'Due Date', 'Amount', 'Status'];
+    const csvContent = [
+      headers.join(','),
+      ...filteredInvoices.map((inv) =>
+        [
+          inv.invoiceNumber,
+          `"${inv.clientName}"`,
+          inv.date,
+          inv.dueDate,
+          inv.amount,
+          inv.status,
+        ].join(',')
+      ),
+    ].join('\n');
+
+    const blob = new Blob([csvContent], { type: 'text/csv;charset=utf-8;' });
+    const link = document.createElement('a');
+    const url = URL.createObjectURL(blob);
+    link.setAttribute('href', url);
+    link.setAttribute('download', `invoices_export_${new Date().toISOString().split('T')[0]}.csv`);
+    link.style.visibility = 'hidden';
+    document.body.appendChild(link);
+    link.click();
+    document.body.removeChild(link);
+  }
 }

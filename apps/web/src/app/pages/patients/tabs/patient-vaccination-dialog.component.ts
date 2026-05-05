@@ -29,7 +29,7 @@ import { MatNativeDateModule } from '@angular/material/core';
     MatNativeDateModule,
   ],
   template: `
-    <h2 mat-dialog-title>Add Vaccination</h2>
+    <h2 mat-dialog-title>{{ data?.id ? 'Edit' : 'Add' }} Vaccination</h2>
     <mat-dialog-content>
       <form [formGroup]="vaccinationForm" class="flex flex-col gap-4 mt-2">
         <mat-form-field appearance="outline">
@@ -73,14 +73,14 @@ export class PatientVaccinationDialogComponent {
   public data = inject(MAT_DIALOG_DATA);
 
   vaccinationForm: FormGroup = this.fb.group({
-    name: ['', Validators.required],
-    dueDate: [new Date(), Validators.required],
-    status: ['Up to Date', Validators.required]
+    name: [this.data?.name || '', Validators.required],
+    dueDate: [this.data?.dueDate ? new Date(this.data.dueDate) : new Date(), Validators.required],
+    status: [this.data?.status || 'Up to Date', Validators.required]
   });
 
   onSubmit() {
     if (this.vaccinationForm.valid) {
-      this.dialogRef.close(this.vaccinationForm.value);
+      this.dialogRef.close({ ...this.data, ...this.vaccinationForm.value });
     }
   }
 }

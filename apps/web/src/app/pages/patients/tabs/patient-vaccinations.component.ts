@@ -145,12 +145,14 @@ import { MatSnackBar, MatSnackBarModule } from '@angular/material/snack-bar';
                 <button
                   mat-menu-item
                   [attr.aria-label]="'Edit ' + element.name"
+                  (click)="openEditVaccinationDialog(element)"
                 >
                   <mat-icon aria-hidden="true">edit</mat-icon> Edit
                 </button>
                 <button
                   mat-menu-item
                   [attr.aria-label]="'Mark ' + element.name + ' as done'"
+                  (click)="markAsDone(element)"
                 >
                   <mat-icon aria-hidden="true">check</mat-icon> Mark as Done
                 </button>
@@ -159,6 +161,7 @@ import { MatSnackBar, MatSnackBarModule } from '@angular/material/snack-bar';
                   mat-menu-item
                   class="text-red-500"
                   [attr.aria-label]="'Delete ' + element.name"
+                  (click)="deleteVaccination(element)"
                 >
                   <mat-icon color="warn" aria-hidden="true">delete</mat-icon>
                   Delete
@@ -259,6 +262,41 @@ export class PatientVaccinationsComponent implements AfterViewInit {
         }
       }
     });
+  }
+
+  openEditVaccinationDialog(item: VaccinationItem) {
+    const dialogRef = this.dialog.open(PatientVaccinationDialogComponent, {
+      width: '400px',
+      data: item
+    });
+
+    dialogRef.afterClosed().subscribe(result => {
+      if (result) {
+        const index = this.vaccinations.findIndex(v => v.id === item.id);
+        if (index !== -1) {
+          this.vaccinations[index] = result;
+          this.dataSource.data = [...this.vaccinations];
+          this.snackBar.open('Vaccination record updated', 'Close', { duration: 3000 });
+        }
+      }
+    });
+  }
+
+  deleteVaccination(item: VaccinationItem) {
+    if (confirm(`Are you sure you want to delete the vaccination record for ${item.name}?`)) {
+      this.vaccinations = this.vaccinations.filter(v => v.id !== item.id);
+      this.dataSource.data = this.vaccinations;
+      this.snackBar.open('Vaccination record deleted', 'Close', { duration: 3000 });
+    }
+  }
+
+  markAsDone(item: VaccinationItem) {
+    const index = this.vaccinations.findIndex(v => v.id === item.id);
+    if (index !== -1) {
+      this.vaccinations[index] = { ...item, status: 'Up to Date' };
+      this.dataSource.data = [...this.vaccinations];
+      this.snackBar.open(`${item.name} marked as Up to Date`, 'Close', { duration: 3000 });
+    }
   }
 
   openPrintVaccinationDialog() {

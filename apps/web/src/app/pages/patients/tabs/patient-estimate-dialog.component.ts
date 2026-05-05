@@ -29,7 +29,7 @@ import { MatNativeDateModule } from '@angular/material/core';
     MatNativeDateModule,
   ],
   template: `
-    <h2 mat-dialog-title>Add Estimate</h2>
+    <h2 mat-dialog-title>{{ data?.id ? 'Edit' : 'Add' }} Estimate</h2>
     <mat-dialog-content>
       <form [formGroup]="estimateForm" class="flex flex-col gap-4 mt-2">
         <mat-form-field appearance="outline">
@@ -91,18 +91,18 @@ export class PatientEstimateDialogComponent {
   public data = inject(MAT_DIALOG_DATA);
 
   estimateForm: FormGroup = this.fb.group({
-    title: ['', Validators.required],
-    dateCreated: [new Date(), Validators.required],
-    expirationDate: [new Date(), Validators.required],
-    status: ['Pending', Validators.required],
-    estimatedCharges: [0.00, Validators.required],
-    importedToSoap: [false]
+    title: [this.data?.title || '', Validators.required],
+    dateCreated: [this.data?.dateCreated ? new Date(this.data.dateCreated) : new Date(), Validators.required],
+    expirationDate: [this.data?.expirationDate ? new Date(this.data.expirationDate) : new Date(), Validators.required],
+    status: [this.data?.status || 'Pending', Validators.required],
+    estimatedCharges: [this.data?.estimatedCharges || 0.00, Validators.required],
+    importedToSoap: [this.data?.importedToSoap || false]
   });
 
   onSubmit() {
     if (this.estimateForm.valid) {
-      const result = this.estimateForm.value;
-      if (result.status === 'Approved') {
+      const result = { ...this.data, ...this.estimateForm.value };
+      if (result.status === 'Approved' && !result.approvalDate) {
          result.approvalDate = new Date();
       }
       this.dialogRef.close(result);

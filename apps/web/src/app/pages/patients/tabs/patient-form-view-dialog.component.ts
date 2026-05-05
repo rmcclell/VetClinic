@@ -4,7 +4,7 @@ import { MatDialogRef, MAT_DIALOG_DATA, MatDialogModule } from '@angular/materia
 import { MatButtonModule } from '@angular/material/button';
 import { MatIconModule } from '@angular/material/icon';
 import { MatDividerModule } from '@angular/material/divider';
-import { PatientFormItem } from '../patient-tabs.types';
+import { FormItem } from '../patient-tabs.types';
 
 @Component({
   selector: 'app-patient-form-view-dialog',
@@ -24,8 +24,8 @@ import { PatientFormItem } from '../patient-tabs.types';
             <mat-icon aria-hidden="true">article</mat-icon>
           </div>
           <div class="flex flex-col">
-            <span class="text-xl font-bold tracking-tight">{{ data.name }}</span>
-            <span class="text-xs text-on-surface-variant font-medium italic">Shared on {{ data.dateShared | date:'longDate' }}</span>
+            <span class="text-xl font-bold tracking-tight">{{ data.title }}</span>
+            <span class="text-xs text-on-surface-variant font-medium italic">Shared on {{ data.date | date:'longDate' }}</span>
           </div>
         </div>
         <button mat-icon-button mat-dialog-close aria-label="Close dialog">
@@ -41,8 +41,8 @@ import { PatientFormItem } from '../patient-tabs.types';
             <div class="flex flex-col gap-1">
               <span class="text-[10px] font-bold uppercase tracking-widest text-on-surface-variant opacity-60">Status</span>
               <div class="flex items-center gap-2 font-black text-sm" 
-                   [ngClass]="{'text-indigo-600': data.status === 'Shared', 'text-amber-600': data.status === 'Draft'}">
-                <mat-icon class="text-sm w-4 h-4">{{ data.status === 'Shared' ? 'check_circle' : 'edit_note' }}</mat-icon>
+                   [ngClass]="{'text-indigo-600': data.status === 'Sent' || data.status === 'Completed', 'text-amber-600': data.status === 'Draft' || data.status === 'Pending'}">
+                <mat-icon class="text-sm w-4 h-4">{{ (data.status === 'Sent' || data.status === 'Completed') ? 'check_circle' : 'edit_note' }}</mat-icon>
                 {{ data.status }}
               </div>
             </div>
@@ -53,7 +53,7 @@ import { PatientFormItem } from '../patient-tabs.types';
               <span class="text-[10px] font-bold uppercase tracking-widest text-on-surface-variant opacity-60">Completion</span>
               <div class="flex items-center gap-2 font-black text-sm text-on-surface">
                 <mat-icon class="text-sm w-4 h-4 text-emerald-600">query_builder</mat-icon>
-                Not Started
+                {{ data.status === 'Completed' ? 'Finished' : 'Not Started' }}
               </div>
             </div>
           </div>
@@ -115,5 +115,5 @@ import { PatientFormItem } from '../patient-tabs.types';
   `]
 })
 export class PatientFormViewDialogComponent {
-  public data = inject(MAT_DIALOG_DATA) as PatientFormItem;
+  public data = inject(MAT_DIALOG_DATA) as FormItem;
 }

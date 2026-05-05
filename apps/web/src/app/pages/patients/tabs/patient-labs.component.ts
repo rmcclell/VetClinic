@@ -15,6 +15,7 @@ import { DATE_FORMAT } from '../../../core/date-format.token';
 import { MatDialog, MatDialogModule } from '@angular/material/dialog';
 import { PatientLabDialogComponent } from './patient-lab-dialog.component';
 import { PatientLabPrintDialogComponent } from './patient-lab-print-dialog.component';
+import { PatientLabViewDialogComponent } from './patient-lab-view-dialog.component';
 import { PatientsService } from '../../../services/patients.service';
 import { ActivatedRoute } from '@angular/router';
 import { MatSnackBar, MatSnackBarModule } from '@angular/material/snack-bar';
@@ -36,6 +37,7 @@ import { MatSnackBar, MatSnackBarModule } from '@angular/material/snack-bar';
     MatDividerModule,
     MatDialogModule,
     MatSnackBarModule,
+    PatientLabViewDialogComponent,
   ],
   template: `
     <div class="flex flex-col h-full">
@@ -162,6 +164,7 @@ import { MatSnackBar, MatSnackBarModule } from '@angular/material/snack-bar';
                 <button
                   mat-menu-item
                   [attr.aria-label]="'View ' + element.details"
+                  (click)="openViewLabDialog(element)"
                 >
                   <mat-icon aria-hidden="true">visibility</mat-icon> View
                 </button>
@@ -176,6 +179,7 @@ import { MatSnackBar, MatSnackBarModule } from '@angular/material/snack-bar';
                   mat-menu-item
                   class="text-red-500"
                   [attr.aria-label]="'Delete ' + element.details"
+                  (click)="deleteLab(element)"
                 >
                   <mat-icon color="warn" aria-hidden="true">delete</mat-icon>
                   Delete
@@ -243,6 +247,21 @@ export class PatientLabsComponent implements AfterViewInit {
 
   ngAfterViewInit() {
     this.dataSource.sort = this.sort;
+  }
+
+  openViewLabDialog(item: LabItem) {
+    this.dialog.open(PatientLabViewDialogComponent, {
+      width: '700px',
+      data: item
+    });
+  }
+
+  deleteLab(item: LabItem) {
+    if (confirm(`Are you sure you want to delete the lab report: ${item.details}?`)) {
+      this.labItems = this.labItems.filter(l => l.id !== item.id);
+      this.dataSource.data = this.labItems;
+      this.snackBar.open('Lab report deleted', 'Close', { duration: 3000 });
+    }
   }
 
   applyFilter(event: Event) {

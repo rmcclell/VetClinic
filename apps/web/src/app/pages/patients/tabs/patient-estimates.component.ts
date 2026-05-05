@@ -221,12 +221,15 @@ import { MatSnackBar, MatSnackBarModule } from '@angular/material/snack-bar';
                 <button
                   mat-menu-item
                   [attr.aria-label]="'Edit estimate: ' + element.title"
+                  (click)="openEditEstimateDialog(element)"
                 >
                   <mat-icon aria-hidden="true">edit</mat-icon> Edit
                 </button>
                 <button
                   mat-menu-item
                   [attr.aria-label]="'Approve estimate: ' + element.title"
+                  (click)="approveEstimate(element)"
+                  [disabled]="element.status === 'Approved'"
                 >
                   <mat-icon aria-hidden="true">check_circle</mat-icon> Approve
                 </button>
@@ -235,6 +238,7 @@ import { MatSnackBar, MatSnackBarModule } from '@angular/material/snack-bar';
                   mat-menu-item
                   class="text-red-500"
                   [attr.aria-label]="'Delete estimate: ' + element.title"
+                  (click)="deleteEstimate(element)"
                 >
                   <mat-icon color="warn" aria-hidden="true">delete</mat-icon>
                   Delete
@@ -320,6 +324,45 @@ export class PatientEstimatesComponent implements AfterViewInit {
 
   ngAfterViewInit() {
     this.dataSource.sort = this.sort;
+  }
+
+  openEditEstimateDialog(item: EstimateItem) {
+    const dialogRef = this.dialog.open(PatientEstimateDialogComponent, {
+      width: '600px',
+      data: item
+    });
+
+    dialogRef.afterClosed().subscribe(result => {
+      if (result) {
+        const index = this.estimates.findIndex(e => e.id === item.id);
+        if (index !== -1) {
+          this.estimates[index] = result;
+          this.dataSource.data = [...this.estimates];
+          this.snackBar.open('Estimate updated successfully', 'Close', { duration: 3000 });
+        }
+      }
+    });
+  }
+
+  approveEstimate(item: EstimateItem) {
+    const index = this.estimates.findIndex(e => e.id === item.id);
+    if (index !== -1) {
+      this.estimates[index] = {
+        ...item,
+        status: 'Approved',
+        approvalDate: new Date()
+      };
+      this.dataSource.data = [...this.estimates];
+      this.snackBar.open('Estimate approved', 'Close', { duration: 3000 });
+    }
+  }
+
+  deleteEstimate(item: EstimateItem) {
+    if (confirm(`Are you sure you want to delete the estimate: "${item.title}"?`)) {
+      this.estimates = this.estimates.filter(e => e.id !== item.id);
+      this.dataSource.data = this.estimates;
+      this.snackBar.open('Estimate deleted', 'Close', { duration: 3000 });
+    }
   }
 
   applyFilter(event: Event) {

@@ -27,7 +27,7 @@ import { MatNativeDateModule } from '@angular/material/core';
     MatNativeDateModule,
   ],
   template: `
-    <h2 mat-dialog-title>Add Invoice</h2>
+    <h2 mat-dialog-title>{{ data?.id ? 'Edit' : 'Add' }} Invoice</h2>
     <mat-dialog-content>
       <form [formGroup]="invoiceForm" class="flex flex-col gap-4 mt-2">
         <div class="flex gap-4">
@@ -82,16 +82,16 @@ export class PatientInvoiceDialogComponent {
   public data = inject(MAT_DIALOG_DATA);
 
   invoiceForm: FormGroup = this.fb.group({
-    invoiceNumber: ['', Validators.required],
-    date: [new Date(), Validators.required],
-    description: ['', Validators.required],
-    quantity: [1, Validators.required],
-    price: [0.00, Validators.required],
+    invoiceNumber: [this.data?.invoiceNumber || '', Validators.required],
+    date: [this.data?.date ? new Date(this.data.date) : new Date(), Validators.required],
+    description: [this.data?.description || '', Validators.required],
+    quantity: [this.data?.quantity || 1, Validators.required],
+    price: [this.data?.price || 0.00, Validators.required],
   });
 
   onSubmit() {
     if (this.invoiceForm.valid) {
-      this.dialogRef.close(this.invoiceForm.value);
+      this.dialogRef.close({ ...this.data, ...this.invoiceForm.value });
     }
   }
 }

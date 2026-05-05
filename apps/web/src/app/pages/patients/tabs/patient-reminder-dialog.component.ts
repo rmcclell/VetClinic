@@ -29,7 +29,7 @@ import { MatNativeDateModule } from '@angular/material/core';
     MatNativeDateModule,
   ],
   template: `
-    <h2 mat-dialog-title>Add Reminder</h2>
+    <h2 mat-dialog-title>{{ data?.id ? 'Edit' : 'Add' }} Reminder</h2>
     <mat-dialog-content>
       <form [formGroup]="reminderForm" class="flex flex-col gap-4 mt-2">
         <mat-form-field appearance="outline">
@@ -79,15 +79,15 @@ export class PatientReminderDialogComponent {
   public data = inject(MAT_DIALOG_DATA);
 
   reminderForm: FormGroup = this.fb.group({
-    name: ['', Validators.required],
-    dueDate: [new Date(), Validators.required],
-    triggerProduct: ['', Validators.required],
-    status: ['Upcoming', Validators.required],
+    name: [this.data?.name || '', Validators.required],
+    dueDate: [this.data?.dueDate ? new Date(this.data.dueDate) : new Date(), Validators.required],
+    triggerProduct: [this.data?.triggerProduct || '', Validators.required],
+    status: [this.data?.status || 'Upcoming', Validators.required],
   });
 
   onSubmit() {
     if (this.reminderForm.valid) {
-      this.dialogRef.close(this.reminderForm.value);
+      this.dialogRef.close({ ...this.data, ...this.reminderForm.value });
     }
   }
 }

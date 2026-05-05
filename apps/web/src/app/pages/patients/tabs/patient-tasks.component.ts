@@ -198,12 +198,14 @@ import { MatSnackBar, MatSnackBarModule } from '@angular/material/snack-bar';
                 <button
                   mat-menu-item
                   [attr.aria-label]="'Edit task: ' + element.title"
+                  (click)="openEditTaskDialog(element)"
                 >
                   <mat-icon aria-hidden="true">edit</mat-icon> Edit
                 </button>
                 <button
                   mat-menu-item
                   [attr.aria-label]="'Mark complete: ' + element.title"
+                  (click)="markTaskComplete(element)"
                 >
                   <mat-icon aria-hidden="true">check_circle</mat-icon> Mark
                   Complete
@@ -213,6 +215,7 @@ import { MatSnackBar, MatSnackBarModule } from '@angular/material/snack-bar';
                   mat-menu-item
                   class="text-red-500"
                   [attr.aria-label]="'Delete task: ' + element.title"
+                  (click)="deleteTask(element)"
                 >
                   <mat-icon color="warn" aria-hidden="true">delete</mat-icon>
                   Delete
@@ -320,6 +323,41 @@ export class PatientTasksComponent implements AfterViewInit {
       .split(' ')
       .map((n) => n[0])
       .join('');
+  }
+
+  openEditTaskDialog(item: PatientTask) {
+    const dialogRef = this.dialog.open(PatientTaskDialogComponent, {
+      width: '600px',
+      data: item
+    });
+
+    dialogRef.afterClosed().subscribe(result => {
+      if (result) {
+        const index = this.patientTasks.findIndex(t => t.id === item.id);
+        if (index !== -1) {
+          this.patientTasks[index] = result;
+          this.dataSource.data = [...this.patientTasks];
+          this.snackBar.open('Task updated successfully', 'Close', { duration: 3000 });
+        }
+      }
+    });
+  }
+
+  deleteTask(item: PatientTask) {
+    if (confirm(`Are you sure you want to delete the task: "${item.title}"?`)) {
+      this.patientTasks = this.patientTasks.filter(t => t.id !== item.id);
+      this.dataSource.data = this.patientTasks;
+      this.snackBar.open('Task deleted', 'Close', { duration: 3000 });
+    }
+  }
+
+  markTaskComplete(item: PatientTask) {
+    const index = this.patientTasks.findIndex(t => t.id === item.id);
+    if (index !== -1) {
+      this.patientTasks[index] = { ...item, status: 'Completed' };
+      this.dataSource.data = [...this.patientTasks];
+      this.snackBar.open('Task marked as completed', 'Close', { duration: 3000 });
+    }
   }
 
   openAddTaskDialog() {

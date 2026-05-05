@@ -29,7 +29,7 @@ import { MatNativeDateModule } from '@angular/material/core';
     MatNativeDateModule,
   ],
   template: `
-    <h2 mat-dialog-title>Add Task</h2>
+    <h2 mat-dialog-title>{{ data?.id ? 'Edit' : 'Add' }} Task</h2>
     <mat-dialog-content>
       <form [formGroup]="taskForm" class="flex flex-col gap-4 mt-2">
         <mat-form-field appearance="outline">
@@ -97,17 +97,17 @@ export class PatientTaskDialogComponent {
   public data = inject(MAT_DIALOG_DATA);
 
   taskForm: FormGroup = this.fb.group({
-    title: ['', Validators.required],
-    description: [''],
-    dueDate: [new Date(), Validators.required],
-    priority: ['Medium', Validators.required],
-    assignedTo: ['', Validators.required],
-    status: ['Pending', Validators.required],
+    title: [this.data?.title || '', Validators.required],
+    description: [this.data?.description || ''],
+    dueDate: [this.data?.dueDate ? new Date(this.data.dueDate) : new Date(), Validators.required],
+    priority: [this.data?.priority || 'Medium', Validators.required],
+    assignedTo: [this.data?.assignedTo || '', Validators.required],
+    status: [this.data?.status || 'Pending', Validators.required],
   });
 
   onSubmit() {
     if (this.taskForm.valid) {
-      this.dialogRef.close(this.taskForm.value);
+      this.dialogRef.close({ ...this.data, ...this.taskForm.value });
     }
   }
 }

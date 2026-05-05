@@ -15,6 +15,7 @@ import { DATE_FORMAT } from '../../../core/date-format.token';
 import { MatDialog, MatDialogModule } from '@angular/material/dialog';
 import { PatientInvoiceDialogComponent } from './patient-invoice-dialog.component';
 import { PatientInvoicePrintDialogComponent } from './patient-invoice-print-dialog.component';
+import { PatientInvoiceViewDialogComponent } from './patient-invoice-view-dialog.component';
 import { PatientsService } from '../../../services/patients.service';
 import { ActivatedRoute } from '@angular/router';
 import { MatSnackBar, MatSnackBarModule } from '@angular/material/snack-bar';
@@ -170,12 +171,14 @@ import { MatSnackBar, MatSnackBarModule } from '@angular/material/snack-bar';
                 <button
                   mat-menu-item
                   [attr.aria-label]="'View invoice ' + element.invoiceNumber"
+                  (click)="openViewInvoiceDialog(element)"
                 >
                   <mat-icon aria-hidden="true">visibility</mat-icon> View
                 </button>
                 <button
                   mat-menu-item
                   [attr.aria-label]="'Edit invoice ' + element.invoiceNumber"
+                  (click)="openEditInvoiceDialog(element)"
                 >
                   <mat-icon aria-hidden="true">edit</mat-icon> Edit
                 </button>
@@ -184,6 +187,7 @@ import { MatSnackBar, MatSnackBarModule } from '@angular/material/snack-bar';
                   mat-menu-item
                   class="text-red-500"
                   [attr.aria-label]="'Delete invoice ' + element.invoiceNumber"
+                  (click)="deleteInvoice(element)"
                 >
                   <mat-icon color="warn" aria-hidden="true">delete</mat-icon>
                   Delete
@@ -271,6 +275,45 @@ export class PatientInvoicesComponent implements AfterViewInit {
   applyFilter(event: Event) {
     const filterValue = (event.target as HTMLInputElement).value;
     this.dataSource.filter = filterValue.trim().toLowerCase();
+  }
+
+  openEditInvoiceDialog(item: InvoiceItem) {
+    const dialogRef = this.dialog.open(PatientInvoiceDialogComponent, {
+      width: '600px',
+      data: item
+    });
+
+    dialogRef.afterClosed().subscribe(result => {
+      if (result) {
+        const index = this.invoiceItems.findIndex(i => i.id === item.id);
+        if (index !== -1) {
+          this.invoiceItems[index] = result;
+          this.dataSource.data = [...this.invoiceItems];
+          this.snackBar.open('Invoice updated successfully', 'Close', { duration: 3000 });
+        }
+      }
+    });
+  }
+
+  deleteInvoice(item: InvoiceItem) {
+    if (confirm(`Are you sure you want to delete invoice #${item.invoiceNumber}?`)) {
+      this.invoiceItems = this.invoiceItems.filter(i => i.id !== item.id);
+      this.dataSource.data = this.invoiceItems;
+      this.snackBar.open('Invoice deleted', 'Close', { duration: 3000 });
+    }
+  }
+
+  openViewInvoiceDialog(item: InvoiceItem) {
+    const dialogRef = this.dialog.open(PatientInvoiceViewDialogComponent, {
+      width: '750px',
+      data: item
+    });
+
+    dialogRef.afterClosed().subscribe(result => {
+      if (result === 'EDIT') {
+        this.openEditInvoiceDialog(item);
+      }
+    });
   }
 
   openAddInvoiceDialog() {

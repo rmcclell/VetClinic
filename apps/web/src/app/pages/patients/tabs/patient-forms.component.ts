@@ -17,6 +17,7 @@ import { MatDialog, MatDialogModule } from '@angular/material/dialog';
 import { PatientFormDialogComponent } from './patient-form-dialog.component';
 import { PatientFormSendDialogComponent } from './patient-form-send-dialog.component';
 import { PatientFormPrintDialogComponent } from './patient-form-print-dialog.component';
+import { PatientFormViewDialogComponent } from './patient-form-view-dialog.component';
 import { PatientsService } from '../../../services/patients.service';
 import { ActivatedRoute } from '@angular/router';
 import { MatSnackBar, MatSnackBarModule } from '@angular/material/snack-bar';
@@ -39,6 +40,7 @@ import { MatSnackBar, MatSnackBarModule } from '@angular/material/snack-bar';
     MatDividerModule,
     MatDialogModule,
     MatSnackBarModule,
+    PatientFormViewDialogComponent,
   ],
   template: `
     <div class="flex flex-col gap-6 overflow-auto p-0">
@@ -161,6 +163,7 @@ import { MatSnackBar, MatSnackBarModule } from '@angular/material/snack-bar';
                   <button
                     mat-menu-item
                     [attr.aria-label]="'View form: ' + element.title"
+                    (click)="openViewFormDialog(element)"
                   >
                     <mat-icon aria-hidden="true">visibility</mat-icon> View
                   </button>
@@ -175,6 +178,7 @@ import { MatSnackBar, MatSnackBarModule } from '@angular/material/snack-bar';
                     mat-menu-item
                     class="text-red-500"
                     [attr.aria-label]="'Delete form: ' + element.title"
+                    (click)="deleteClientForm(element)"
                   >
                     <mat-icon color="warn" aria-hidden="true">delete</mat-icon>
                     Delete
@@ -325,6 +329,13 @@ import { MatSnackBar, MatSnackBarModule } from '@angular/material/snack-bar';
                 <mat-menu #internalRowMenu="matMenu">
                   <button
                     mat-menu-item
+                    [attr.aria-label]="'View form: ' + element.title"
+                    (click)="openViewFormDialog(element)"
+                  >
+                    <mat-icon aria-hidden="true">visibility</mat-icon> View
+                  </button>
+                  <button
+                    mat-menu-item
                     [attr.aria-label]="'Edit form: ' + element.title"
                   >
                     <mat-icon aria-hidden="true">edit</mat-icon> Edit
@@ -334,6 +345,7 @@ import { MatSnackBar, MatSnackBarModule } from '@angular/material/snack-bar';
                     mat-menu-item
                     class="text-red-500"
                     [attr.aria-label]="'Delete form: ' + element.title"
+                    (click)="deleteInternalForm(element)"
                   >
                     <mat-icon color="warn" aria-hidden="true">delete</mat-icon>
                     Delete
@@ -423,6 +435,29 @@ export class PatientFormsComponent implements AfterViewInit {
     this.clientDataSource.filter = (event.target as HTMLInputElement).value
       .trim()
       .toLowerCase();
+  }
+
+  openViewFormDialog(item: FormItem) {
+    this.dialog.open(PatientFormViewDialogComponent, {
+      width: '700px',
+      data: item
+    });
+  }
+
+  deleteClientForm(item: FormItem) {
+    if (confirm(`Are you sure you want to delete the form: "${item.title}"?`)) {
+      this.clientForms = this.clientForms.filter(f => f.id !== item.id);
+      this.clientDataSource.data = this.clientForms;
+      this.snackBar.open('Form deleted', 'Close', { duration: 3000 });
+    }
+  }
+
+  deleteInternalForm(item: FormItem) {
+    if (confirm(`Are you sure you want to delete the form: "${item.title}"?`)) {
+      this.internalForms = this.internalForms.filter(f => f.id !== item.id);
+      this.internalDataSource.data = this.internalForms;
+      this.snackBar.open('Internal form deleted', 'Close', { duration: 3000 });
+    }
   }
 
   applyInternalFilter(event: Event) {

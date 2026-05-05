@@ -180,6 +180,7 @@ import { MatSnackBar, MatSnackBarModule } from '@angular/material/snack-bar';
                 <button
                   mat-menu-item
                   [attr.aria-label]="'Edit reminder: ' + element.name"
+                  (click)="openEditReminderDialog(element)"
                 >
                   <mat-icon aria-hidden="true">edit</mat-icon> Edit
                 </button>
@@ -188,6 +189,7 @@ import { MatSnackBar, MatSnackBarModule } from '@angular/material/snack-bar';
                   mat-menu-item
                   class="text-red-500"
                   [attr.aria-label]="'Delete reminder: ' + element.name"
+                  (click)="deleteReminder(element)"
                 >
                   <mat-icon color="warn" aria-hidden="true">delete</mat-icon>
                   Delete
@@ -264,6 +266,32 @@ export class PatientRemindersComponent implements AfterViewInit {
     this.dataSource.filter = this.dataSource.filter || ' ';
     if (!this.showCompleted && this.dataSource.filter === ' ') {
       this.dataSource.filter = '';
+    }
+  }
+
+  openEditReminderDialog(item: ReminderItem) {
+    const dialogRef = this.dialog.open(PatientReminderDialogComponent, {
+      width: '600px',
+      data: item
+    });
+
+    dialogRef.afterClosed().subscribe(result => {
+      if (result) {
+        const index = this.reminders.findIndex(r => r.id === item.id);
+        if (index !== -1) {
+          this.reminders[index] = result;
+          this.dataSource.data = [...this.reminders];
+          this.snackBar.open('Reminder updated successfully', 'Close', { duration: 3000 });
+        }
+      }
+    });
+  }
+
+  deleteReminder(item: ReminderItem) {
+    if (confirm(`Are you sure you want to delete the reminder for ${item.name}?`)) {
+      this.reminders = this.reminders.filter(r => r.id !== item.id);
+      this.dataSource.data = this.reminders;
+      this.snackBar.open('Reminder deleted', 'Close', { duration: 3000 });
     }
   }
 

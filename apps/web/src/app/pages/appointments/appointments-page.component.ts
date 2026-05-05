@@ -12,6 +12,7 @@ import { MatToolbarModule } from '@angular/material/toolbar';
 import { MatNativeDateModule } from '@angular/material/core';
 import { AppointmentsService } from '../../services/appointments.service';
 import { AppointmentDialogComponent } from './appointment-dialog.component';
+import { AppointmentSettingsDialogComponent } from './appointment-settings-dialog.component';
 import { Appointment } from '@vet-clinic/shared-types';
 import {
   BehaviorSubject,
@@ -68,6 +69,9 @@ interface CalendarDay {
           <mat-icon class="mr-2" aria-hidden="true">add</mat-icon>
           <span class="hidden sm:inline">Book Appointment</span>
           <span class="sm:hidden">Book</span>
+        </button>
+        <button mat-icon-button class="ml-2" (click)="openSettings()" aria-label="Appointment Settings">
+          <mat-icon aria-hidden="true">settings</mat-icon>
         </button>
       </div>
     </mat-toolbar>
@@ -370,6 +374,13 @@ export class AppointmentsPageComponent implements OnInit, OnDestroy {
 
     dialogRef.afterClosed().subscribe((result) => {
       if (result) this.refresh();
+    });
+  }
+
+  openSettings(): void {
+    this.dialog.open(AppointmentSettingsDialogComponent, {
+      width: '550px',
+      maxWidth: '95vw',
     });
   }
 

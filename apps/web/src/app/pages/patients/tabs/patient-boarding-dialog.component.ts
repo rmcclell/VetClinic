@@ -29,7 +29,7 @@ import { MatNativeDateModule } from '@angular/material/core';
     MatNativeDateModule,
   ],
   template: `
-    <h2 mat-dialog-title>Add Boarding Reservation</h2>
+    <h2 mat-dialog-title>{{ data?.id ? 'Edit' : 'Add' }} Boarding Reservation</h2>
     <mat-dialog-content>
       <form [formGroup]="boardingForm" class="flex flex-col gap-4 mt-2">
         <div class="flex gap-4">
@@ -100,18 +100,18 @@ export class PatientBoardingDialogComponent {
   public data = inject(MAT_DIALOG_DATA);
 
   boardingForm: FormGroup = this.fb.group({
-    checkIn: [new Date(), Validators.required],
-    checkOut: [new Date(), Validators.required],
-    client: ['', Validators.required],
-    resource: ['', Validators.required],
-    status: ['Reserved', Validators.required],
-    details: ['', Validators.required],
-    notes: [''],
+    checkIn: [this.data?.checkIn ? new Date(this.data.checkIn) : new Date(), Validators.required],
+    checkOut: [this.data?.checkOut ? new Date(this.data.checkOut) : new Date(), Validators.required],
+    client: [this.data?.client || '', Validators.required],
+    resource: [this.data?.resource || '', Validators.required],
+    status: [this.data?.status || 'Reserved', Validators.required],
+    details: [this.data?.details || '', Validators.required],
+    notes: [this.data?.notes || ''],
   });
 
   onSubmit() {
     if (this.boardingForm.valid) {
-      this.dialogRef.close(this.boardingForm.value);
+      this.dialogRef.close({ ...this.data, ...this.boardingForm.value });
     }
   }
 }

@@ -210,6 +210,7 @@ import { MatSnackBar, MatSnackBarModule } from '@angular/material/snack-bar';
                 <button
                   mat-menu-item
                   [attr.aria-label]="'Edit reservation for ' + element.resource"
+                  (click)="openEditBoardingDialog(element)"
                 >
                   <mat-icon aria-hidden="true">edit</mat-icon> Edit
                 </button>
@@ -220,6 +221,7 @@ import { MatSnackBar, MatSnackBarModule } from '@angular/material/snack-bar';
                   [attr.aria-label]="
                     'Delete reservation for ' + element.resource
                   "
+                  (click)="deleteBoarding(element)"
                 >
                   <mat-icon color="warn" aria-hidden="true">delete</mat-icon>
                   Delete
@@ -303,6 +305,32 @@ export class PatientBoardingComponent implements AfterViewInit {
   applyFilter(event: Event) {
     const filterValue = (event.target as HTMLInputElement).value;
     this.dataSource.filter = filterValue.trim().toLowerCase();
+  }
+
+  openEditBoardingDialog(item: BoardingReservation) {
+    const dialogRef = this.dialog.open(PatientBoardingDialogComponent, {
+      width: '600px',
+      data: item
+    });
+
+    dialogRef.afterClosed().subscribe(result => {
+      if (result) {
+        const index = this.boardingReservations.findIndex(b => b.id === item.id);
+        if (index !== -1) {
+          this.boardingReservations[index] = result;
+          this.dataSource.data = [...this.boardingReservations];
+          this.snackBar.open('Boarding reservation updated successfully', 'Close', { duration: 3000 });
+        }
+      }
+    });
+  }
+
+  deleteBoarding(item: BoardingReservation) {
+    if (confirm(`Are you sure you want to delete the boarding reservation for ${item.resource}?`)) {
+      this.boardingReservations = this.boardingReservations.filter(b => b.id !== item.id);
+      this.dataSource.data = this.boardingReservations;
+      this.snackBar.open('Boarding reservation deleted', 'Close', { duration: 3000 });
+    }
   }
 
   openAddBoardingDialog() {

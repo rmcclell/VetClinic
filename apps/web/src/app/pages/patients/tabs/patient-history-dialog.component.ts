@@ -29,7 +29,7 @@ import { MatNativeDateModule } from '@angular/material/core';
     MatNativeDateModule,
   ],
   template: `
-    <h2 mat-dialog-title>Add Medical History</h2>
+    <h2 mat-dialog-title>{{ data?.id ? 'Edit' : 'Add' }} Medical History</h2>
     <mat-dialog-content>
       <form [formGroup]="historyForm" class="flex flex-col gap-4 mt-2">
         <mat-form-field appearance="outline">
@@ -90,22 +90,26 @@ export class PatientHistoryDialogComponent {
   public data = inject(MAT_DIALOG_DATA);
 
   historyForm: FormGroup = this.fb.group({
-    type: ['', Validators.required],
-    status: ['', Validators.required],
-    date: [new Date(), Validators.required],
-    details: ['', Validators.required],
-    doctor: ['', Validators.required],
+    type: [this.data?.type || '', Validators.required],
+    status: [this.data?.status || '', Validators.required],
+    date: [this.data?.date ? new Date(this.data.date) : new Date(), Validators.required],
+    details: [this.data?.details || '', Validators.required],
+    doctor: [this.data?.doctor?.name || '', Validators.required],
   });
 
   onSubmit() {
     if (this.historyForm.valid) {
       const formValue = this.historyForm.value;
       const result = {
+        ...this.data,
         type: formValue.type,
         status: formValue.status,
         date: formValue.date,
         details: formValue.details,
-        doctor: { name: formValue.doctor, initials: formValue.doctor.substring(0, 2).toUpperCase() }
+        doctor: { 
+          name: formValue.doctor, 
+          initials: formValue.doctor.substring(0, 2).toUpperCase() 
+        }
       };
       this.dialogRef.close(result);
     }

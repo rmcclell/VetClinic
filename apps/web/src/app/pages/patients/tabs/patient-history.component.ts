@@ -16,6 +16,7 @@ import { DATE_FORMAT } from '../../../core/date-format.token';
 import { MatDialog, MatDialogModule } from '@angular/material/dialog';
 import { PatientHistoryDialogComponent } from './patient-history-dialog.component';
 import { PatientHistoryPrintDialogComponent } from './patient-history-print-dialog.component';
+import { PatientHistoryViewDialogComponent } from './patient-history-view-dialog.component';
 import { PatientsService } from '../../../services/patients.service';
 import { ActivatedRoute } from '@angular/router';
 import { MatSnackBar, MatSnackBarModule } from '@angular/material/snack-bar';
@@ -206,12 +207,14 @@ import { MatSnackBar, MatSnackBarModule } from '@angular/material/snack-bar';
                 <button
                   mat-menu-item
                   [attr.aria-label]="'View record: ' + element.details"
+                  (click)="openViewHistoryDialog(element)"
                   >
                   <mat-icon aria-hidden="true">visibility</mat-icon> View
                 </button>
                 <button
                   mat-menu-item
                   [attr.aria-label]="'Edit record: ' + element.details"
+                  (click)="openEditHistoryDialog(element)"
                   >
                   <mat-icon aria-hidden="true">edit</mat-icon> Edit
                 </button>
@@ -220,6 +223,7 @@ import { MatSnackBar, MatSnackBarModule } from '@angular/material/snack-bar';
                   mat-menu-item
                   class="text-red-500"
                   [attr.aria-label]="'Delete record: ' + element.details"
+                  (click)="deleteHistoryEntry(element)"
                   >
                   <mat-icon color="warn" aria-hidden="true">delete</mat-icon>
                   Delete
@@ -321,6 +325,19 @@ export class PatientHistoryComponent implements AfterViewInit {
     this.dataSource.filter = filterValue.trim().toLowerCase();
   }
 
+  openViewHistoryDialog(item: MedicalHistoryItem) {
+    const dialogRef = this.dialog.open(PatientHistoryViewDialogComponent, {
+      width: '650px',
+      data: item
+    });
+
+    dialogRef.afterClosed().subscribe(result => {
+      if (result === 'EDIT') {
+        this.openEditHistoryDialog(item);
+      }
+    });
+  }
+
   openAddHistoryDialog() {
     const patientId = Number(this.route.parent?.snapshot.paramMap.get('id'));
     const dialogRef = this.dialog.open(PatientHistoryDialogComponent, {
@@ -352,6 +369,33 @@ export class PatientHistoryComponent implements AfterViewInit {
         }
       }
     });
+  }
+
+  openEditHistoryDialog(item: MedicalHistoryItem) {
+    const dialogRef = this.dialog.open(PatientHistoryDialogComponent, {
+      width: '600px',
+      data: item
+    });
+
+    dialogRef.afterClosed().subscribe(result => {
+      if (result) {
+        // Update local data for demo
+        const index = this.medicalHistory.findIndex(h => h.id === item.id);
+        if (index !== -1) {
+          this.medicalHistory[index] = result;
+          this.dataSource.data = [...this.medicalHistory];
+          this.snackBar.open('Medical history updated successfully', 'Close', { duration: 3000 });
+        }
+      }
+    });
+  }
+
+  deleteHistoryEntry(item: MedicalHistoryItem) {
+    if (confirm(`Are you sure you want to delete this entry: "${item.details}"?`)) {
+      this.medicalHistory = this.medicalHistory.filter(h => h.id !== item.id);
+      this.dataSource.data = this.medicalHistory;
+      this.snackBar.open('Medical history entry deleted', 'Close', { duration: 3000 });
+    }
   }
 
   openPrintHistoryDialog() {

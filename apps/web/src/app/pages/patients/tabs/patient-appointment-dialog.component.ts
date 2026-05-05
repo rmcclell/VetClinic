@@ -29,7 +29,7 @@ import { MatNativeDateModule } from '@angular/material/core';
     MatNativeDateModule,
   ],
   template: `
-    <h2 mat-dialog-title>Add Appointment</h2>
+    <h2 mat-dialog-title>{{ data?.id ? 'Edit' : 'Add' }} Appointment</h2>
     <mat-dialog-content>
       <form [formGroup]="appointmentForm" class="flex flex-col gap-4 mt-2">
         <div class="flex gap-4">
@@ -92,17 +92,17 @@ export class PatientAppointmentDialogComponent {
   public data = inject(MAT_DIALOG_DATA);
 
   appointmentForm: FormGroup = this.fb.group({
-    date: [new Date(), Validators.required],
-    time: ['', Validators.required],
-    client: ['', Validators.required],
-    type: ['', Validators.required],
-    provider: ['', Validators.required],
-    status: ['Upcoming', Validators.required],
+    date: [this.data?.date ? new Date(this.data.date) : new Date(), Validators.required],
+    time: [this.data?.time || '', Validators.required],
+    client: [this.data?.client || '', Validators.required],
+    type: [this.data?.type || '', Validators.required],
+    provider: [this.data?.provider || '', Validators.required],
+    status: [this.data?.status || 'Upcoming', Validators.required],
   });
 
   onSubmit() {
     if (this.appointmentForm.valid) {
-      this.dialogRef.close(this.appointmentForm.value);
+      this.dialogRef.close({ ...this.data, ...this.appointmentForm.value });
     }
   }
 }

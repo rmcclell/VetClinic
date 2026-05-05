@@ -199,14 +199,14 @@ import { MatSnackBar, MatSnackBarModule } from '@angular/material/snack-bar';
                 <mat-icon aria-hidden="true">more_vert</mat-icon>
               </button>
               <mat-menu #rowMenu="matMenu">
-                <button mat-menu-item>
+                <button mat-menu-item (click)="openEditAppointmentDialog(element)">
                   <mat-icon aria-hidden="true">edit</mat-icon> Edit
                 </button>
                 <button mat-menu-item>
                   <mat-icon aria-hidden="true">cancel</mat-icon> Cancel
                 </button>
                 <mat-divider></mat-divider>
-                <button mat-menu-item class="text-red-500">
+                <button mat-menu-item class="text-red-500" (click)="deleteAppointment(element)">
                   <mat-icon color="warn" aria-hidden="true">delete</mat-icon>
                   Delete
                 </button>
@@ -342,6 +342,32 @@ export class PatientAppointmentsComponent implements AfterViewInit {
   applyFilter(event: Event) {
     const filterValue = (event.target as HTMLInputElement).value;
     this.dataSource.filter = filterValue.trim().toLowerCase();
+  }
+
+  openEditAppointmentDialog(item: AppointmentHistoryItem) {
+    const dialogRef = this.dialog.open(PatientAppointmentDialogComponent, {
+      width: '600px',
+      data: item
+    });
+
+    dialogRef.afterClosed().subscribe(result => {
+      if (result) {
+        const index = this.appointmentHistory.findIndex(a => a.id === item.id);
+        if (index !== -1) {
+          this.appointmentHistory[index] = result;
+          this.dataSource.data = [...this.appointmentHistory];
+          this.snackBar.open('Appointment updated successfully', 'Close', { duration: 3000 });
+        }
+      }
+    });
+  }
+
+  deleteAppointment(item: AppointmentHistoryItem) {
+    if (confirm(`Are you sure you want to delete the appointment for ${item.date.toLocaleDateString()}?`)) {
+      this.appointmentHistory = this.appointmentHistory.filter(a => a.id !== item.id);
+      this.dataSource.data = this.appointmentHistory;
+      this.snackBar.open('Appointment deleted', 'Close', { duration: 3000 });
+    }
   }
 
   openAddAppointmentDialog() {

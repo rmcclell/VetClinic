@@ -29,7 +29,7 @@ import { MatNativeDateModule } from '@angular/material/core';
     MatNativeDateModule,
   ],
   template: `
-    <h2 mat-dialog-title>Add Prescription</h2>
+    <h2 mat-dialog-title>{{ data?.id ? 'Edit' : 'Add' }} Prescription</h2>
     <mat-dialog-content>
       <form [formGroup]="prescriptionForm" class="flex flex-col gap-4 mt-2">
         <mat-form-field appearance="outline">
@@ -104,19 +104,19 @@ export class PatientPrescriptionDialogComponent {
   public data = inject(MAT_DIALOG_DATA);
 
   prescriptionForm: FormGroup = this.fb.group({
-    name: ['', Validators.required],
-    quantity: ['', Validators.required],
-    type: ['', Validators.required],
-    creationDate: [new Date(), Validators.required],
-    validThru: [new Date(), Validators.required],
-    refillCount: [0, Validators.required],
-    lastRefill: [new Date(), Validators.required],
-    directions: ['', Validators.required],
+    name: [this.data?.name || '', Validators.required],
+    quantity: [this.data?.quantity || '', Validators.required],
+    type: [this.data?.type || '', Validators.required],
+    creationDate: [this.data?.creationDate ? new Date(this.data.creationDate) : new Date(), Validators.required],
+    validThru: [this.data?.validThru ? new Date(this.data.validThru) : new Date(), Validators.required],
+    refillCount: [this.data?.refillCount || 0, Validators.required],
+    lastRefill: [this.data?.lastRefill ? new Date(this.data.lastRefill) : new Date(), Validators.required],
+    directions: [this.data?.directions || '', Validators.required],
   });
 
   onSubmit() {
     if (this.prescriptionForm.valid) {
-      this.dialogRef.close(this.prescriptionForm.value);
+      this.dialogRef.close({ ...this.data, ...this.prescriptionForm.value });
     }
   }
 }

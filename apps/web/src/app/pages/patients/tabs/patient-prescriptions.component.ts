@@ -179,6 +179,7 @@ import { MatSnackBar, MatSnackBarModule } from '@angular/material/snack-bar';
                 <button
                   mat-menu-item
                   [attr.aria-label]="'Edit ' + element.name"
+                  (click)="openEditPrescriptionDialog(element)"
                 >
                   <mat-icon aria-hidden="true">edit</mat-icon> Edit
                 </button>
@@ -193,6 +194,7 @@ import { MatSnackBar, MatSnackBarModule } from '@angular/material/snack-bar';
                   mat-menu-item
                   class="text-red-500"
                   [attr.aria-label]="'Delete ' + element.name"
+                  (click)="deletePrescription(element)"
                 >
                   <mat-icon color="warn" aria-hidden="true">delete</mat-icon>
                   Delete
@@ -288,6 +290,32 @@ export class PatientPrescriptionsComponent implements AfterViewInit {
   applyFilter(event: Event) {
     const filterValue = (event.target as HTMLInputElement).value;
     this.dataSource.filter = filterValue.trim().toLowerCase();
+  }
+
+  openEditPrescriptionDialog(item: PrescriptionItem) {
+    const dialogRef = this.dialog.open(PatientPrescriptionDialogComponent, {
+      width: '600px',
+      data: item
+    });
+
+    dialogRef.afterClosed().subscribe(result => {
+      if (result) {
+        const index = this.prescriptions.findIndex(p => p.id === item.id);
+        if (index !== -1) {
+          this.prescriptions[index] = result;
+          this.dataSource.data = [...this.prescriptions];
+          this.snackBar.open('Prescription record updated', 'Close', { duration: 3000 });
+        }
+      }
+    });
+  }
+
+  deletePrescription(item: PrescriptionItem) {
+    if (confirm(`Are you sure you want to delete the prescription for ${item.name}?`)) {
+      this.prescriptions = this.prescriptions.filter(p => p.id !== item.id);
+      this.dataSource.data = this.prescriptions;
+      this.snackBar.open('Prescription record deleted', 'Close', { duration: 3000 });
+    }
   }
 
   openAddPrescriptionDialog() {

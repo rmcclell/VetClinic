@@ -11,7 +11,9 @@ import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatDialog, MatDialogModule } from '@angular/material/dialog';
 import { inject } from '@angular/core';
 import { ExportInvoicesDialogComponent } from './export-invoices-dialog.component';
+import { CreateInvoiceDialogComponent } from './create-invoice-dialog.component';
 import { CurrencyPipe } from '@angular/common';
+import { MatSnackBar, MatSnackBarModule } from '@angular/material/snack-bar';
 
 interface Invoice {
   id: string;
@@ -37,6 +39,7 @@ interface Invoice {
     MatFormFieldModule,
     MatToolbarModule,
     MatDialogModule,
+    MatSnackBarModule,
   ],
   providers: [CurrencyPipe],
   template: `
@@ -88,6 +91,7 @@ interface Invoice {
           color="primary"
           class="h-10"
           aria-label="Create a new invoice"
+          (click)="openCreateInvoiceDialog()"
         >
           <mat-icon class="mr-2" aria-hidden="true">add</mat-icon>
           <span class="hidden sm:inline">New Invoice</span>
@@ -322,6 +326,7 @@ interface Invoice {
 export class InvoicesPageComponent {
   private dialog = inject(MatDialog);
   private currencyPipe = inject(CurrencyPipe);
+  private snackBar = inject(MatSnackBar);
 
   displayedColumns: string[] = [
     'invoiceNumber',
@@ -388,6 +393,39 @@ export class InvoicesPageComponent {
       status: 'Overdue',
     },
   ];
+
+  openCreateInvoiceDialog(): void {
+    const dialogRef = this.dialog.open(CreateInvoiceDialogComponent, {
+      width: '900px',
+      maxWidth: '95vw',
+      maxHeight: '95vh',
+    });
+
+    dialogRef.afterClosed().subscribe((result) => {
+      if (result) {
+        // Find the client name from the selected client
+        // In a real app, this would be handled by the backend
+        const newInvoice: Invoice = {
+          id: (this.invoices.length + 1).toString(),
+          invoiceNumber: result.invoiceNumber,
+          clientName: 'New Client', // Placeholder for demo
+          date: result.date.toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' }),
+          dueDate: result.dueDate.toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' }),
+          amount: result.totalAmount,
+          status: result.status,
+        };
+
+        this.invoices = [newInvoice, ...this.invoices];
+        
+        this.snackBar.open(`Invoice ${result.invoiceNumber} created successfully!`, 'Close', {
+          duration: 5000,
+          horizontalPosition: 'end',
+          verticalPosition: 'top',
+          panelClass: ['bg-emerald-600', 'text-white', 'font-bold']
+        });
+      }
+    });
+  }
 
   openExportDialog(): void {
     const dialogRef = this.dialog.open(ExportInvoicesDialogComponent, {

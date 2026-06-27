@@ -1,4 +1,5 @@
-import { Component } from '@angular/core';
+import { Component, OnInit, inject } from '@angular/core';
+import { Router } from '@angular/router';
 
 import { MatCardModule } from '@angular/material/card';
 import { MatButtonModule } from '@angular/material/button';
@@ -6,8 +7,10 @@ import { MatIconModule } from '@angular/material/icon';
 import { MatListModule } from '@angular/material/list';
 import { MatChipsModule } from '@angular/material/chips';
 import { MatDividerModule } from '@angular/material/divider';
-
 import { MatToolbarModule } from '@angular/material/toolbar';
+
+import { PatientsService } from '../../services/patients.service';
+import { Patient } from '@vet-clinic/shared-types';
 
 @Component({
   selector: 'app-dashboard',
@@ -145,56 +148,32 @@ import { MatToolbarModule } from '@angular/material/toolbar';
           <mat-card-title>Recent Patients</mat-card-title>
         </mat-card-header>
         <mat-list role="list">
-          <mat-list-item role="listitem" aria-label="Charlie, Golden Retriever, 3 years old">
-            <img
-              matListItemAvatar
-              src="https://ui-avatars.com/api/?name=Charlie&background=random"
-              alt="Charlie (Golden Retriever)"
-            />
-            <span matListItemTitle>Charlie</span>
-            <span matListItemLine>Golden Retriever • 3 yrs</span>
-            <button
-              mat-icon-button
-              matListItemMeta
-              aria-label="View Charlie's patient records"
-            >
-              <mat-icon aria-hidden="true">chevron_right</mat-icon>
-            </button>
-          </mat-list-item>
-          <mat-divider aria-hidden="true"></mat-divider>
-          <mat-list-item role="listitem" aria-label="Misty, Siamese Cat, 2 years old">
-            <img
-              matListItemAvatar
-              src="https://ui-avatars.com/api/?name=Misty&background=random"
-              alt="Misty (Siamese Cat)"
-            />
-            <span matListItemTitle>Misty</span>
-            <span matListItemLine>Siamese • 2 yrs</span>
-            <button
-              mat-icon-button
-              matListItemMeta
-              aria-label="View Misty's patient records"
-            >
-              <mat-icon aria-hidden="true">chevron_right</mat-icon>
-            </button>
-          </mat-list-item>
-          <mat-divider aria-hidden="true"></mat-divider>
-          <mat-list-item role="listitem" aria-label="Rocky, Bulldog, 5 years old">
-            <img
-              matListItemAvatar
-              src="https://ui-avatars.com/api/?name=Rocky&background=random"
-              alt="Rocky (Bulldog)"
-            />
-            <span matListItemTitle>Rocky</span>
-            <span matListItemLine>Bulldog • 5 yrs</span>
-            <button
-              mat-icon-button
-              matListItemMeta
-              aria-label="View Rocky's patient records"
-            >
-              <mat-icon aria-hidden="true">chevron_right</mat-icon>
-            </button>
-          </mat-list-item>
+          @for (patient of recentPatients; track patient.id) {
+            <mat-list-item role="listitem" [attr.aria-label]="patient.name + ', ' + (patient.breed || patient.species) + ', ' + getAge(patient.birthDate) + ' old'">
+              <img
+                matListItemAvatar
+                [src]="patient.photoUrl || 'https://ui-avatars.com/api/?name=' + patient.name + '&background=random'"
+                [alt]="patient.name + ' (' + (patient.breed || patient.species) + ')'"
+              />
+              <span matListItemTitle>{{ patient.name }}</span>
+              <span matListItemLine>{{ patient.breed || patient.species }} • {{ getAge(patient.birthDate) }}</span>
+              <button
+                mat-icon-button
+                matListItemMeta
+                (click)="viewPatient(patient.id)"
+                [attr.aria-label]="'View details for ' + patient.name"
+              >
+                <mat-icon aria-hidden="true">chevron_right</mat-icon>
+              </button>
+            </mat-list-item>
+            @if (!$last) {
+              <mat-divider aria-hidden="true"></mat-divider>
+            }
+          } @empty {
+            <mat-list-item>
+              <span matListItemTitle>No recent patients</span>
+            </mat-list-item>
+          }
         </mat-list>
       </mat-card>
     </div>
@@ -222,4 +201,32 @@ import { MatToolbarModule } from '@angular/material/toolbar';
     `,
   ],
 })
-export class DashboardComponent {}
+export class DashboardComponent implements OnInit {
+  private patientsService = inject(PatientsService);
+  private router = inject(Router);
+  recentPatients: Patient[] = [];
+
+  ngOnInit(): void {
+    this.patientsService.getPatients().subscribe(patients => {
+      this.recentPatients = [...patients]
+        .sort((a, b) => new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime())
+        .slice(0, 3);
+    });
+  }
+
+  viewPatient(id: number): void {
+    this.router.navigate(['/patients', id]);
+  }
+
+  getAge(birthDate: Date | null | string): string {
+    if (!birthDate) return 'Unknown age';
+    const birth = new Date(birthDate);
+    const today = new Date();
+    let age = today.getFullYear() - birth.getFullYear();
+    const m = today.getMonth() - birth.getMonth();
+    if (m < 0 || (m === 0 && today.getDate() < birth.getDate())) {
+      age--;
+    }
+    return age > 0 ? `${age} yrs` : '< 1 yr';
+  }
+}

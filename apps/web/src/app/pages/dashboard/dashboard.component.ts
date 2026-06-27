@@ -110,7 +110,7 @@ import { Patient } from '@vet-clinic/shared-types';
       <mat-card appearance="outlined" class="col-span-1 lg:col-span-2" aria-label="Today's Appointments">
         <mat-card-header class="flex justify-between items-center w-full">
           <mat-card-title>Today's Appointments</mat-card-title>
-          <button mat-button color="primary" aria-label="View all appointments">View All</button>
+          <button mat-button color="primary" aria-label="View all today's appointments" (click)="viewAppointments()">View All</button>
         </mat-card-header>
         <mat-list role="list">
           <mat-list-item role="listitem" aria-label="Bella – Vaccination at 9:00 AM, Confirmed">
@@ -212,6 +212,10 @@ export class DashboardComponent implements OnInit {
         .sort((a, b) => new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime())
         .slice(0, 3);
     });
+  }
+
+  viewAppointments(): void {
+    this.router.navigate(['/appointments', 'day']);
   }
 
   viewPatient(id: number): void {

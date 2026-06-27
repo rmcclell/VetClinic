@@ -116,8 +116,9 @@ import { MatSidenav } from '@angular/material/sidenav';
               </a>
               <a
                 mat-list-item
-                routerLink="/appointments"
+                routerLink="/appointments/day"
                 routerLinkActive="active-link"
+                [routerLinkActiveOptions]="{ paths: 'subset', queryParams: 'ignored', matrixParams: 'ignored', fragment: 'ignored' }"
                 class="mb-1"
                 (click)="closeSidenavOnMobile()"
               >

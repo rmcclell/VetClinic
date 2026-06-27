@@ -1,5 +1,6 @@
-import { Component, OnInit, inject, ViewChild, OnDestroy } from '@angular/core';
+import { Component, OnInit, inject, OnDestroy } from '@angular/core';
 import { CommonModule } from '@angular/common';
+import { ActivatedRoute, Router } from '@angular/router';
 import { MatCardModule } from '@angular/material/card';
 import { MatButtonModule } from '@angular/material/button';
 import { MatIconModule } from '@angular/material/icon';
@@ -247,6 +248,8 @@ interface CalendarDay {
 export class AppointmentsPageComponent implements OnInit, OnDestroy {
   private appointmentsService = inject(AppointmentsService);
   private dialog = inject(MatDialog);
+  private route = inject(ActivatedRoute);
+  private router = inject(Router);
   private sub = new Subscription();
 
   sidebarVisible = false;
@@ -315,6 +318,20 @@ export class AppointmentsPageComponent implements OnInit, OnDestroy {
 
   ngOnInit(): void {
     this.refresh();
+    // Initialise view mode from URL param
+    const VALID_MODES: ViewMode[] = ['day', 'week', 'month'];
+    const initial = this.route.snapshot.paramMap.get('viewMode') as ViewMode;
+    this.viewMode$.next(VALID_MODES.includes(initial) ? initial : 'day');
+
+    // Keep in sync when the user navigates with back/forward
+    this.sub.add(
+      this.route.paramMap.subscribe((params) => {
+        const mode = params.get('viewMode') as ViewMode;
+        if (VALID_MODES.includes(mode) && mode !== this.viewMode$.value) {
+          this.viewMode$.next(mode);
+        }
+      }),
+    );
   }
 
   ngOnDestroy(): void {
@@ -334,7 +351,7 @@ export class AppointmentsPageComponent implements OnInit, OnDestroy {
   }
 
   onViewModeChange(mode: ViewMode): void {
-    this.viewMode$.next(mode);
+    this.router.navigate(['/appointments', mode]);
   }
 
   navigate(delta: number): void {

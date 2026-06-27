@@ -196,8 +196,9 @@ export const appRoutes: Route[] = [
           },
         ],
       },
+      { path: 'appointments', redirectTo: 'appointments/day', pathMatch: 'full' },
       {
-        path: 'appointments',
+        path: 'appointments/:viewMode',
         loadComponent: () =>
           import('./pages/appointments/appointments-page.component').then(
             (m) => m.AppointmentsPageComponent,

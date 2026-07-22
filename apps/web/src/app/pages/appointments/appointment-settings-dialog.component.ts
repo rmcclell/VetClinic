@@ -34,7 +34,7 @@ import { MatCheckboxModule } from '@angular/material/checkbox';
   ],
   template: `
     <div class="flex flex-col h-full max-h-[90vh]">
-      <h2 mat-dialog-title class="flex items-center gap-3 m-0 py-6 px-8 border-b bg-surface">
+      <h2 mat-dialog-title class="flex items-center flex-row gap-3 border-b bg-surface">
         <div class="w-10 h-10 rounded-xl bg-indigo-100 text-indigo-700 flex items-center justify-center shadow-sm">
           <mat-icon aria-hidden="true">settings_applications</mat-icon>
         </div>
@@ -45,7 +45,7 @@ import { MatCheckboxModule } from '@angular/material/checkbox';
       </h2>
 
       <div mat-dialog-content class="p-8 pt-6 overflow-y-auto">
-        <form [formGroup]="settingsForm" class="flex flex-col gap-8">
+        <form [formGroup]="settingsForm" class="flex flex-col gap-2">
           
           <!-- Calendar Section -->
           <section>
@@ -54,7 +54,7 @@ import { MatCheckboxModule } from '@angular/material/checkbox';
               <span class="uppercase tracking-widest text-[10px]">Calendar Display</span>
             </div>
             
-            <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+            <div class="grid grid-cols-1 sm:grid-cols-2 gap-2">
               <mat-form-field appearance="outline" class="w-full" subscriptSizing="dynamic">
                 <mat-label>Start Hour</mat-label>
                 <mat-select formControlName="startHour">
@@ -84,7 +84,7 @@ import { MatCheckboxModule } from '@angular/material/checkbox';
               <span class="uppercase tracking-widest text-[10px]">Appointment Defaults</span>
             </div>
 
-            <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+            <div class="grid grid-cols-1 sm:grid-cols-2 gap-2">
               <mat-form-field appearance="outline" class="w-full" subscriptSizing="dynamic">
                 <mat-label>Default Duration</mat-label>
                 <mat-select formControlName="defaultDuration">
@@ -131,7 +131,7 @@ import { MatCheckboxModule } from '@angular/material/checkbox';
               <span class="uppercase tracking-widest text-[10px]">Notifications</span>
             </div>
             
-            <div class="flex flex-col gap-4">
+            <div class="flex flex-col gap-2">
               <mat-slide-toggle formControlName="emailReminders" color="primary">
                 Send automatic email reminders (24h before)
               </mat-slide-toggle>
@@ -144,7 +144,7 @@ import { MatCheckboxModule } from '@angular/material/checkbox';
         </form>
       </div>
 
-      <div mat-dialog-actions class="justify-end px-8 py-6 bg-surface-variant/30 border-t border-outline gap-3">
+      <div mat-dialog-actions class="justify-end px-8 py-6 bg-surface-variant/30 border-t border-outline gap-2">
         <button mat-button (click)="onCancel()" class="px-6 rounded-xl font-bold">Cancel</button>
         <button 
           mat-flat-button 

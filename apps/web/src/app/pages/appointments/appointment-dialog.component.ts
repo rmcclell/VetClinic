@@ -1,4 +1,4 @@
-﻿import { Component, OnInit, inject } from '@angular/core';
+import { Component, OnInit, inject } from '@angular/core';
 
 import {
   FormBuilder,
@@ -37,8 +37,8 @@ import { Appointment, Client, Patient } from '@vet-clinic/shared-types';
 ],
   template: `
     <h1 mat-dialog-title>{{ data ? 'Edit' : 'Book' }} Appointment</h1>
-    <div mat-dialog-content>
-      <form [formGroup]="appointmentForm" class="flex flex-col gap-4 mt-2">
+    <div mat-dialog-content class="max-h-[unset] overflow-y-auto">
+      <form [formGroup]="appointmentForm" class="flex flex-col gap-3">
         <mat-form-field appearance="outline">
           <mat-label>Client</mat-label>
           <mat-select
@@ -111,7 +111,7 @@ import { Appointment, Client, Patient } from '@vet-clinic/shared-types';
         </mat-form-field>
       </form>
     </div>
-    <div mat-dialog-actions class="justify-end p-4">
+    <div mat-dialog-actions class="justify-end">
       <button mat-button (click)="onCancel()" aria-label="Cancel and close dialog">Cancel</button>
       <button
         mat-raised-button

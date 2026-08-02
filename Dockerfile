@@ -13,7 +13,7 @@ WORKDIR /app
 # Copy only the files needed for npm install (maximises layer cache)
 COPY package.json package-lock.json ./
 
-RUN npm ci
+RUN npx -y npm@11.6.2 ci
 
 # ---------------------------------------------------------------------------
 # Stage 2: Build API + Web
@@ -58,7 +58,7 @@ COPY --from=build /app/node_modules/.prisma ./node_modules/.prisma
 COPY --from=build /app/node_modules/@prisma ./node_modules/@prisma
 
 # Install production dependencies from the generated package.json
-RUN if [ -f package.json ]; then npm ci --omit=dev 2>/dev/null || npm install --omit=dev 2>/dev/null || true; fi
+RUN if [ -f package.json ]; then npx -y npm@11.6.2 ci --omit=dev 2>/dev/null || npx -y npm@11.6.2 install --omit=dev 2>/dev/null || true; fi
 
 # Copy entrypoint
 COPY docker/entrypoint.sh /app/entrypoint.sh

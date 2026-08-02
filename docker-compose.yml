@@ -1,0 +1,59 @@
+# =============================================================================
+# VetClinic — Docker Compose
+# Full self-contained stack: PostgreSQL + App (API + Frontend)
+# =============================================================================
+#
+# Quick start:
+#   docker compose up -d
+#
+# First run with seed data:
+#   SEED_DB=true docker compose up -d
+#
+# Reset everything (wipe database):
+#   docker compose down -v
+#   SEED_DB=true docker compose up -d
+#
+
+services:
+  # ---------------------------------------------------------------------------
+  # PostgreSQL Database
+  # ---------------------------------------------------------------------------
+  db:
+    image: postgres:16-alpine
+    restart: unless-stopped
+    environment:
+      POSTGRES_USER: vetclinic
+      POSTGRES_PASSWORD: vetclinic
+      POSTGRES_DB: vetclinic
+    volumes:
+      - vetclinic-pgdata:/var/lib/postgresql/data
+    ports:
+      - "5432:5432"
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U vetclinic -d vetclinic"]
+      interval: 5s
+      timeout: 5s
+      retries: 10
+
+  # ---------------------------------------------------------------------------
+  # VetClinic Application (API + Frontend)
+  # ---------------------------------------------------------------------------
+  app:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    restart: unless-stopped
+    environment:
+      DATABASE_URL: "postgresql://vetclinic:vetclinic@db:5432/vetclinic?schema=public"
+      SEED_DB: "${SEED_DB:-false}"
+      NODE_ENV: production
+      PORT: "3000"
+    ports:
+      - "3000:3000"
+    depends_on:
+      db:
+        condition: service_healthy
+
+volumes:
+  vetclinic-pgdata:
+    driver: local

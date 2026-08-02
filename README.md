@@ -13,40 +13,96 @@ This is a web-based application to manage a mobile veterinary clinic, built with
 
 ## Prerequisites
 
-- **Node.js**: Ensure you have Node.js installed.
-- **NX**: This project uses [Nx](https://nx.dev) for monorepo management.
+### Docker (Recommended)
+
+- **Docker**: Install [Docker Desktop](https://www.docker.com/products/docker-desktop/) (includes Docker Compose)
+
+That's it! Docker handles everything else — Node.js, PostgreSQL, dependencies, builds.
+
+### Without Docker
+
+- **Node.js**: v22 or later
+- **PostgreSQL**: v16 or later (running locally or remotely)
+- **NX**: This project uses [Nx](https://nx.dev) for monorepo management
 
 ## Getting Started
 
-### 1. Install Dependencies
+### Option 1: Docker (Recommended) 🐳
+
+The entire application is self-contained in Docker. One command to start everything:
+
+```bash
+# Build and start the full stack (PostgreSQL + App)
+docker compose up -d --build
+
+# First run — seed the database with sample data
+SEED_DB=true docker compose up -d --build
+
+# On Windows PowerShell:
+$env:SEED_DB="true"; docker compose up -d --build
+```
+
+Once started:
+- **Application**: [http://localhost:3000](http://localhost:3000)
+- **API Docs (Swagger)**: [http://localhost:3000/api-docs](http://localhost:3000/api-docs)
+
+#### Docker Commands
+
+```bash
+# Start the stack
+docker compose up -d
+
+# Stop the stack (data is preserved)
+docker compose down
+
+# Stop and wipe all data
+docker compose down -v
+
+# View logs
+docker compose logs -f app
+
+# Rebuild after code changes
+docker compose up -d --build
+```
+
+### Option 2: Local Development (Without Docker)
+
+#### 1. Install Dependencies
 
 ```bash
 npm install
 ```
 
-### 2. Database Setup
+#### 2. Database Setup
 
-The project uses SQLite for the local database.
+The project uses PostgreSQL. Ensure you have a PostgreSQL instance running.
 
 ```bash
+# Copy the example environment file and configure your database connection
+cp .env.example .env
+# Edit .env with your PostgreSQL connection string
+
 # Generate Prisma Client
 npm run db:generate
 
-# Run migrations (initializes the dev.db file)
+# Run migrations
 npm run db:migrate
+
+# (Optional) Seed the database with sample data
+npm run db:seed
 ```
 
-### 3. Running the Application
+#### 3. Running the Application
 
 You can start both the backend and frontend simultaneously, or individually.
 
-#### Simultaneous Start
+##### Simultaneous Start
 
 ```bash
 npm start
 ```
 
-#### Individual Start
+##### Individual Start
 
 ```bash
 # Start the Backend (API) - Default: http://localhost:3000
@@ -184,9 +240,11 @@ This script uses Playwright to:
 - `api`: NestJS Backend.
 - `shared-types`: Shared TypeScript interfaces and DTOs.
 - `prisma`: Database schema and migrations.
+- `docker`: Docker entrypoint and related scripts.
 
 ## Technical Details
 
 - **Frontend**: Angular + Angular Material. Responsive design for mobile, tablet, and desktop.
 - **Backend**: NestJS for a structured, scalable API.
-- **Database**: Prisma ORM with SQLite (Relational integrity without overhead).
+- **Database**: Prisma ORM with PostgreSQL.
+- **Deployment**: Fully containerized with Docker Compose (PostgreSQL + App in a single `docker compose up`).

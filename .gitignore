@@ -43,6 +43,10 @@ test-results/
 nx-output.txt
 output.json
 
+# Database files (SQLite legacy)
+*.db
+*.db-journal
+
 # Prisma / Environment
 .env
 .env.local

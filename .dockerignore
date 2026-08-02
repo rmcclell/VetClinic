@@ -1,0 +1,44 @@
+# Dependencies (will be installed fresh in Docker)
+node_modules/
+
+# Build output
+dist/
+tmp/
+out-tsc/
+
+# Nx / Angular caches
+.nx/
+.angular/
+.cache/
+
+# Git
+.git/
+.github/
+
+# IDE
+.vscode/
+.idea/
+
+# SQLite (no longer used)
+*.db
+*.db-journal
+
+# Logs
+*.log
+npm-debug.log*
+
+# Test
+coverage/
+__screenshots__/
+.playwright/
+test-results/
+
+# Docs (not needed in production image)
+docs/screenshots/
+
+# Misc
+.env
+.env.local
+.env.*.local
+Thumbs.db
+.DS_Store

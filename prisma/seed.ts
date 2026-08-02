@@ -7,13 +7,58 @@ async function main() {
   console.log('Starting database seeding...');
 
   try {
-    // Clear existing data
+    // Clear existing data — order matters for PostgreSQL foreign key constraints
+    // Delete child tables first, then parent tables
+    await prisma.visit.deleteMany();
     await prisma.appointment.deleteMany();
     await prisma.patient.deleteMany();
     await prisma.client.deleteMany();
+    await prisma.vet.deleteMany();
     console.log('Cleared existing data.');
 
-    // Create clients with their pets and appointments using nested writes
+    // -----------------------------------------------------------------------
+    // Clinic Configuration
+    // -----------------------------------------------------------------------
+    await prisma.clinicConfig.upsert({
+      where: { id: 1 },
+      update: {},
+      create: {
+        id: 1,
+        name: 'Springfield Mobile Vet Clinic',
+        email: 'info@springfieldvet.com',
+        phone: '555-VET-0001',
+        address: '100 Main Street, Springfield, IL 62701',
+        units: 'imperial',
+        dateFormat: 'MM/dd/yyyy',
+        hoursOfOperation: 'Mon-Fri 8:00 AM - 6:00 PM, Sat 9:00 AM - 2:00 PM',
+        websiteUrl: 'https://springfieldvet.com',
+        taxRate: 0.0825,
+      },
+    });
+    console.log('Seeded Clinic Configuration.');
+
+    // -----------------------------------------------------------------------
+    // Veterinarians
+    // -----------------------------------------------------------------------
+    const vet1 = await prisma.vet.create({
+      data: {
+        name: 'Dr. Smith',
+        email: 'dr.smith@springfieldvet.com',
+      },
+    });
+
+    const vet2 = await prisma.vet.create({
+      data: {
+        name: 'Dr. Johnson',
+        email: 'dr.johnson@springfieldvet.com',
+      },
+    });
+    console.log('Seeded Veterinarians.');
+
+    // -----------------------------------------------------------------------
+    // Clients with their Pets (nested writes)
+    // -----------------------------------------------------------------------
+
     // Client 1: Sarah Johnson
     const client1 = await prisma.client.create({
       data: {
@@ -41,8 +86,6 @@ async function main() {
               preferredProvider: 'Dr. Smith',
               referralSource: 'Friend referral',
               notes: 'Very friendly, loves treats. Allergic to chicken.',
-              // We can even create appointments directly here if we want strictly nested structure
-              // but appointments relate to both client and pet, so clearer to do after or use variables
             },
             {
               name: 'Luna',
@@ -223,8 +266,9 @@ async function main() {
 
     console.log('Seeded Client and Patient Data.');
 
-    // Create sample appointments
-    // We can confidently access pets array because we used include: { pets: true }
+    // -----------------------------------------------------------------------
+    // Appointments
+    // -----------------------------------------------------------------------
     const tomorrow = new Date();
     tomorrow.setDate(tomorrow.getDate() + 1);
     tomorrow.setHours(10, 0, 0, 0);
@@ -233,11 +277,15 @@ async function main() {
     nextWeek.setDate(nextWeek.getDate() + 7);
     nextWeek.setHours(14, 0, 0, 0);
 
+    const dayAfterTomorrow = new Date();
+    dayAfterTomorrow.setDate(dayAfterTomorrow.getDate() + 2);
+    dayAfterTomorrow.setHours(11, 0, 0, 0);
+
     // Appointment for Sarah's first pet (Max)
     await prisma.appointment.create({
       data: {
         startTime: tomorrow,
-        endTime: new Date(tomorrow.getTime() + 30 * 60000), // 30 minutes later
+        endTime: new Date(tomorrow.getTime() + 30 * 60000),
         description: 'Annual checkup and vaccinations',
         status: 'Scheduled',
         client: { connect: { id: client1.id } },
@@ -249,7 +297,7 @@ async function main() {
     await prisma.appointment.create({
       data: {
         startTime: nextWeek,
-        endTime: new Date(nextWeek.getTime() + 45 * 60000), // 45 minutes later
+        endTime: new Date(nextWeek.getTime() + 45 * 60000),
         description: 'Follow-up examination',
         status: 'Scheduled',
         client: { connect: { id: client3.id } },
@@ -257,11 +305,99 @@ async function main() {
       },
     });
 
+    // Appointment for Michael's pet (Buddy)
+    await prisma.appointment.create({
+      data: {
+        startTime: dayAfterTomorrow,
+        endTime: new Date(dayAfterTomorrow.getTime() + 60 * 60000),
+        description: 'Dental cleaning',
+        status: 'Scheduled',
+        client: { connect: { id: client2.id } },
+        patient: { connect: { id: client2.pets[0].id } },
+      },
+    });
+
+    // Appointment for David's pet (Daisy)
+    await prisma.appointment.create({
+      data: {
+        startTime: new Date(nextWeek.getTime() + 2 * 60 * 60000),
+        endTime: new Date(nextWeek.getTime() + 2.5 * 60 * 60000),
+        description: 'Hip evaluation and X-rays',
+        status: 'Scheduled',
+        client: { connect: { id: client4.id } },
+        patient: { connect: { id: client4.pets[0].id } },
+      },
+    });
+
+    console.log('Seeded Appointments.');
+
+    // -----------------------------------------------------------------------
+    // Visits (Medical History)
+    // -----------------------------------------------------------------------
+    const lastMonth = new Date();
+    lastMonth.setMonth(lastMonth.getMonth() - 1);
+
+    const twoMonthsAgo = new Date();
+    twoMonthsAgo.setMonth(twoMonthsAgo.getMonth() - 2);
+
+    await prisma.visit.create({
+      data: {
+        date: lastMonth,
+        notes: 'Annual wellness exam. All vitals normal. Weight stable at 32.5 kg. Vaccinations updated (DHPP, Rabies). Heartworm test negative. Recommended continued monthly heartworm prevention.',
+        patient: { connect: { id: client1.pets[0].id } },
+        vet: { connect: { id: vet1.id } },
+      },
+    });
+
+    await prisma.visit.create({
+      data: {
+        date: twoMonthsAgo,
+        notes: 'Presented with decreased appetite and lethargy for 2 days. Physical exam unremarkable. Bloodwork within normal limits. Advised to monitor and return if symptoms persist.',
+        patient: { connect: { id: client1.pets[1].id } },
+        vet: { connect: { id: vet1.id } },
+      },
+    });
+
+    await prisma.visit.create({
+      data: {
+        date: lastMonth,
+        notes: 'Rescue intake exam. Overall good health. Slight dental tartar buildup — recommended dental cleaning in 3 months. Microchip registered. Started on flea/tick prevention.',
+        patient: { connect: { id: client2.pets[0].id } },
+        vet: { connect: { id: vet2.id } },
+      },
+    });
+
+    await prisma.visit.create({
+      data: {
+        date: twoMonthsAgo,
+        notes: 'Senior wellness exam. Weight 5.5 kg, slightly above ideal. Mild dental disease grade 2. Blood panel shows early kidney changes — started on renal support diet. Follow-up in 6 months.',
+        patient: { connect: { id: client3.pets[0].id } },
+        vet: { connect: { id: vet2.id } },
+      },
+    });
+
+    await prisma.visit.create({
+      data: {
+        date: lastMonth,
+        notes: 'Annual farm visit. All animals examined. Daisy in excellent condition. Rocky showing mild hip stiffness — started on joint supplement. Snowball and Clucky healthy.',
+        patient: { connect: { id: client4.pets[0].id } },
+        vet: { connect: { id: vet1.id } },
+      },
+    });
+
+    console.log('Seeded Visits (Medical History).');
+
+    // -----------------------------------------------------------------------
+    // Summary
+    // -----------------------------------------------------------------------
     console.log('✅ Database seeding completed successfully!');
     console.log('\nSummary:');
+    console.log('- 1 clinic configuration');
+    console.log('- 2 veterinarians created');
     console.log('- 4 clients created');
-    console.log('- 10 patients created (connected via nested writes)');
-    console.log('- 2 appointments created');
+    console.log('- 10 patients created');
+    console.log('- 4 appointments created');
+    console.log('- 5 visits (medical history) created');
   } catch (e) {
     console.error('Error seeding database:', e);
     process.exit(1);

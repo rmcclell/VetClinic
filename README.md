@@ -21,7 +21,7 @@ That's it! Docker handles everything else — Node.js, PostgreSQL, dependencies,
 
 ### Without Docker
 
-- **Node.js**: v22 or later
+- **Node.js**: v24 or later
 - **PostgreSQL**: v16 or later (running locally or remotely)
 - **NX**: This project uses [Nx](https://nx.dev) for monorepo management
 

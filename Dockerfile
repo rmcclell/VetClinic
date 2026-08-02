@@ -6,19 +6,19 @@
 # ---------------------------------------------------------------------------
 # Stage 1: Install dependencies
 # ---------------------------------------------------------------------------
-FROM node:22-alpine AS deps
+FROM node:24-alpine AS deps
 
 WORKDIR /app
 
 # Copy only the files needed for npm install (maximises layer cache)
 COPY package.json package-lock.json ./
 
-RUN npx -y npm@11.6.2 ci
+RUN npm ci
 
 # ---------------------------------------------------------------------------
 # Stage 2: Build API + Web
 # ---------------------------------------------------------------------------
-FROM node:22-alpine AS build
+FROM node:24-alpine AS build
 
 WORKDIR /app
 
@@ -38,7 +38,7 @@ RUN npx nx build vet-clinic --configuration=production
 # ---------------------------------------------------------------------------
 # Stage 3: Production runtime
 # ---------------------------------------------------------------------------
-FROM node:22-alpine AS production
+FROM node:24-alpine AS production
 
 WORKDIR /app
 
@@ -58,7 +58,7 @@ COPY --from=build /app/node_modules/.prisma ./node_modules/.prisma
 COPY --from=build /app/node_modules/@prisma ./node_modules/@prisma
 
 # Install production dependencies from the generated package.json
-RUN if [ -f package.json ]; then npx -y npm@11.6.2 ci --omit=dev 2>/dev/null || npx -y npm@11.6.2 install --omit=dev 2>/dev/null || true; fi
+RUN if [ -f package.json ]; then npm ci --omit=dev 2>/dev/null || npm install --omit=dev 2>/dev/null || true; fi
 
 # Copy entrypoint
 COPY docker/entrypoint.sh /app/entrypoint.sh

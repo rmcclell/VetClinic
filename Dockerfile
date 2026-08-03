@@ -49,16 +49,16 @@ RUN apk add --no-cache openssl
 # Copy the built API (NestJS)
 COPY --from=build /app/dist/api ./
 
+# Copy package metadata and node_modules from build stage
+# (Ensures root package.json with prisma.seed config and full node_modules are present)
+COPY package.json package-lock.json ./
+COPY --from=build /app/node_modules ./node_modules
+
 # Copy the built Web (Angular) to a known path the API can serve
 COPY --from=build /app/dist/apps/web/browser ./public
 
-# Copy Prisma schema + migrations (needed for prisma migrate deploy)
+# Copy Prisma schema + migrations
 COPY --from=build /app/prisma ./prisma
-COPY --from=build /app/node_modules/.prisma ./node_modules/.prisma
-COPY --from=build /app/node_modules/@prisma ./node_modules/@prisma
-
-# Install production dependencies from the generated package.json
-RUN if [ -f package.json ]; then npm ci --omit=dev 2>/dev/null || npm install --omit=dev 2>/dev/null || true; fi
 
 # Copy entrypoint
 COPY docker/entrypoint.sh /app/entrypoint.sh

@@ -37,7 +37,7 @@ async function bootstrap() {
     // SPA fallback — serve index.html for any non-API, non-file route
     const express = app.getHttpAdapter().getInstance();
     const indexPath = join(publicPath, 'index.html');
-    express.get('*', (req: any, res: any, next: any) => {
+    express.get('{*path}', (req: any, res: any, next: any) => {
       // Skip API routes, Swagger, and requests with file extensions
       if (
         req.path.startsWith(`/${globalPrefix}`) ||

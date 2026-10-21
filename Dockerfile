@@ -46,13 +46,14 @@ WORKDIR /app
 # - openssl: required by Prisma for TLS connections
 RUN apk add --no-cache openssl
 
+# Copy package metadata
+COPY package.json package-lock.json ./
+
+# Install production dependencies (includes Prisma CLI & ts-node)
+RUN npm ci --omit=dev
+
 # Copy the built API (NestJS)
 COPY --from=build /app/dist/api ./
-
-# Copy package metadata and node_modules from build stage
-# (Ensures root package.json with prisma.seed config and full node_modules are present)
-COPY package.json package-lock.json ./
-COPY --from=build /app/node_modules ./node_modules
 
 # Copy the built Web (Angular) to a known path the API can serve
 COPY --from=build /app/dist/apps/web/browser ./public

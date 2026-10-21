@@ -29,41 +29,60 @@ That's it! Docker handles everything else — Node.js, PostgreSQL, dependencies,
 
 ### Option 1: Docker (Recommended) 🐳
 
-The entire application is self-contained in Docker. One command to start everything:
+The entire application (PostgreSQL database, NestJS backend API, and Angular frontend) is packaged as a self-contained Docker Compose stack.
 
+#### Prerequisites
+- [Docker Desktop](https://www.docker.com/products/docker-desktop/) installed and running.
+
+#### 1. Start the Stack
+
+**First Run (with database migrations & seed data):**
+
+- **macOS / Linux / Git Bash:**
+  ```bash
+  SEED_DB=true docker compose up -d --build
+  ```
+- **Windows PowerShell:**
+  ```powershell
+  $env:SEED_DB="true"; docker compose up -d --build
+  ```
+- **Windows Command Prompt (cmd.exe):**
+  ```cmd
+  set SEED_DB=true && docker compose up -d --build
+  ```
+
+**Subsequent Runs (data preserved in Docker volume):**
 ```bash
-# Build and start the full stack (PostgreSQL + App)
-docker compose up -d --build
-
-# First run — seed the database with sample data
-SEED_DB=true docker compose up -d --build
-
-# On Windows PowerShell:
-$env:SEED_DB="true"; docker compose up -d --build
-```
-
-Once started:
-- **Application**: [http://localhost:3000](http://localhost:3000)
-- **API Docs (Swagger)**: [http://localhost:3000/api-docs](http://localhost:3000/api-docs)
-
-#### Docker Commands
-
-```bash
-# Start the stack
 docker compose up -d
-
-# Stop the stack (data is preserved)
-docker compose down
-
-# Stop and wipe all data
-docker compose down -v
-
-# View logs
-docker compose logs -f app
-
-# Rebuild after code changes
-docker compose up -d --build
+# or using npm:
+npm run docker:up
 ```
+
+#### 2. Verify Startup & Access the Application
+
+Check the status and logs to ensure the database migrations and server initialization succeeded:
+```bash
+# Check container status
+docker compose ps
+
+# View application logs (press Ctrl+C to exit)
+docker compose logs -f app
+```
+
+Once running, navigate to:
+- **Web Application**: [http://localhost:3000](http://localhost:3000)
+- **API Swagger Documentation**: [http://localhost:3000/api-docs](http://localhost:3000/api-docs)
+- **PostgreSQL Database**: Accessible on `localhost:5432` (`user: vetclinic`, `password: vetclinic`, `database: vetclinic`)
+
+#### 3. Common Docker Operations
+
+| Task | Command | npm Shortcut |
+| :--- | :--- | :--- |
+| **Start stack** | `docker compose up -d` | `npm run docker:up` |
+| **Stop stack** (preserves data) | `docker compose stop` or `docker compose down` | `npm run docker:down` |
+| **View logs** | `docker compose logs -f app` | — |
+| **Rebuild after code changes** | `docker compose up -d --build` | `npm run docker:build` |
+| **Reset everything** (wipe database & re-seed) | `docker compose down -v && docker compose up -d --build` | `npm run docker:reset` |
 
 ### Option 2: Local Development (Without Docker)
 

@@ -228,6 +228,61 @@ The client details view provides a comprehensive overview of client records with
 | **Forms**           | ![Light](docs/screenshots/client_forms_add_light.png)      | ![Dark](docs/screenshots/client_forms_add_dark.png)      |
 | **Messaging**       | ![Light](docs/screenshots/client_messaging_add_light.png)  | ![Dark](docs/screenshots/client_messaging_add_dark.png)  |
 
+## Authentication & Role-Based Access Control
+
+The application uses **JWT-based authentication** with role-based access control (RBAC). All API endpoints are secured and require a valid JWT token. The Angular frontend handles login, token storage, and automatic token injection via an HTTP interceptor.
+
+### Login Page
+
+| Login Screen | Quick-Fill Role Selection |
+| ------------ | ------------------------- |
+| ![Login Page](docs/screenshots/auth_login_page.png) | ![Login Filled](docs/screenshots/auth_login_filled.png) |
+
+### Authenticated Dashboard
+
+| Full App Layout (Admin view with Settings) | Toolbar with User Info |
+| ------------------------------------------ | ---------------------- |
+| ![App Layout](docs/screenshots/auth_app_layout.png) | ![Dashboard Toolbar](docs/screenshots/auth_dashboard_toolbar.png) |
+
+### User Roles
+
+| Role | Label | Permissions |
+| :--- | :---- | :---------- |
+| `OFFICE_ADMIN` | Office Admin | Full access: all data, clinic settings, user management |
+| `DOCTOR` | Veterinarian | Clinical data: patients, appointments, medical history |
+| `TECH` | Vet Technician | Patient data read/write; no settings access |
+| `CLIENT` | Client | Client portal access (future feature) |
+
+### Development Test Accounts
+
+All accounts use password: **`Password123!`**
+
+| Role | Email |
+| :--- | :---- |
+| Office Admin | `admin@springfieldvet.com` |
+| Veterinarian | `dr.smith@springfieldvet.com` |
+| Veterinarian | `dr.johnson@springfieldvet.com` |
+| Vet Technician | `tech@springfieldvet.com` |
+| Client | `sarah.johnson@email.com` |
+
+> **Note:** The login page includes **Quick-Fill buttons** for each role to simplify local development and testing.
+
+### API Authentication (Swagger)
+
+The Swagger UI at `/api-docs` supports full JWT authentication:
+
+1. Call `POST /api/auth/login` with your email and password.
+2. Copy the `access_token` from the response.
+3. Click the **Authorize 🔓** button in Swagger and paste the token.
+4. All subsequent Swagger requests will include `Authorization: Bearer <token>`.
+
+```bash
+# Example login request
+curl -X POST http://localhost:3000/api/auth/login \
+  -H "Content-Type: application/json" \
+  -d '{"email": "admin@springfieldvet.com", "password": "Password123!"}'
+```
+
 ## Tools & Documentation
 
 - **Swagger UI (API Docs)**: [http://localhost:3000/api-docs](http://localhost:3000/api-docs)
@@ -266,4 +321,6 @@ This script uses Playwright to:
 - **Frontend**: Angular + Angular Material. Responsive design for mobile, tablet, and desktop.
 - **Backend**: NestJS for a structured, scalable API.
 - **Database**: Prisma ORM with PostgreSQL.
+- **Authentication**: Passport.js + JWT (RS256). Dual token extraction supports both HttpOnly cookies (browser) and `Authorization: Bearer` headers (Swagger / REST clients). Passwords hashed with bcrypt (12 rounds).
+- **Authorization**: Custom `RolesGuard` with `@Roles()` decorator enforces role-based access on all API controllers. Angular `authGuard` and `roleGuard` protect frontend routes.
 - **Deployment**: Fully containerized with Docker Compose (PostgreSQL + App in a single `docker compose up`).

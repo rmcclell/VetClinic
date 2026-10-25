@@ -48,6 +48,7 @@ output.json
 *.db-journal
 
 # Prisma / Environment
+.prisma/
 .env
 .env.local
 .env.development.local

@@ -124,3 +124,22 @@ export interface ClinicConfig {
 export type UpdateClinicConfigDto = Partial<ClinicConfig>
 
 export type UpdateAppointmentDto = Partial<CreateAppointmentDto>
+
+export type UserRole = 'DOCTOR' | 'TECH' | 'OFFICE_ADMIN' | 'CLIENT';
+
+export interface User {
+  id: number;
+  email: string;
+  firstName: string;
+  lastName: string;
+  role: UserRole;
+  active: boolean;
+  vetId?: number | null;
+  clientId?: number | null;
+}
+
+export interface AuthResponse {
+  accessToken: string;
+  user: User;
+}
+

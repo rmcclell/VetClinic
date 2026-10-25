@@ -8,21 +8,29 @@ import {
   Delete,
   ParseIntPipe,
   NotFoundException,
+  UseGuards,
 } from '@nestjs/common';
-import { ApiTags, ApiOperation, ApiResponse } from '@nestjs/swagger';
+import { ApiTags, ApiOperation, ApiResponse, ApiBearerAuth } from '@nestjs/swagger';
+import { Role } from '@prisma/client';
 import { ClientsService } from './clients.service';
 import {
   Client,
   CreateClientDto,
   UpdateClientDto,
 } from '@vet-clinic/shared-types';
+import { JwtAuthGuard } from '../auth/guards/jwt-auth.guard';
+import { RolesGuard } from '../auth/guards/roles.guard';
+import { Roles } from '../auth/decorators/roles.decorator';
 
 @ApiTags('clients')
+@ApiBearerAuth('JWT-auth')
+@UseGuards(JwtAuthGuard, RolesGuard)
 @Controller('clients')
 export class ClientsController {
   constructor(private readonly clientsService: ClientsService) {}
 
   @Get()
+  @Roles(Role.OFFICE_ADMIN, Role.DOCTOR, Role.TECH)
   @ApiOperation({ summary: 'Get all clients' })
   @ApiResponse({ status: 200, description: 'Return all clients.' })
   findAll(): Promise<Client[]> {
@@ -30,6 +38,7 @@ export class ClientsController {
   }
 
   @Get(':id')
+  @Roles(Role.OFFICE_ADMIN, Role.DOCTOR, Role.TECH, Role.CLIENT)
   @ApiOperation({ summary: 'Get client by id' })
   @ApiResponse({ status: 200, description: 'Return the client.' })
   @ApiResponse({ status: 404, description: 'Client not found.' })
@@ -42,6 +51,7 @@ export class ClientsController {
   }
 
   @Post()
+  @Roles(Role.OFFICE_ADMIN, Role.TECH)
   @ApiOperation({ summary: 'Create a new client' })
   @ApiResponse({
     status: 201,
@@ -52,6 +62,7 @@ export class ClientsController {
   }
 
   @Put(':id')
+  @Roles(Role.OFFICE_ADMIN, Role.TECH)
   @ApiOperation({ summary: 'Update a client' })
   @ApiResponse({
     status: 200,
@@ -65,11 +76,13 @@ export class ClientsController {
   }
 
   @Delete(':id')
-  @ApiOperation({ summary: 'Delete a client' })
+  @Roles(Role.OFFICE_ADMIN)
+  @ApiOperation({ summary: 'Delete a client (Admin only)' })
   @ApiResponse({
     status: 200,
     description: 'The client has been successfully deleted.',
   })
+  @ApiResponse({ status: 403, description: 'Forbidden: Requires OFFICE_ADMIN role.' })
   remove(@Param('id', ParseIntPipe) id: number): Promise<Client> {
     return this.clientsService.remove(id);
   }

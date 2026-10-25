@@ -13,6 +13,7 @@ import { MatCardModule } from '@angular/material/card';
 import { MatTooltipModule } from '@angular/material/tooltip';
 import { ThemeService } from '../services/theme.service';
 import { ConfigService } from '../services/config.service';
+import { AuthService } from '../services/auth.service';
 import { inject, ViewChild } from '@angular/core';
 import { MatDialog, MatDialogModule } from '@angular/material/dialog';
 import { UserSettingsDialogComponent } from './user-settings-dialog.component';
@@ -205,22 +206,24 @@ import { MatSidenav } from '@angular/material/sidenav';
                 >
                 <span matListItemTitle>Invoices</span>
               </a>
-              <mat-divider class="my-2" aria-hidden="true"></mat-divider>
-              <a
-                mat-list-item
-                routerLink="/settings"
-                routerLinkActive="active-link"
-                class="mb-1"
-                (click)="closeSidenavOnMobile()"
-              >
-                <mat-icon
-                  matListItemIcon
-                  fontSet="material-icons-outlined"
-                  aria-hidden="true"
-                  >settings</mat-icon
+              @if (authService.isAdmin()) {
+                <mat-divider class="my-2" aria-hidden="true"></mat-divider>
+                <a
+                  mat-list-item
+                  routerLink="/settings"
+                  routerLinkActive="active-link"
+                  class="mb-1"
+                  (click)="closeSidenavOnMobile()"
                 >
-                <span matListItemTitle>Clinic Settings</span>
-              </a>
+                  <mat-icon
+                    matListItemIcon
+                    fontSet="material-icons-outlined"
+                    aria-hidden="true"
+                    >settings</mat-icon
+                  >
+                  <span matListItemTitle>Clinic Settings</span>
+                </a>
+              }
             </mat-nav-list>
           </div>
 
@@ -303,29 +306,26 @@ import { MatSidenav } from '@angular/material/sidenav';
                 class="hidden sm:flex items-center gap-2 lg:gap-3 border-l pl-3 lg:pl-4 border-gray-200 dark:border-gray-700 h-8"
               >
                 <div class="text-right hidden sm:block leading-tight">
-                  <p
-                    class="text-sm font-medium m-0 text-gray-900 dark:text-gray-100"
-                  >
-                    Dr. Sarah Smith
+                  <p class="text-sm font-medium m-0 text-gray-900 dark:text-gray-100">
+                    {{ authService.currentUser()?.firstName }} {{ authService.currentUser()?.lastName }}
                   </p>
-                  <p
-                    class="text-xs opacity-80 m-0 text-gray-500 dark:text-gray-400"
-                  >
-                    Veterinarian
+                  <p class="text-xs opacity-80 m-0 text-gray-500 dark:text-gray-400">
+                    {{ roleLabelMap[authService.userRole() || ''] || authService.userRole() }}
                   </p>
                 </div>
                 <button
                   mat-mini-fab
                   color="secondary"
-                  aria-label="User profile: Sarah Smith"
+                  [attr.aria-label]="'User profile: ' + authService.currentUser()?.firstName"
                 >
-                  <span class="text-xs font-bold">SS</span>
+                  <span class="text-xs font-bold">{{ userInitials() }}</span>
                 </button>
                 <button
                   mat-icon-button
                   matTooltip="Log out of application"
                   aria-label="Log out of application"
                   class="hidden md:inline-flex"
+                  (click)="authService.logout()"
                 >
                   <mat-icon fontSet="material-icons-outlined" aria-hidden="true">logout</mat-icon>
                 </button>
@@ -378,10 +378,24 @@ import { MatSidenav } from '@angular/material/sidenav';
 export class MainLayoutComponent {
   public themeService = inject(ThemeService);
   public configService = inject(ConfigService);
+  public authService = inject(AuthService);
   private breakpointObserver = inject(BreakpointObserver);
   private dialog = inject(MatDialog);
 
   @ViewChild('sidenav') sidenav!: MatSidenav;
+
+  readonly roleLabelMap: Record<string, string> = {
+    DOCTOR: 'Veterinarian',
+    TECH: 'Vet Technician',
+    OFFICE_ADMIN: 'Office Admin',
+    CLIENT: 'Client',
+  };
+
+  userInitials() {
+    const user = this.authService.currentUser();
+    if (!user) return '?';
+    return `${user.firstName[0] ?? ''}${user.lastName[0] ?? ''}`.toUpperCase();
+  }
 
   isHandset$ = this.breakpointObserver.observe(Breakpoints.Handset).pipe(
     map((result) => result.matches),

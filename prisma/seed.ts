@@ -1,5 +1,6 @@
 /// <reference types="node" />
 import { PrismaClient } from '@prisma/client';
+import * as bcrypt from 'bcryptjs';
 
 const prisma = new PrismaClient();
 
@@ -9,6 +10,7 @@ async function main() {
   try {
     // Clear existing data — order matters for PostgreSQL foreign key constraints
     // Delete child tables first, then parent tables
+    await prisma.user.deleteMany();
     await prisma.visit.deleteMany();
     await prisma.appointment.deleteMany();
     await prisma.patient.deleteMany();
@@ -388,6 +390,72 @@ async function main() {
     console.log('Seeded Visits (Medical History).');
 
     // -----------------------------------------------------------------------
+    // Users & Roles (Authentication)
+    // -----------------------------------------------------------------------
+    const defaultPassword = 'Password123!';
+    const passwordHash = await bcrypt.hash(defaultPassword, 10);
+
+    // 1. Office Admin
+    await prisma.user.create({
+      data: {
+        email: 'admin@springfieldvet.com',
+        passwordHash,
+        firstName: 'Office',
+        lastName: 'Admin',
+        role: 'OFFICE_ADMIN',
+      },
+    });
+
+    // 2. Doctor (linked to Dr. Smith)
+    await prisma.user.create({
+      data: {
+        email: 'dr.smith@springfieldvet.com',
+        passwordHash,
+        firstName: 'Emily',
+        lastName: 'Smith',
+        role: 'DOCTOR',
+        vetId: vet1.id,
+      },
+    });
+
+    // 3. Doctor (linked to Dr. Johnson)
+    await prisma.user.create({
+      data: {
+        email: 'dr.johnson@springfieldvet.com',
+        passwordHash,
+        firstName: 'Robert',
+        lastName: 'Johnson',
+        role: 'DOCTOR',
+        vetId: vet2.id,
+      },
+    });
+
+    // 4. Tech
+    await prisma.user.create({
+      data: {
+        email: 'tech@springfieldvet.com',
+        passwordHash,
+        firstName: 'Alex',
+        lastName: 'Taylor',
+        role: 'TECH',
+      },
+    });
+
+    // 5. Client (linked to Sarah Johnson)
+    await prisma.user.create({
+      data: {
+        email: 'sarah.johnson@email.com',
+        passwordHash,
+        firstName: 'Sarah',
+        lastName: 'Johnson',
+        role: 'CLIENT',
+        clientId: client1.id,
+      },
+    });
+
+    console.log('Seeded Users for Authentication (Admin, Doctor, Tech, Client).');
+
+    // -----------------------------------------------------------------------
     // Summary
     // -----------------------------------------------------------------------
     console.log('✅ Database seeding completed successfully!');
@@ -398,6 +466,7 @@ async function main() {
     console.log('- 10 patients created');
     console.log('- 4 appointments created');
     console.log('- 5 visits (medical history) created');
+    console.log('- 5 auth users created (Admin, Doctors, Tech, Client)');
   } catch (e) {
     console.error('Error seeding database:', e);
     process.exit(1);

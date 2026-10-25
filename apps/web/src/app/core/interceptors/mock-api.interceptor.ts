@@ -8,18 +8,16 @@ import {
 } from '../mock-data/mock-data';
 
 export const mockApiInterceptor: HttpInterceptorFn = (req, next) => {
-  // Only intercept if we are in demo mode (e.g., not on localhost:3000)
-  // Or force it for testing
+  // Only intercept if we are in demo mode (e.g. GitHub Pages, not localhost)
   const isDemoMode =
-    !window.location.host.includes('localhost:4200') &&
-    !window.location.host.includes('127.0.0.1:4200');
+    !window.location.hostname.includes('localhost') &&
+    !window.location.hostname.includes('127.0.0.1');
 
   if (!req.url.startsWith('/api')) {
     return next(req);
   }
 
-  // To force demo mode locally for testing, uncomment the next line:
-  // const forceDemo = true;
+  // To force demo mode locally for testing, change to true
   const forceDemo = false;
 
   if (!isDemoMode && !forceDemo) {
@@ -30,8 +28,48 @@ export const mockApiInterceptor: HttpInterceptorFn = (req, next) => {
 
   let response: any;
 
+  // Handle Auth
+  if (req.url.endsWith('/api/auth/login') && req.method === 'POST') {
+    const body = req.body as any;
+    let role = 'DOCTOR';
+    let name = 'Emily Smith';
+    if (body?.email?.includes('admin')) {
+      role = 'OFFICE_ADMIN';
+      name = 'Office Admin';
+    } else if (body?.email?.includes('tech')) {
+      role = 'TECH';
+      name = 'Alex Taylor';
+    } else if (body?.email?.includes('client') || body?.email?.includes('sarah')) {
+      role = 'CLIENT';
+      name = 'Sarah Johnson';
+    }
+    const [firstName, ...rest] = name.split(' ');
+    response = {
+      accessToken: 'demo-jwt-token-' + role.toLowerCase(),
+      user: {
+        id: 1,
+        email: body?.email || 'dr.smith@springfieldvet.com',
+        firstName,
+        lastName: rest.join(' '),
+        role,
+        active: true,
+      },
+    };
+  } else if (req.url.endsWith('/api/auth/me') && req.method === 'GET') {
+    response = {
+      id: 1,
+      email: 'dr.smith@springfieldvet.com',
+      firstName: 'Emily',
+      lastName: 'Smith',
+      role: 'DOCTOR',
+      active: true,
+    };
+  } else if (req.url.endsWith('/api/auth/logout') && req.method === 'POST') {
+    response = { message: 'Logged out successfully' };
+  }
+
   // Handle Clients
-  if (req.url.endsWith('/api/clients') && req.method === 'GET') {
+  else if (req.url.endsWith('/api/clients') && req.method === 'GET') {
     response = MOCK_CLIENTS;
   } else if (req.url.match(/\/api\/clients\/\d+$/) && req.method === 'GET') {
     const id = parseInt(req.url.split('/').pop() || '0');
